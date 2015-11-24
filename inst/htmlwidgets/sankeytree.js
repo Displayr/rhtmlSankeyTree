@@ -100,13 +100,6 @@ HTMLWidgets.widget({
                               .attr("width", rectWidth)
                               .attr("height", rectHeight)
                               .style("fill", function(d) { return legendColor[d]; });
-                              
-          /*var w = viewerWidth*0.95;
-          var textPath = legendBox.append("path")
-                          .attr("id","myTextPath")
-                          .attr("d","M" + w + ",10 V" + (viewerHeight/3.0+rectHeight+10))
-                          .style("stroke","black")
-                          .style("stroke-width", "0.1%");*/
           
           var legendTxt = legendBox.selectAll("lg.text")
                           .data(txtIdx)
