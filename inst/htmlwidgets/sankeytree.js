@@ -77,10 +77,6 @@ HTMLWidgets.widget({
           var txtIdx = d3.range(0,legendText.length);
           var rectY = d3.range(0,(viewerHeight+1)/3.0, rectHeight);
           var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
-          console.log(viewerHeight);
-          console.log(txtHeight);
-          console.log(txtY);
-          console.log(txtIdx);
           
           var legendBox = baseSvg.append("g");
           var legendBorder = legendBox.append("rect")
@@ -118,11 +114,11 @@ HTMLWidgets.widget({
                           .append("text");
                           
           var legendTxtAttr = legendTxt
-                              .attr("x", "95%" )
+                              .attr("x", "94%" )
                               .attr("y", function(d) { return txtY[d]+10; })
                               .attr("dy", ".35em")
                               .text(function(d) { return legendText[d]; })
-                              .style("font-size","62.5%")
+                              .style("font-size",rectHeight*6+"px")
                               .style("text-align", "center")
                               .style("font-family", "sans-serif");
                               
