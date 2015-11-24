@@ -77,9 +77,7 @@ HTMLWidgets.widget({
           var txtIdx = d3.range(0,legendText.length);
           var rectX = d3.range(0,viewerWidth, rectWidth);
           var txtX = d3.range(0,viewerWidth+1, txtWidth);
-          console.log(viewerWidth);
-          console.log(txtWidth);
-          console.log(txtX);
+
           var legendRec = legendSvg.selectAll("g.rec")
                           .data(rectIdx)
                           .enter()
@@ -128,6 +126,7 @@ HTMLWidgets.widget({
             .append("div")
             .classed("svg-container-legend", true)
             .append("svg")
+            .attr("preserveAspectRatio","none")
             .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight*0.03)
             .classed("svg-content-responsive", true)
             .attr("width", "100%")
@@ -137,6 +136,7 @@ HTMLWidgets.widget({
             .append("div")
             .classed("svg-container-legend-text", true)
             .append("svg")
+            .attr("preserveAspectRatio","none")
             .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight*0.05)
             .classed("svg-content-responsive", true)
             .attr("width", "100%")
