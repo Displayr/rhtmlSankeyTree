@@ -67,6 +67,8 @@ HTMLWidgets.widget({
         var viewerHeight = el.getBoundingClientRect().height;
         
         function attachLegend(source){
+          // assumes two sets of data, color and text of the legend, has been passed on 
+          // as input from the R binding
           var legendColor = treeData.legendColor.reverse();
           var legendText = treeData.legendText.reverse();
           var padding = 10;
