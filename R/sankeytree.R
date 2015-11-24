@@ -16,7 +16,9 @@ sankeytree <- function(
   maxLabelLength = NULL,
   nodeHeight = NULL,
   tooltip = NULL,
-  width = NULL, height = NULL) {
+  legend = FALSE,
+  width = NULL, 
+  height = NULL) {
   
   # convert rpart data
   if(inherits(data,"rpart")){
@@ -45,6 +47,7 @@ sankeytree <- function(
       treeColors = treeColors,
       maxLabelLength = maxLabelLength,
       nodeHeight = nodeHeight,
+      legend = legend,
       tooltip = tooltip
     )
   )

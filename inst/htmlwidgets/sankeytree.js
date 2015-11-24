@@ -6,16 +6,6 @@ HTMLWidgets.widget({
 
   initialize: function(el, width, height) {
     
-    d3.select(el)
-            .append("div")
-            .classed("svg-container", true)
-            .append("svg")
-            .attr("preserveAspectRatio", "xMinYMin meet")
-            .attr("viewBox", "0 0 " + width + " " + height)
-            .classed("svg-content-responsive", true)
-            .attr("width", "100%")
-            .attr("height", "100%");
-
     return {  };
 
   },
@@ -72,16 +62,101 @@ HTMLWidgets.widget({
           }
         }
         
-        // define the baseSvg, attaching a class for styling and the zoomListener
-        var baseSvg = d3.select(el)
-            .select("div")
-            .select("svg");
-
-            
-
         // size of the diagram
         var viewerWidth = el.getBoundingClientRect().width;
         var viewerHeight = el.getBoundingClientRect().height;
+        
+        function attachLegend(source){
+          var legendColor = treeData.legendColor;
+          var legendText = treeData.legendText;
+          var padding = 10;
+          var rectHeight = "100%";
+          var rectWidth = viewerWidth/legendColor.length;
+          var txtWidth = viewerWidth/(legendText.length-1);
+          var rectIdx = d3.range(0,legendColor.length);
+          var txtIdx = d3.range(0,legendText.length);
+          var rectX = d3.range(0,viewerWidth, rectWidth);
+          var txtX = d3.range(0,viewerWidth+1, txtWidth);
+          console.log(viewerWidth);
+          console.log(txtWidth);
+          console.log(txtX);
+          var legendRec = legendSvg.selectAll("g.rec")
+                          .data(rectIdx)
+                          .enter()
+                          .append("rect");
+                          
+          var legendRecAttr = legendRec
+                              .attr("x", function(d) { return rectX[d]; })
+                              .attr("y", 5)
+                              .attr("width", rectWidth)
+                              .attr("height", rectHeight)
+                              .style("fill", function(d) { return legendColor[d]; });
+        
+          var legendTxt = legendTxtSvg.selectAll("text")
+                          .data(txtIdx)
+                          .enter()
+                          .append("text");
+                          
+          var legendTxtAttr = legendTxt
+                              .attr("x", function(d) { return txtX[d]; })
+                              .attr("y", "50%")
+                              .attr("text-anchor","middle")
+                              .text(function(d) { return legendText[d]; })
+                              .style("font-size", "62.5%")
+                              .style("font-family", "sans-serif");
+                              
+          legendTxtSvg.selectAll("text")
+                      .attr("text-anchor",function(d) {
+                        return d == legendText.length-1 ? "end": "middle";
+                      });
+          legendTxtSvg.select("text").attr("text-anchor","start");
+
+        }
+        // define the baseSvg, attaching a class for styling and the zoomListener
+        if (opts.legend) {
+          var baseSvg = d3.select(el)
+            .append("div")
+            .classed("svg-container", true)
+            .append("svg")
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight*0.92)
+            .classed("svg-content-responsive", true)
+            .attr("width", "100%")
+            .attr("height", "100%");
+            
+          var legendSvg = d3.select(el)
+            .append("div")
+            .classed("svg-container-legend", true)
+            .append("svg")
+            .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight*0.03)
+            .classed("svg-content-responsive", true)
+            .attr("width", "100%")
+            .attr("height", "100%");
+          
+          var legendTxtSvg = d3.select(el)
+            .append("div")
+            .classed("svg-container-legend-text", true)
+            .append("svg")
+            .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight*0.05)
+            .classed("svg-content-responsive", true)
+            .attr("width", "100%")
+            .attr("height", "100%");
+          
+          attachLegend();
+            
+        } else {
+          var baseSvg = d3.select(el)
+            .append("div")
+            .classed("svg-container", true)
+            .style("height", "100%")
+            .append("svg")
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
+            .classed("svg-content-responsive", true)
+            .attr("width", "100%")
+            .attr("height", "100%");
+        }
+
     
         var tree = d3.layout.tree()
             .size([viewerHeight, viewerWidth])
@@ -93,7 +168,7 @@ HTMLWidgets.widget({
                 return [d.y, d.x];
             })
             .source(function(d){
-              if(d.ystacky) return d
+              if(d.ystacky) return d;
               return d.source;
             });
     
