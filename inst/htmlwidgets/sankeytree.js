@@ -70,19 +70,27 @@ HTMLWidgets.widget({
           var legendColor = treeData.legendColor.reverse();
           var legendText = treeData.legendText.reverse();
           var padding = 10;
-          var rectWidth = "3%";
+          var rectWidth = "2.5%";
           var rectHeight = viewerHeight/3.0/(legendColor.length-1);
           var txtHeight = viewerHeight/3.0/(legendText.length-1);
-          var rectIdx = d3.range(0,legendColor.length);
-          var txtIdx = d3.range(0,legendText.length);
           var rectY = d3.range(0,(viewerHeight+1)/3.0, rectHeight);
           var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
+
           
-          var legendBox = baseSvg.append("g");
+          // change width and x position of the legend based on text length
+          var legendBoxWidth = 3.5;
+          legendText.forEach(function(d){
+            if (d.length > legendBoxWidth) {
+              legendBoxWidth = d.length;
+            }
+          });
+          legendBoxWidth = legendBoxWidth*2+1;
+          
+          
           var legendBorder = legendBox.append("rect")
-                              .attr("x", "90%")
-                              .attr("y", 10)
-                              .attr("width", "9%")
+                              .attr("x", (99-legendBoxWidth)+"%")
+                              .attr("y", "10px")
+                              .attr("width", legendBoxWidth+"%")
                               .attr("height", viewerHeight/3.0+rectHeight)
                               .style("stroke-width", "1px")
                               .style("stroke","black")
@@ -90,41 +98,34 @@ HTMLWidgets.widget({
                               .style("fill","transparent");
 
           var legendRec = legendBox.selectAll("g.rec")
-                          .data(rectIdx)
+                          .data(legendColor)
                           .enter()
                           .append("rect");
                           
           var legendRecAttr = legendRec
-                              .attr("x", "90%")
-                              .attr("y", function(d) { return rectY[d]+10; })
+                              .attr("x", (99-legendBoxWidth)+"%")
+                              .attr("y", function(d,i) { return rectY[i]+10+"px"; })
                               .attr("width", rectWidth)
                               .attr("height", rectHeight)
-                              .style("fill", function(d) { return legendColor[d]; });
-                              
-          /*var w = viewerWidth*0.95;
-          var textPath = legendBox.append("path")
-                          .attr("id","myTextPath")
-                          .attr("d","M" + w + ",10 V" + (viewerHeight/3.0+rectHeight+10))
-                          .style("stroke","black")
-                          .style("stroke-width", "0.1%");*/
+                              .style("fill", function(d) { return d; });
           
           var legendTxt = legendBox.selectAll("lg.text")
-                          .data(txtIdx)
+                          .data(legendText)
                           .enter()
-                          .append("text");
+                          .append("text");                      
                           
           var legendTxtAttr = legendTxt
-                              .attr("x", "94%" )
-                              .attr("y", function(d) { return txtY[d]+10; })
+                              .attr("x", (99-legendBoxWidth+4)+"%")
+                              .attr("y", function(d,i) { return txtY[i]+10+"px"; })
                               .attr("dy", ".35em")
-                              .text(function(d) { return legendText[d]; })
+                              .text(function(d) { return d; })
                               .style("font-size",rectHeight*6+"px")
                               .style("text-align", "center")
                               .style("font-family", "sans-serif");
                               
           legendBox.selectAll("text")
-                      .attr("dy",function(d) {
-                        return d == legendText.length-1 ? "0.0em": "0.35em";
+                      .attr("dy",function(d,i) {
+                        return i == legendText.length-1 ? "0.0em": "0.35em";
                       });
           legendBox.select("text").attr("dy","0.9em");
 
@@ -196,7 +197,7 @@ HTMLWidgets.widget({
     
         // TODO: Pan function, can be better implemented.
     
-        function pan(domNode, direction) {
+        /*function pan(domNode, direction) {
             var speed = panSpeed;
             if (panTimer) {
                 clearTimeout(panTimer);
@@ -219,19 +220,23 @@ HTMLWidgets.widget({
                     pan(domNode, speed, direction);
                 }, 50);
             }
-        }
+        }*/
     
         // Define the zoom function for the zoomable tree
     
         function zoom() {
             svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
+        
+        function zoomLegend() {
+            legendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + 1 + ")");
+        }
     
     
         // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
         var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
-    
-        function initiateDrag(d, domNode) {
+        var zoomListenerLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomLegend);
+        /*function initiateDrag(d, domNode) {
             draggingNode = d;
             d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
             d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
@@ -271,10 +276,9 @@ HTMLWidgets.widget({
             }).remove();
     
             dragStarted = null;
-        }
+        }*/
     
-        baseSvg
-            .call(zoomListener);
+        //baseSvg.call(zoomListener);
     
   /*  
         // Define the drag listeners for drag/drop behaviour of nodes.
@@ -432,7 +436,7 @@ HTMLWidgets.widget({
             y = -source.x0;
             x = x * scale + ( source[opts.name] !== root[opts.name] ?  viewerWidth / 2 : viewerWidth / 4 );
             y = y * scale + viewerHeight / 2;
-            d3.select('g').transition()
+            svgGroup.transition()
                 .duration(duration)
                 .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
             zoomListener.scale(scale);
@@ -482,13 +486,14 @@ HTMLWidgets.widget({
             newHeight = d3.max(levelWidth) * ( opts.nodeHeight || 25 ); // 25 pixels per line
             
             if (opts.maxLabelLength) {
-              newWidth = (levelWidth.length + 2) * (maxLabelLength * 10) + 
+              newWidth = levelWidth.length * maxLabelLength * 10 + 
                         levelWidth.length * 10; // node link size + node rect size              
             } else {
-              newWidth = (levelWidth.length + 2) * (meanLabelLength * pxPerChar) + 
+              newWidth = levelWidth.length * meanLabelLength * pxPerChar + 
                         levelWidth.length * 10; // node link size + node rect size
             }
-            
+            dummyRect.attr("width", newWidth).attr("height", newHeight);
+            //console.log(levelWidth.length + " " + meanLabelLength + " " + pxPerChar);
             // Size link width according to n based on total n
             wscale = d3.scale.linear()
                 .range([0,opts.nodeHeight || 25])
@@ -635,7 +640,7 @@ HTMLWidgets.widget({
             // 1. start by nesting our link paths by source
             var link_nested = d3.nest()
                                 .key(function(d){
-                                  return d.source[opts.id]
+                                  return d.source[opts.id];
                                 })
                                 .entries(links);
             // 2. manual method for stacking since d3.layout.stack
@@ -643,15 +648,15 @@ HTMLWidgets.widget({
             link_nested.forEach(function(d){
               var ystacky = 0;
               d.values.reverse().forEach(function(dd){
-                var ywidth = wscale(dd.target[opts.value])
-                var srcwidth = wscale(dd.source[opts.value])
+                var ywidth = wscale(dd.target[opts.value]);
+                var srcwidth = wscale(dd.source[opts.value]);
                 srcwidth = isNaN(srcwidth) ? wscale.range()[1]/2 : srcwidth;
                 ystacky = ystacky + ywidth;                               
                 dd.x = dd.source.x + srcwidth/2 - ystacky + ywidth/2;
                 dd.y = dd.source.y;
                 dd.ystacky = ystacky;
-              })
-            })
+              });
+            });
             /*  
             // use d3 stack layout
             var stack = d3.layout.stack()
@@ -698,7 +703,7 @@ HTMLWidgets.widget({
                 });
 
             link.style("stroke-width",function(d){
-              return wscale( d.target[opts.value] )
+              return wscale( d.target[opts.value] );
             });
             
             // Transition links to their new position.
@@ -708,16 +713,16 @@ HTMLWidgets.widget({
                 .style("stroke",function(d){
                   if(d.target.color){
                     if (typeof d.target.color === 'string'){
-                      return d3.lab(d.target.color)
+                      return d3.lab(d.target.color);
                     } else {
                       return d3.hcl(
                         d.target.color.h,
                         d.target.color.c,
                         d.target.color.l
-                      )
+                      );
                     }
                   } else {
-                    return "#ccc"
+                    return "#ccc";
                   }
                 });
                 
@@ -744,9 +749,18 @@ HTMLWidgets.widget({
         }
     
         // Append a group which holds all nodes and which the zoom Listener can act upon.
-        var svgGroup = baseSvg.append("g");
-                              
+        var svgGroup = baseSvg.append("g")
+                      .call(zoomListener)
+                      .append("g");
         
+        // Append a dummy rectangle which can be used to move the tree
+        var dummyRect = svgGroup.append("rect")
+                        .attr("width", newWidth)
+                        .attr("height", newHeight)
+                        .style("cursor", "move")
+                        .style("pointer-events","all")
+                        .attr("fill","none");         
+                  
         // if tooltip then set it up
         if(opts.tooltip){
           svgGroup.call(tip);
@@ -759,11 +773,13 @@ HTMLWidgets.widget({
     
         // Layout the tree initially and center on the root node.
         update(root);
+        
+
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
         if (zoomListener.scale() == 1) {
           var xscale = viewerHeight/tree.size()[0]*0.85,
-              yscale = viewerWidth/tree.size()[1]*0.85;
+              yscale = viewerWidth/tree.size()[1]*0.75;
           if (xscale < yscale) {
             zoomListener.scale( xscale ); 
           } else {
@@ -771,13 +787,18 @@ HTMLWidgets.widget({
           }
           
         }
-          
         centerNode(root);
         
-        if (opts.legend) {
-          attachLegend();
-        }     
         
+        if (opts.legend) {
+          var legendBox = baseSvg.append("g")
+                          .style("cursor", "move")
+                          .call(zoomListenerLegend)
+                          .on("wheel.zoom", null)
+                          .append("g");
+          attachLegend();
+        } 
+   
 
   },
 
