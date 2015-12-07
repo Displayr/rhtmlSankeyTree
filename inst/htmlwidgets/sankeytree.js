@@ -47,8 +47,8 @@ HTMLWidgets.widget({
         if(opts.tooltip){
           tip = d3.tip()
                   .attr('class', 'd3-tip')
-                  .html(function(d) { return d; });
-                  
+                  .html(function(d) {return d; });
+
           if(Array.isArray(opts.tooltip)){
             tip.html(function(d){
               var htmltip = [];
@@ -59,6 +59,10 @@ HTMLWidgets.widget({
             });
           } else if(typeof(opts.tooltip) === "function"){
             tip.html(opts.tooltip);
+          } else {
+            tip.html(function(d) { 
+              return d[opts.tooltip];
+            });
           }
         }
         
