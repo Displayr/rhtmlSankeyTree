@@ -493,7 +493,20 @@ HTMLWidgets.widget({
             centerNode(d);
         }
         
-
+        function clickText() {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            d3.select(this).style("display", "none");
+            var selector = "#c" + this.id.substring(1);
+            svgGroup.select(selector).style("display", "inline");
+        }
+        
+        function clickRect() {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            d3.select(this).style("display", "none");
+            var selector = "#t" + this.id.substring(1);
+            svgGroup.select(selector).style("display", "inline");
+        }
+        
         function update(source) {
             // Compute the new height, function counts total children of root node and sets tree height accordingly.
             // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
@@ -558,19 +571,9 @@ HTMLWidgets.widget({
                 .attr("class", "node")
                 .attr("transform", function(d) {
                     return "translate(" + source.y0 + "," + source.x0 + ")";
-                })
-                .on('click', click);
-    
-            /*
-            nodeEnter.append("circle")
-                .attr('class', 'nodeCircle')
-                .attr("r", 0)
-                .style("fill", function(d) {
-                    return d._children ? "lightsteelblue" : "#fff";
-                })
-                .on('mouseover', tip.show)
-                .on('mouseout', tip.hide);
-            */
+                });
+                
+
                 
             nodeEnter.append("rect")
                 .attr("class", "nodeRect")
@@ -581,10 +584,24 @@ HTMLWidgets.widget({
                 .style("fill","white")
                 .style("stroke","white")
                 .style("pointer-events","all")
+                .on('click', click)
                 .on('mouseover', opts.tooltip ? tip.show : null)
                 .on('mouseout', opts.tooltip ? tip.hide : null);
+                
+           nodeEnter.append("rect")
+                .attr("id", function(d) { return "c" + d[opts.id];})
+                .attr("width", 5)
+                .attr("height", function(d){return wscale(d[opts.value]/2)})
+                .attr("x", function(d) {
+                    return d[opts.childrenName] || d._children ? -7.5 : 2.5;
+                })
+                .attr("y", function(d){return -wscale(d[opts.value])/4})
+                .on("click", clickRect)
+                .style("fill", "white")
+                .style("display", "none");
     
             nodeEnter.append("text")
+                .attr("id", function(d) { return "t" + d[opts.id];})
                 .attr("x", function(d) {
                     return d[opts.childrenName] || d._children ? -10 : 10;
                 })
@@ -596,6 +613,7 @@ HTMLWidgets.widget({
                 .text(function(d) {
                     return d[opts.name];
                 })
+                .on("click", clickText)
                 .style("fill-opacity", 0);
     
             // phantom node to give us mouseover in a radius around it
