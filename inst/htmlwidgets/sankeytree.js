@@ -33,6 +33,8 @@ HTMLWidgets.widget({
         var pxPerChar = 6;
         var newWidth;
         var newHeight;
+        var nodeScale;
+        var heightScale;
         
         // add treeColors if told yes
         if(x.opts.treeColors){
@@ -164,8 +166,28 @@ HTMLWidgets.widget({
               return d.source;
             });
     
+        function getNodeHeightRatio() {
+          var nRatio = 0.0;
+          var maxRatio = 0.0;
+          if (treeData[opts.childrenName]) {
+            var count = treeData[opts.childrenName].length;
+            for (var i = 0; i < count; i++) {
+              nRatio = treeData[opts.childrenName][i][opts.value]/treeData[opts.value];
+              if (nRatio > maxRatio) {
+                maxRatio = nRatio;
+              }
+            }
+          }
+          return maxRatio;
+        }
+        
+        var nodeHeightRatio = getNodeHeightRatio();
+        
+        var nhScale = d3.scale.pow()
+                      .exponent(4).domain([0.5,1]).range([1,3]);
+        nodeHeightRatio = nhScale(nodeHeightRatio);
+        
         // A recursive helper function for performing some setup by walking through all nodes
-    
         function visit(parent, visitFn, childrenFn) {
             if (!parent) return;
     
@@ -502,7 +524,7 @@ HTMLWidgets.widget({
             //console.log(levelWidth.length + " " + meanLabelLength + " " + pxPerChar);
             // Size link width according to n based on total n
             wscale = d3.scale.linear()
-                .range([0,opts.nodeHeight || 25])
+                .range([0,opts.nodeHeight/nodeHeightRatio || 25])
                 .domain([0,treeData[opts.value]]);
             
             tree = tree.size([newHeight, newWidth]);
