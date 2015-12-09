@@ -500,7 +500,7 @@ HTMLWidgets.widget({
             svgGroup.select(selector).style("display", "inline");
         }
         
-        function clickRect() {
+        function clickHiddenText() {
             if (d3.event.defaultPrevented) return; // click suppressed
             d3.select(this).style("display", "none");
             var selector = "#t" + this.id.substring(1);
@@ -587,19 +587,7 @@ HTMLWidgets.widget({
                 .on('click', click)
                 .on('mouseover', opts.tooltip ? tip.show : null)
                 .on('mouseout', opts.tooltip ? tip.hide : null);
-                
-           nodeEnter.append("rect")
-                .attr("id", function(d) { return "c" + d[opts.id];})
-                .attr("width", 5)
-                .attr("height", function(d){return wscale(d[opts.value]/2)})
-                .attr("x", function(d) {
-                    return d[opts.childrenName] || d._children ? -7.5 : 2.5;
-                })
-                .attr("y", function(d){return -wscale(d[opts.value])/4})
-                .on("click", clickRect)
-                .style("fill", "white")
-                .style("display", "none");
-    
+
             nodeEnter.append("text")
                 .attr("id", function(d) { return "t" + d[opts.id];})
                 .attr("x", function(d) {
@@ -613,8 +601,34 @@ HTMLWidgets.widget({
                 .text(function(d) {
                     return d[opts.name];
                 })
-                .on("click", clickText)
-                .style("fill-opacity", 0);
+                .style("fill-opacity", 0)
+                .on("click", clickText);
+                
+           nodeEnter.append("text")
+                .attr("id", function(d) { return "c" + d[opts.id];})
+                .attr("x", function(d) {
+                    return d[opts.childrenName] || d._children ? -10 : 10;
+                })
+                .attr("dy", ".35em")
+                .attr('class', 'nodeText')                
+                .attr("text-anchor", function(d) {
+                    return d[opts.childrenName] || d._children ? "end" : "start";
+                })
+                .text(function(d) {
+                    if (d[opts.name].length > meanLabelLength) {
+                      if (d[opts.name].length > 4) {
+                        return d[opts.name].substring(0,meanLabelLength-3) + "...";
+                      } else {
+                        return d[opts.name];
+                      }
+                    } else {
+                      return d[opts.name];
+                    }
+                })
+                .on("click", clickHiddenText)
+                .style("display", "none");
+
+
     
             // phantom node to give us mouseover in a radius around it
             nodeEnter.append("circle")
@@ -631,7 +645,7 @@ HTMLWidgets.widget({
                 });
     
             // Update the text to reflect whether node has children or not.
-            node.select('text')
+            /*node.select('text')
                 .attr("x", function(d) {
                     return d[opts.childrenName] || d._children ? -10 : 10;
                 })
@@ -640,7 +654,7 @@ HTMLWidgets.widget({
                 })
                 .text(function(d) {
                     return d[opts.name];
-                });
+                });*/
     
             // Change the circle fill depending on whether it has children and is collapsed
             node.select("circle.nodeCircle")
