@@ -141,19 +141,27 @@ HTMLWidgets.widget({
         
         function attachCategoryLegend(){
           
+          // independent
           var catLegend = treeData.categoryLegend;
-          var rectWidth = viewerWidth*0.4;
-          var rectHeight = viewerHeight*0.05;
           var rectX = viewerWidth*0.02;
-          var rectY = viewerHeight*0.92;
+          var rectWidth = viewerWidth*0.7;
           var deltaX = viewerWidth*0.005;
-          var deltaY = viewerHeight*0.02;
-          //var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
-          
+
           var maxWidth = 0.0;
           for (i = 0; i < catLegend.length; i++) {
             maxWidth = Math.max(maxWidth, catLegend[i].length);
           }
+          
+          // dependent
+          var textSize = rectWidth*2/maxWidth;
+          var deltaY = textSize*1.5;
+          var rectHeight = deltaY*catLegend.length;
+          var rectY = viewerHeight*0.99-rectHeight;
+          var padding = textSize/2;
+          console.log(textSize + " " + rectHeight + rectY);
+          
+          //var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
+
           
           //var wdithScale = d3.scale.linear()
           //                .range([0,50])
@@ -176,11 +184,11 @@ HTMLWidgets.widget({
           
           
           var legendTxtAttr = legendTxt
-                              .attr("x", rectX + deltaX + "px")
+                              .attr("x", rectX + padding + "px")
                               .attr("y", function(d,i) { return rectY + deltaY*i + "px"})
                               .attr("dy", "1em")
                               .text(function(d) { return d; })
-                              .style("font-size",rectWidth*2/maxWidth+"px")
+                              .style("font-size", textSize +"px")
                               .style("font-family", "sans-serif");
         }
         // define the baseSvg, attaching a class for styling and the zoomListener
