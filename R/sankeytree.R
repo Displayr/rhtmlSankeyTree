@@ -16,7 +16,8 @@ sankeytree <- function(
   maxLabelLength = NULL,
   nodeHeight = NULL,
   tooltip = NULL,
-  legend = FALSE,
+  colorLegend = FALSE,
+  categoryLegend = FALSE,
   width = NULL, 
   height = NULL) {
   
@@ -47,7 +48,8 @@ sankeytree <- function(
       treeColors = treeColors,
       maxLabelLength = maxLabelLength,
       nodeHeight = nodeHeight,
-      legend = legend,
+      colorLegend = colorLegend,
+      categoryLegend = categoryLegend,
       tooltip = tooltip
     )
   )

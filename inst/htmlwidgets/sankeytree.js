@@ -72,7 +72,7 @@ HTMLWidgets.widget({
         var viewerWidth = el.getBoundingClientRect().width;
         var viewerHeight = el.getBoundingClientRect().height;
         
-        function attachLegend(source){
+        function attachLegend(){
           // assumes two sets of data, color and text of the legend, has been passed on 
           // as input from the R binding
           var legendColor = treeData.legendColor.reverse();
@@ -138,8 +138,52 @@ HTMLWidgets.widget({
           legendBox.select("text").attr("dy","0.9em");
 
         }
+        
+        function attachCategoryLegend(){
+          
+          var catLegend = treeData.categoryLegend;
+          var rectWidth = viewerWidth*0.4;
+          var rectHeight = viewerHeight*0.05;
+          var rectX = viewerWidth*0.02;
+          var rectY = viewerHeight*0.92;
+          var deltaX = viewerWidth*0.005;
+          var deltaY = viewerHeight*0.02;
+          //var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
+          
+          var maxWidth = 0.0;
+          for (i = 0; i < catLegend.length; i++) {
+            maxWidth = Math.max(maxWidth, catLegend[i].length);
+          }
+          
+          //var wdithScale = d3.scale.linear()
+          //                .range([0,50])
+          //                .domain([0,treeData[opts.value]]);
+                          
+          var legendBorder = catLegendBox.append("rect")
+                              .attr("x", rectX + "px")
+                              .attr("y", rectY + "px")
+                              .attr("width", rectWidth + "px")
+                              .attr("height", rectHeight + "px")
+                              .style("stroke-width", "1px")
+                              .style("stroke","black")
+                              .style("opacity",0.8)
+                              .style("fill","transparent");
+                              
+          var legendTxt = catLegendBox.selectAll("lg.text")
+                          .data(catLegend)
+                          .enter()
+                          .append("text");    
+          
+          
+          var legendTxtAttr = legendTxt
+                              .attr("x", rectX + deltaX + "px")
+                              .attr("y", function(d,i) { return rectY + deltaY*i + "px"})
+                              .attr("dy", "1em")
+                              .text(function(d) { return d; })
+                              .style("font-size",rectWidth*2/maxWidth+"px")
+                              .style("font-family", "sans-serif");
+        }
         // define the baseSvg, attaching a class for styling and the zoomListener
-
         var baseSvg = d3.select(el)
             .append("div")
             .classed("svg-container", true)
@@ -260,10 +304,14 @@ HTMLWidgets.widget({
             legendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + 1 + ")");
         }
     
+        function zoomCatLegend() {
+            catLegendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + 1 + ")");
+        }
     
         // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
         var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
         var zoomListenerLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomLegend);
+        var zoomListenerCatLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomCatLegend);
         /*function initiateDrag(d, domNode) {
             draggingNode = d;
             d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
@@ -850,7 +898,7 @@ HTMLWidgets.widget({
         centerNode(root);
         
         
-        if (opts.legend) {
+        if (opts.colorLegend) {
           var legendBox = baseSvg.append("g")
                           .style("cursor", "move")
                           .call(zoomListenerLegend)
@@ -858,6 +906,15 @@ HTMLWidgets.widget({
                           .append("g");
           attachLegend();
         } 
+        
+        if (opts.categoryLegend && treeData.categoryLegend) {
+          var catLegendBox = baseSvg.append("g")
+                             .style("cursor", "move")
+                            .call(zoomListenerCatLegend)
+                            .on("wheel.zoom", null)
+                            .append("g");
+          attachCategoryLegend();                 
+        }
    
 
   },
