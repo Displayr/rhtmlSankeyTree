@@ -77,29 +77,41 @@ HTMLWidgets.widget({
           // as input from the R binding
           var legendColor = treeData.legendColor.reverse();
           var legendText = treeData.legendText.reverse();
-          var padding = 10;
-          var rectWidth = "2.5%";
-          var rectHeight = viewerHeight/3.0/(legendColor.length-1);
-          var txtHeight = viewerHeight/3.0/(legendText.length-1);
-          var rectY = d3.range(0,(viewerHeight+1)/3.0, rectHeight);
-          var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
-
           
-          // change width and x position of the legend based on text length
-          var legendBoxWidth = 3.5;
+          // fixed dimensions
+          // Y
+          var leftY = viewerHeight*0.01;
+          var legendBoxHeight = viewerHeight*0.3;
+          var txtHeight = legendBoxHeight/legendText.length;
+          var fontSize = txtHeight*0.7;
+          
+          // X
+          var rectWidth = viewerWidth*0.025;
+          var textLength = 3;
           legendText.forEach(function(d){
-            if (d.length > legendBoxWidth) {
-              legendBoxWidth = d.length;
+            if (d.length > textLength) {
+              textLength = d.length;
             }
           });
-          legendBoxWidth = legendBoxWidth*2+1;
+          var legendBoxWidth = rectWidth + textLength*fontSize;
+          var leftX = viewerWidth*0.99-legendBoxWidth;
+          var rectX = leftX + textLength*fontSize*0.1;
+          var textX = leftX + rectWidth + textLength*fontSize*0.3;
           
-          
+          // Y
+          var rectHeight = (legendBoxHeight - fontSize)/legendColor.length;
+          var rectY = d3.range(fontSize/2, legendColor.length*rectHeight + fontSize/2 - rectHeight/2, rectHeight);
+          var txtY = d3.range(txtHeight/2, legendText.length*txtHeight, txtHeight);
+          console.log(rectY);
+          console.log(txtY);
+          console.log(fontSize/2);
+          console.log(legendColor.length*rectHeight + fontSize/2 - rectHeight/2);
+          console.log(rectHeight);
           var legendBorder = legendBox.append("rect")
-                              .attr("x", (99-legendBoxWidth)+"%")
-                              .attr("y", "10px")
-                              .attr("width", legendBoxWidth+"%")
-                              .attr("height", viewerHeight/3.0+rectHeight)
+                              .attr("x", leftX)
+                              .attr("y", leftY)
+                              .attr("width", legendBoxWidth)
+                              .attr("height", legendBoxHeight)
                               .style("stroke-width", "1px")
                               .style("stroke","black")
                               .style("opacity",0.8)
@@ -111,8 +123,8 @@ HTMLWidgets.widget({
                           .append("rect");
                           
           var legendRecAttr = legendRec
-                              .attr("x", (99-legendBoxWidth)+"%")
-                              .attr("y", function(d,i) { return rectY[i]+10+"px"; })
+                              .attr("x", rectX)
+                              .attr("y", function(d,i) { return rectY[i]+leftY; })
                               .attr("width", rectWidth)
                               .attr("height", rectHeight)
                               .style("fill", function(d) { return d; });
@@ -123,19 +135,13 @@ HTMLWidgets.widget({
                           .append("text");                      
                           
           var legendTxtAttr = legendTxt
-                              .attr("x", (99-legendBoxWidth+4)+"%")
-                              .attr("y", function(d,i) { return txtY[i]+10+"px"; })
-                              .attr("dy", ".35em")
+                              .attr("x", textX)
+                              .attr("y", function(d,i) { return txtY[i]+leftY; })
+                              .attr("dy", "0.35em")
                               .text(function(d) { return d; })
-                              .style("font-size",rectHeight*6+"px")
+                              .style("font-size",fontSize)
                               .style("text-align", "center")
                               .style("font-family", "sans-serif");
-                              
-          legendBox.selectAll("text")
-                      .attr("dy",function(d,i) {
-                        return i == legendText.length-1 ? "0.0em": "0.35em";
-                      });
-          legendBox.select("text").attr("dy","0.9em");
 
         }
         
