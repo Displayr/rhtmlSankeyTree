@@ -30,7 +30,7 @@ HTMLWidgets.widget({
         var i = 0;
         var duration = 750;
         var root;
-        var pxPerChar = 6;
+        var pxPerChar = 8;
         var newWidth;
         var newHeight;
         var nodeScale;
@@ -102,11 +102,7 @@ HTMLWidgets.widget({
           var rectHeight = (legendBoxHeight - fontSize)/legendColor.length;
           var rectY = d3.range(fontSize/2, legendColor.length*rectHeight + fontSize/2 - rectHeight/2, rectHeight);
           var txtY = d3.range(txtHeight/2, legendText.length*txtHeight, txtHeight);
-          console.log(rectY);
-          console.log(txtY);
-          console.log(fontSize/2);
-          console.log(legendColor.length*rectHeight + fontSize/2 - rectHeight/2);
-          console.log(rectHeight);
+
           var legendBorder = legendBox.append("rect")
                               .attr("x", leftX)
                               .attr("y", leftY)
@@ -164,7 +160,6 @@ HTMLWidgets.widget({
           var rectHeight = deltaY*catLegend.length;
           var rectY = viewerHeight*0.99-rectHeight;
           var padding = textSize/2;
-          console.log(textSize + " " + rectHeight + rectY);
           
           //var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
 
@@ -596,7 +591,6 @@ HTMLWidgets.widget({
                         levelWidth.length * 10; // node link size + node rect size
             }
             dummyRect.attr("width", newWidth).attr("height", newHeight);
-            //console.log(levelWidth.length + " " + meanLabelLength + " " + pxPerChar);
             // Size link width according to n based on total n
             wscale = d3.scale.linear()
                 .range([0,opts.nodeHeight/nodeHeightRatio || 25])
@@ -609,13 +603,15 @@ HTMLWidgets.widget({
                 links = tree.links(nodes);
     
             // Set widths between levels based on maxLabelLength.
+
+            var nodeTextDx = 10;
             if (opts.maxLabelLength) {
                 nodes.forEach(function(d) {
-                    d.y = (d.depth * (maxLabelLength * 10));  //maxLabelLength * 10px
+                    d.y = (d.depth * (maxLabelLength * 10) + nodeTextDx);  //maxLabelLength * 10px
                 });
             } else {
                 nodes.forEach(function(d) {
-                    d.y = (d.depth * (meanLabelLength * pxPerChar)); //meanLabelLength * 5px
+                    d.y = (d.depth * (meanLabelLength * pxPerChar) + nodeTextDx); //meanLabelLength * 5px
                 });
             }
 
@@ -636,61 +632,64 @@ HTMLWidgets.widget({
                 });
                 
 
-                
+            var nodeRectWidth = 5;
+            var nodeVisibleWidth = meanLabelLength*pxPerChar-nodeRectWidth;
             nodeEnter.append("rect")
                 .attr("class", "nodeRect")
-                .attr("x", -2.5)
+                .attr("x", -nodeRectWidth/2)
                 .attr("y", function(d){return -wscale(d[opts.value])/2})
                 .attr("height", function(d){return wscale(d[opts.value])})
-                .attr("width", 5)
+                .attr("width", nodeRectWidth)
                 .style("fill","white")
                 .style("stroke","white")
                 .style("pointer-events","all")
                 .on('click', click)
                 .on('mouseover', opts.tooltip ? tip.show : null)
                 .on('mouseout', opts.tooltip ? tip.hide : null);
-
+                
             nodeEnter.append("text")
                 .attr("id", function(d) { return "t" + d[opts.id];})
-                .attr("x", function(d) {
-                    return d[opts.childrenName] || d._children ? -10 : 10;
-                })
+                .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
-                .attr('class', 'nodeText')
-                .attr("text-anchor", function(d) {
-                    return d[opts.childrenName] || d._children ? "end" : "start";
-                })
+                .attr('class', 'nodeText')                
+                .attr("text-anchor", "end")
+                .text(function(d) {return d[opts.name]})
                 .text(function(d) {
+                  if (this.getComputedTextLength() + nodeTextDx - nodeRectWidth/2 > nodeVisibleWidth) {
+                    return d[opts.name].substring(0,meanLabelLength-3) + "...";
+                  } else {
                     return d[opts.name];
+                  }
                 })
                 .style("fill-opacity", 0)
                 .on("click", clickText);
-                
-           nodeEnter.append("text")
+            
+            nodeEnter.append("text")
                 .attr("id", function(d) { return "c" + d[opts.id];})
-                .attr("x", function(d) {
-                    return d[opts.childrenName] || d._children ? -10 : 10;
-                })
+                .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
-                .attr('class', 'nodeText')                
-                .attr("text-anchor", function(d) {
-                    return d[opts.childrenName] || d._children ? "end" : "start";
-                })
+                .attr('class', 'nodeText')
+                .attr("text-anchor", "end")
                 .text(function(d) {
-                    if (d[opts.name].length > meanLabelLength) {
-                      if (d[opts.name].length > 4) {
-                        return d[opts.name].substring(0,meanLabelLength-3) + "...";
-                      } else {
-                        return d[opts.name];
-                      }
-                    } else {
-                      return d[opts.name];
-                    }
+                    return d[opts.name];
                 })
                 .on("click", clickHiddenText)
                 .style("display", "none");
-
-
+            
+            if (opts.terminalDescription) {
+              nodeEnter.append("text")
+                  .attr("id", function(d) { return "terminal" + d[opts.id];})
+                  .attr("x", nodeTextDx)
+                  .attr("dy", ".35em")
+                  .attr('class', 'nodeText')
+                  .attr("text-anchor", "start")
+                  .text(function(d) {
+                      return d.terminalDescription;
+                  })
+                  .attr("font-weight", function(d) {
+                    return d[opts.childrenName] || d._children ? "normal" : "bold";
+                  });
+            }
     
             // phantom node to give us mouseover in a radius around it
             nodeEnter.append("circle")
