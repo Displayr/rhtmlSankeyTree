@@ -265,7 +265,7 @@ HTMLWidgets.widget({
             return d[opts.childrenName] && d[opts.childrenName].length > 0 ? d[opts.childrenName] : null;
         });
         meanLabelLength = (meanLabelLength/totalNodes) | 0 + 1;
-    
+        meanLabelLength = meanLabelLength > 10 ? meanLabelLength : 10;
         // sort the tree according to the node names
     
         function sortTree() {
