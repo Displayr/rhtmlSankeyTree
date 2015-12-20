@@ -874,12 +874,16 @@ HTMLWidgets.widget({
         // Append a group which holds all nodes and which the zoom Listener can act upon.
         var svgGroup = baseSvg.append("g")
                       .call(zoomListener)
+                      .on("dblclick.zoom", null)
+                      .on("mousemove.zoom", null)
+                      .on("touchstart.zoom", null)
+                      .on("MozMousePixelScroll.zoom", null)
                       .append("g");
         
         // Append a dummy rectangle which can be used to move the tree
         var dummyRect = svgGroup.append("rect")
-                        .attr("width", newWidth + meanLabelLength*pxPerChar)
-                        .attr("height", newHeight)
+                        .attr("width", viewerWidth)
+                        .attr("height", viewerHeight)
                         .attr("x", -meanLabelLength*pxPerChar)
                         .attr("y", 0)
                         .attr("id", "dummyRect")
@@ -920,7 +924,12 @@ HTMLWidgets.widget({
           var legendBox = baseSvg.append("g")
                           .style("cursor", "move")
                           .call(zoomListenerLegend)
+                          .on("dblclick.zoom", null)
                           .on("wheel.zoom", null)
+                          .on("mousemove.zoom", null)
+                          .on("touchstart.zoom", null)
+                          .on("mousewheel.zoom", null)
+                          .on("MozMousePixelScroll.zoom", null)
                           .append("g");
           attachLegend();
         } 
@@ -929,7 +938,12 @@ HTMLWidgets.widget({
           var catLegendBox = baseSvg.append("g")
                              .style("cursor", "move")
                             .call(zoomListenerCatLegend)
+                            .on("dblclick.zoom", null)
                             .on("wheel.zoom", null)
+                            .on("mousemove.zoom", null)
+                            .on("touchstart.zoom", null)
+                            .on("mousewheel.zoom", null)
+                            .on("MozMousePixelScroll.zoom", null)
                             .append("g");
           attachCategoryLegend();                 
         }
