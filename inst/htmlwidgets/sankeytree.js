@@ -590,7 +590,9 @@ HTMLWidgets.widget({
               newWidth = levelWidth.length * meanLabelLength * pxPerChar + 
                         levelWidth.length * 10; // node link size + node rect size
             }
-            dummyRect.attr("width", newWidth).attr("height", newHeight);
+            
+            dummyRect.attr("width", newWidth + meanLabelLength*pxPerChar).attr("height", newHeight);
+            
             // Size link width according to n based on total n
             wscale = d3.scale.linear()
                 .range([0,opts.nodeHeight/nodeHeightRatio || 25])
@@ -876,8 +878,11 @@ HTMLWidgets.widget({
         
         // Append a dummy rectangle which can be used to move the tree
         var dummyRect = svgGroup.append("rect")
-                        .attr("width", newWidth)
+                        .attr("width", newWidth + meanLabelLength*pxPerChar)
                         .attr("height", newHeight)
+                        .attr("x", -meanLabelLength*pxPerChar)
+                        .attr("y", 0)
+                        .attr("id", "dummyRect")
                         .style("cursor", "move")
                         .style("pointer-events","all")
                         .attr("fill","none");         
