@@ -145,8 +145,8 @@ HTMLWidgets.widget({
           // independent
           var catLegend = treeData.categoryLegend;
           var rectX = Math.min(viewerWidth*0.02, 5);
-          var maxRectWidth = viewerWidth*0.7;
-          var maxRectHeight = viewerHeight*0.1;
+          var maxRectWidth = viewerWidth*0.9;
+          var maxRectHeight = viewerHeight*0.15;
           var maxFontSize = 14;
           
           // work out a proper font size
