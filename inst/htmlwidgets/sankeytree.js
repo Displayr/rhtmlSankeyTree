@@ -108,9 +108,8 @@ HTMLWidgets.widget({
                               .attr("y", leftY)
                               .attr("width", legendBoxWidth)
                               .attr("height", legendBoxHeight)
-                              .style("stroke-width", "1px")
+                              .style("stroke-width", Math.min(1, fontSize/12))
                               .style("stroke","black")
-                              .style("opacity",0.8)
                               .style("fill","transparent");
 
           var legendRec = legendBox.selectAll("g.rec")
@@ -145,19 +144,28 @@ HTMLWidgets.widget({
           
           // independent
           var catLegend = treeData.categoryLegend;
-          var rectX = viewerWidth*0.02;
-          var rectWidth = viewerWidth*0.7;
-          var deltaX = viewerWidth*0.005;
-
-          var maxWidth = 0.0;
+          var rectX = Math.min(viewerWidth*0.02, 5);
+          var maxRectWidth = viewerWidth*0.7;
+          var maxRectHeight = viewerHeight*0.1;
+          var maxFontSize = 14;
+          
+          // work out a proper font size
+          var textLength = 0.0;
           for (i = 0; i < catLegend.length; i++) {
-            maxWidth = Math.max(maxWidth, catLegend[i].length);
+            textLength = Math.max(textLength, catLegend[i].length);
           }
           
           // dependent
-          var textSize = rectWidth*2/maxWidth;
+          var textSize = Math.min(maxRectWidth*1.8/textLength, maxFontSize);
           var deltaY = textSize*1.5;
           var rectHeight = deltaY*catLegend.length;
+          
+          if (rectHeight > maxRectHeight) {
+            rectHeight = maxRectHeight;
+            deltaY = rectHeight/catLegend.length;
+            textSize = deltaY/1.5;
+          }
+          
           var rectY = viewerHeight*0.99-rectHeight;
           var padding = textSize/2;
           
@@ -167,17 +175,6 @@ HTMLWidgets.widget({
           //var wdithScale = d3.scale.linear()
           //                .range([0,50])
           //                .domain([0,treeData[opts.value]]);
-                          
-          var legendBorder = catLegendBox.append("rect")
-                              .attr("x", rectX + "px")
-                              .attr("y", rectY + "px")
-                              .attr("width", rectWidth + "px")
-                              .attr("height", rectHeight + "px")
-                              .style("stroke-width", "1px")
-                              .style("stroke","black")
-                              .style("opacity",0.8)
-                              .style("fill","transparent");
-                              
           var legendTxt = catLegendBox.selectAll("lg.text")
                           .data(catLegend)
                           .enter()
@@ -185,12 +182,38 @@ HTMLWidgets.widget({
           
           
           var legendTxtAttr = legendTxt
-                              .attr("x", rectX + padding + "px")
-                              .attr("y", function(d,i) { return rectY + deltaY*i + "px"})
+                              .attr("x", rectX + padding)
+                              .attr("y", function(d,i) { return rectY + deltaY*i})
+                              .append("tspan")
                               .attr("dy", "1em")
-                              .text(function(d) { return d; })
+                              .text(function(d) {return d.split(" ")[0];})
                               .style("font-size", textSize +"px")
-                              .style("font-family", "sans-serif");
+                              .style("font-family", "sans-serif")
+                              .style("font-weight", "bold")
+                              .append("tspan")
+                              .text(function(d) {
+                                var idx = d.search(" ");
+                                return d.slice(idx,d.length);
+                              })
+                              .style("font-size", textSize +"px")
+                              .style("font-family", "sans-serif")
+                              .style("font-weight", "normal");
+          var maxTextPx = 0;
+          catLegendBox.selectAll("text").each(function(d) {
+            maxTextPx = Math.max(maxTextPx, this.getComputedTextLength());
+          });
+          
+          rectWidth = Math.min(maxRectWidth, maxTextPx+padding*2);
+          var legendBorder = catLegendBox.append("rect")
+                              .attr("x", rectX)
+                              .attr("y", rectY)
+                              .attr("width", rectWidth)
+                              .attr("height", rectHeight)
+                              .style("stroke-width", Math.min(1, textSize/10))
+                              .style("stroke","black")
+                              .style("fill","transparent");
+                              
+
         }
         // define the baseSvg, attaching a class for styling and the zoomListener
         var baseSvg = d3.select(el)
@@ -310,11 +333,11 @@ HTMLWidgets.widget({
         }
         
         function zoomLegend() {
-            legendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + 1 + ")");
+            legendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
     
         function zoomCatLegend() {
-            catLegendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + 1 + ")");
+            catLegendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
     
         // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
@@ -922,13 +945,14 @@ HTMLWidgets.widget({
         
         if (opts.colorLegend) {
           var legendBox = baseSvg.append("g")
+                          .attr("id", "colorLegend")
                           .style("cursor", "move")
                           .call(zoomListenerLegend)
                           .on("dblclick.zoom", null)
-                          .on("wheel.zoom", null)
+                          //.on("wheel.zoom", null)
                           .on("mousemove.zoom", null)
                           .on("touchstart.zoom", null)
-                          .on("mousewheel.zoom", null)
+                          //.on("mousewheel.zoom", null)
                           .on("MozMousePixelScroll.zoom", null)
                           .append("g");
           attachLegend();
@@ -936,13 +960,14 @@ HTMLWidgets.widget({
         
         if (opts.categoryLegend && treeData.categoryLegend) {
           var catLegendBox = baseSvg.append("g")
+                            .attr("id", "catLegend")
                              .style("cursor", "move")
                             .call(zoomListenerCatLegend)
                             .on("dblclick.zoom", null)
-                            .on("wheel.zoom", null)
+                            //.on("wheel.zoom", null)
                             .on("mousemove.zoom", null)
                             .on("touchstart.zoom", null)
-                            .on("mousewheel.zoom", null)
+                            //.on("mousewheel.zoom", null)
                             .on("MozMousePixelScroll.zoom", null)
                             .append("g");
           attachCategoryLegend();                 
