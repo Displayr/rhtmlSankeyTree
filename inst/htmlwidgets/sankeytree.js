@@ -80,7 +80,7 @@ HTMLWidgets.widget({
           
           // fixed dimensions
           // Y
-          var leftY = viewerHeight*0.01;
+          var leftY = viewerHeight*0.35;
           var legendBoxHeight = viewerHeight*0.3;
           var txtHeight = legendBoxHeight/legendText.length;
           var fontSize = txtHeight*0.7;
