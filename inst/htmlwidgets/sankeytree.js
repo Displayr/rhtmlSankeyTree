@@ -576,15 +576,19 @@ HTMLWidgets.widget({
         function clickText() {
             if (d3.event.defaultPrevented) return; // click suppressed
             d3.select(this).style("display", "none");
+            svgGroup.select("#bgt" + this.id.substring(1)).style("display", "none");
             var selector = "#c" + this.id.substring(1);
             svgGroup.select(selector).style("display", "inline");
+            svgGroup.select("#bgc" + this.id.substring(1)).style("display", "inline");
         }
         
         function clickHiddenText() {
             if (d3.event.defaultPrevented) return; // click suppressed
             d3.select(this).style("display", "none");
+            svgGroup.select("#bgc" + this.id.substring(1)).style("display", "none");
             var selector = "#t" + this.id.substring(1);
             svgGroup.select(selector).style("display", "inline");
+            svgGroup.select("#bgt" + this.id.substring(1)).style("display", "inline");
         }
         
         function update(source) {
@@ -672,11 +676,19 @@ HTMLWidgets.widget({
                 .on('mouseover', opts.tooltip ? tip.show : null)
                 .on('mouseout', opts.tooltip ? tip.hide : null);
                 
+            var nrect1 = nodeEnter.append("rect")
+                            .attr("class", "nodeTextBg1")
+                            .attr("id", function(d) { return "bgt" + d[opts.id];});;
+                
+            var nrect2 = nodeEnter.append("rect")
+                            .attr("class", "nodeTextBg2")
+                            .attr("id", function(d) { return "bgc" + d[opts.id];});
+                            
             nodeEnter.append("text")
                 .attr("id", function(d) { return "t" + d[opts.id];})
                 .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
-                .attr('class', 'nodeText')                
+                .attr('class', 'nodeText1')                
                 .attr("text-anchor", "end")
                 .text(function(d) {return d[opts.name]})
                 .text(function(d) {
@@ -693,13 +705,41 @@ HTMLWidgets.widget({
                 .attr("id", function(d) { return "c" + d[opts.id];})
                 .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
-                .attr('class', 'nodeText')
+                .attr('class', 'nodeText2')
                 .attr("text-anchor", "end")
                 .text(function(d) {
                     return d[opts.name];
                 })
-                .on("click", clickHiddenText)
-                .style("display", "none");
+                .on("click", clickHiddenText);
+            
+            nrect1.attr("x", function(d) {
+                      return -svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
+                  })
+                  .attr("y", function(d) {
+                      return -svgGroup.select("#t" + d[opts.id])[0][0].getBoundingClientRect().height/2;
+                  })
+                  .attr("width", function(d) {
+                      return svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength();
+                  })
+                  .attr("height", function(d) {
+                      return svgGroup.select("#t" + d[opts.id])[0][0].getBoundingClientRect().height;
+                  });
+                  
+            nrect2.attr("x", function(d) {
+                      return -svgGroup.select("#c" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
+                  })
+                  .attr("y", function(d) {
+                      return -svgGroup.select("#c" + d[opts.id])[0][0].getBoundingClientRect().height/2;
+                  })
+                  .attr("width", function(d) {
+                      return svgGroup.select("#c" + d[opts.id])[0][0].getComputedTextLength();
+                  })
+                  .attr("height", function(d) {
+                      return svgGroup.select("#c" + d[opts.id])[0][0].getBoundingClientRect().height;
+                  });
+                  
+            svgGroup.selectAll(".nodeText2").style("display", "none");
+            nrect2.style("display", "none");
             
             if (opts.terminalDescription) {
               nodeEnter.append("text")

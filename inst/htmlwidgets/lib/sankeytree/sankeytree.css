@@ -16,7 +16,15 @@
   font-size:10px; 
   font-family:sans-serif;
 }
- 
+
+.nodeTextBg1 {
+  fill: white;
+  opacity: 0.5;
+}
+.nodeTextBg2 {
+  fill: white;
+  opacity: 0.5;
+} 
 .link {
   fill: none;
   stroke: #ccc;
