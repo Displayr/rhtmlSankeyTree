@@ -669,9 +669,6 @@ HTMLWidgets.widget({
                 .attr("y", function(d){return -wscale(d[opts.value])/2})
                 .attr("height", function(d){return wscale(d[opts.value])})
                 .attr("width", nodeRectWidth)
-                .style("fill","white")
-                .style("stroke","white")
-                .style("pointer-events","all")
                 .on('click', click)
                 .on('mouseover', opts.tooltip ? tip.show : null)
                 .on('mouseout', opts.tooltip ? tip.hide : null);
