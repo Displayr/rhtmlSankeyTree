@@ -33,14 +33,14 @@ Usage
     rhtmlSankeyTree:::convert_rpart(rp)
 
     #see what it looks like
-    rhtmlSankeyTree(rp)
+    SankeyTree(rp)
 
-    rhtmlSankeyTree(rp, maxLabelLength = 10, nodeHeight = 100)
+    SankeyTree(rp, maxLabelLength = 10, nodeHeight = 100)
 
 
 
     # do with kyphosis example
-    rhtmlSankeyTree(
+    SankeyTree(
       rpart(Kyphosis ~ Age + Number + Start, data = kyphosis),
       maxLabelLength = 10,
       nodeHeight = 200

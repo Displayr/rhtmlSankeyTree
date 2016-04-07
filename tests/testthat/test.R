@@ -1,7 +1,7 @@
 
-context("sankeytree")
+context("rhtmlSankeyTree")
 
-test_that("sankeytree works", {
+test_that("rhtmlSankeyTree works", {
 
   expect_true(TRUE)
 

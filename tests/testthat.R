@@ -1,4 +1,4 @@
 library(testthat)
-library(sankeytree)
+library(rhtmlSankeyTree)
 
-test_check("sankeytree")
+test_check("rhtmlSankeyTree")

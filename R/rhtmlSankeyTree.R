@@ -6,7 +6,7 @@
 #' @import htmlwidgets
 #'
 #' @export
-rhtmlSankeyTree <- function(
+SankeyTree <- function(
   data = NULL,
   name = "name",
   id = "id",
