@@ -12,7 +12,7 @@ dependencies:
     version: 0.1.2
     src: htmlwidgets/lib/treecolors
     script: treecolors.js
-  - name: sankeytree
+  - name: rhtmlSankeyTree
     version: 0.0.1
-    src: htmlwidgets/lib/sankeytree
-    stylesheet: sankeytree.css
+    src: htmlwidgets/lib/rhtmlSankeyTree
+    stylesheet: rhtmlSankeyTree.css

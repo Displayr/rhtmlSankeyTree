@@ -6,7 +6,7 @@
 #' @import htmlwidgets
 #'
 #' @export
-sankeytree <- function(
+rhtmlSankeyTree <- function(
   data = NULL,
   name = "name",
   id = "id",
@@ -58,7 +58,7 @@ sankeytree <- function(
 
   # create widget
   htmlwidgets::createWidget(
-    name = 'sankeytree',
+    name = 'rhtmlSankeyTree',
     x,
     width = width,
     height = height,
@@ -67,7 +67,7 @@ sankeytree <- function(
       browser.fill = TRUE, # resizing will not work if FALSE
       viewer.fill = TRUE
     ),
-    package = 'sankeytreeR'
+    package = 'rhtmlSankeyTree'
   )
 }
 
@@ -89,7 +89,7 @@ sankeytree <- function(
 #'
 #' @export
 sankeytreeOutput <- function(outputId, width = '100%', height = '400px'){
-  shinyWidgetOutput(outputId, 'sankeytree', width, height, package = 'sankeytreeR')
+  shinyWidgetOutput(outputId, 'rhtmlSankeyTree', width, height, package = 'rhtmlSankeyTree')
 }
 
 #' @rdname sankeytree-shiny

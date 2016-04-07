@@ -1,4 +1,4 @@
-Package: sankeytreeR
+Package: rhtmlSankeyTree
 Title: Sankey Diagrams as Collapsible Trees
 Version: 0.0.1
 Date: 2015-10-06
@@ -27,7 +27,7 @@ Authors@R: c(
         , email = "kent.russell@timelyportfolio.com"
       )
     )
-Maintainer: Kenton Russell <kent.russell@timelyportfolio.com>
+Maintainer: Xiaoting Wang <xtmwang@gmail.com>
 Description: Combining Sankey diagrams with collapsible trees and adding some new interactivity might help us analyze, instruct, and decide.
 License: MIT + file LICENSE
 LazyData: true

@@ -1,6 +1,6 @@
 HTMLWidgets.widget({
 
-  name: 'sankeytree',
+  name: 'rhtmlSankeyTree',
 
   type: 'output',
 

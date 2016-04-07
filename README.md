@@ -1,4 +1,4 @@
-sankeytree
+rhtmlSankeyTree
 ==========
 
 > Sankey Diagrams as Collapsible Trees
@@ -36,17 +36,17 @@ Usage
     #convert rpart to a hierarchy using convert_rpart in converters.R
     # this was the original conversion
     # and I already see lots of room for improvement
-    sankeytreeR:::convert_rpart(rp)
+    rhtmlSankeyTree:::convert_rpart(rp)
 
     #see what it looks like
-    sankeytree(rp)
+    rhtmlSankeyTree(rp)
 
-    sankeytree(rp, maxLabelLength = 10, nodeHeight = 100)
+    rhtmlSankeyTree(rp, maxLabelLength = 10, nodeHeight = 100)
 
 
 
     # do with kyphosis example
-    sankeytree(
+    rhtmlSankeyTree(
       rpart(Kyphosis ~ Age + Number + Start, data = kyphosis),
       maxLabelLength = 10,
       nodeHeight = 200
