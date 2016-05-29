@@ -1,21 +1,13 @@
-HTMLWidgets.widget({
-
-  name: 'rhtmlSankeyTree',
-
-  type: 'output',
-
-  initialize: function(el, width, height) {
+function Sankey() {
     
-    return {  };
+    var data,
+        opts,
+        width = 500,
+        height = 500;
+    
+    function chart(selection) {
 
-  },
-
-  renderValue: function(el, x, instance) {
-    // ATTRIBUTION:  much of this JavaScript code
-    //  came from http://bl.ocks.org/robschmuecker/0f29a2c867dcb1b44d18
-
-      var opts = x.opts;
-      var treeData = x.data; 
+      var treeData = data; 
     
         // Calculate total nodes, max label length
         var totalNodes = 0;
@@ -37,7 +29,7 @@ HTMLWidgets.widget({
         var heightScale;
         
         // add treeColors if told yes
-        if(x.opts.treeColors){
+        if(opts.treeColors){
           var tc = TreeColors("add");
           tc.children(opts.childrenName);
           tc(treeData);
@@ -69,8 +61,8 @@ HTMLWidgets.widget({
         }
         
         // size of the diagram
-        var viewerWidth = el.getBoundingClientRect().width;
-        var viewerHeight = el.getBoundingClientRect().height;
+        var viewerWidth = width;
+        var viewerHeight = height;
         
         function attachLegend(){
           // assumes two sets of data, color and text of the legend, has been passed on 
@@ -216,17 +208,7 @@ HTMLWidgets.widget({
 
         }
         // define the baseSvg, attaching a class for styling and the zoomListener
-        var baseSvg = d3.select(el)
-            .append("div")
-            .classed("svg-container", true)
-            .append("svg")
-            .attr("preserveAspectRatio", "xMinYMin meet")
-            .attr("viewBox", "0 0 " + viewerWidth + " " + viewerHeight)
-            .classed("svg-content-responsive", true)
-            .attr("width", "100%")
-            .attr("height", "100%");
-
-
+        var baseSvg = selection.select("svg");
     
         var tree = d3.layout.tree()
             .size([viewerHeight, viewerWidth])
@@ -1010,6 +992,76 @@ HTMLWidgets.widget({
           attachCategoryLegend();                 
         }
    
+
+    }
+    
+    // getter/setter
+    chart.data = function(v) {
+        if (!arguments.length) return data;
+        data = v;
+        return chart;
+    };
+
+    chart.opts = function(v) {
+        if (!arguments.length) return opts;
+        opts = v;
+        return chart;
+    };
+
+    chart.width = function(v) {
+        // width getter/setter
+        if (!arguments.length) return width;
+        width = v;
+        return chart;
+    };
+
+    // height getter/setter
+    chart.height = function(v) {
+        if (!arguments.length) return height;
+        height = v;
+        return chart;
+    };
+    
+    return chart;
+}
+
+
+HTMLWidgets.widget({
+
+  name: 'rhtmlSankeyTree',
+
+  type: 'output',
+
+  initialize: function(el, w, h) {
+    
+        var width,
+            height;
+            
+        width = w < 200 ? 200 : w;
+        height = h < 100 ? 100 : h;
+
+        d3.select(el)
+            .append("div")
+            .attr("class", "svg-container")
+            .append("svg")
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "0 0 " + width + " " + height)
+            .attr("class", "svg-content-responsive")
+            .attr("width", "100%")
+            .attr("height", "100%");
+            
+        return Sankey().width(width).height(height);
+
+  },
+
+  renderValue: function(el, x, instance) {
+    // ATTRIBUTION:  much of this JavaScript code
+    //  came from http://bl.ocks.org/robschmuecker/0f29a2c867dcb1b44d18
+
+        instance = instance.opts(x.opts);
+        instance = instance.data(x.data);
+
+        d3.select(el).call(instance);
 
   },
 
