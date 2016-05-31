@@ -19,6 +19,7 @@ SankeyTree <- function(
   colorLegend = FALSE,
   categoryLegend = FALSE,
   terminalDescription = FALSE,
+  numeric.distribution = TRUE,
   width = NULL, 
   height = NULL) {
   
@@ -52,6 +53,7 @@ SankeyTree <- function(
       colorLegend = colorLegend,
       categoryLegend = categoryLegend,
       terminalDescription = terminalDescription,
+      numericDistribution = numeric.distribution,
       tooltip = tooltip
     )
   )

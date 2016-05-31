@@ -2,12 +2,162 @@ function Sankey() {
     
     var data,
         opts,
+        maxBarLength,
         width = 500,
+        realFormatter = d3.format(",.1f"),
+        intFormatter = d3.format(",d"),
         height = 500;
+        
+    var tooltip = {
+        
+        createClTips: function(data, scale, maxL) {
+            
+        },
+        
+        
+        createRgTips: function(data, scale, maxL) {
+            if (data.nodeDistribution !==  0) {
+                data.tooltip = "";
+                nval = data.overallDistribution.length;
+                var t = "<div class='tipTableContainer'><table class='tipTable'>";
+                t = t + "<tr>";
+                var prevDistH, prevdashDistH, solidDistH, dashDistH, nextDistH, nextdashDistH;
+                for (var i = 0; i < nval; i++) {
+                    t = t + "<td class='tipD' style='height:" + maxL +"px'>";
+                    solidDistH = Math.floor(scale(data.nodeDistribution[i]));
+                    dashDistH = Math.floor(scale(data.overallDistribution[i]));
+                    
+                    if (i === 0) {
+                        nextDistH = Math.floor(scale(data.nodeDistribution[i+1]));
+                        nextdashDistH = Math.floor(scale(data.overallDistribution[i+1]));
+                        if (solidDistH < dashDistH) {
+                            if (dashDistH < nextdashDistH) {
+                                t = t + "<div class='tipNocolRightDash' style='height:" + (nextdashDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipNocolTopLeftDash' style='height:" + (dashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueLeftDash' style='height:" + (solidDistH) + "px'></div>";
+                            } else if (solidDistH < nextdashDistH && nextdashDistH <= dashDistH ) {
+                                t = t + "<div class='tipNocolTopLeftRightDash' style='height:" + (dashDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipNocolLeftDash' style='height:" + (nextdashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueLeftDash' style='height:" + (solidDistH) + "px'></div>";
+                            } else if (nextdashDistH <= solidDistH) {
+                                t = t + "<div class='tipNocolTopLeftRightDash' style='height:" + (dashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueLeftRightDash' style='height:" + (solidDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueLeftDash' style='height:" + (nextdashDistH) + "px'></div>";
+                            }
+                            
+                        } else {
+                            if (solidDistH < nextdashDistH) {
+                                t = t + "<div class='tipNocolRightDash' style='height:" + (nextdashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (solidDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopLeftDash' style='height:" + (dashDistH) + "px'></div>";
+                            } else if (dashDistH < nextdashDistH && nextdashDistH <= solidDistH ) {
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (nextdashDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopLeftDash' style='height:" + (dashDistH) + "px'></div>";
+                            } else if (nextdashDistH <= dashDistH) {
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopLeftRightDash' style='height:" + (dashDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueLeftDash' style='height:" + (nextdashDistH) + "px'></div>";
+                            }
+                        }
+                    } else if (i === nval-1){ 
+                        
+                        if (solidDistH < dashDistH) {
+                            
+                            if (dashDistH < prevdashDistH) {
+                                t = t + "<div class='tipNocolTopRightDash' style='height:" + (dashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (solidDistH) + "px'></div>";
+                            } else if (solidDistH < prevdashDistH && prevdashDistH <= dashDistH ) {
+                                t = t + "<div class='tipNocolTopLeftRightDash' style='height:" + (dashDistH - prevdashDistH) + "px'></div>";
+                                t = t + "<div class='tipNocolRightDash' style='height:" + (prevdashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (solidDistH) + "px'></div>";
+                            } else if (prevdashDistH <= solidDistH) {
+                                t = t + "<div class='tipNocolTopLeftRightDash' style='height:" + (dashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueLeftRightDash' style='height:" + (solidDistH - prevdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (prevdashDistH) + "px'></div>";
+                            }
+                            
+                        } else {
+                            
+                            if (solidDistH < prevdashDistH) {
+                                t = t + "<div class='tipBlueLeftDash' style='height:" + (solidDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopRightDash' style='height:" + (dashDistH) + "px'></div>";
+                            } else if (dashDistH < prevdashDistH && prevdashDistH <= solidDistH ) {
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH - prevdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueLeftDash' style='height:" + (prevdashDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopRightDash' style='height:" + (dashDistH) + "px'></div>";
+                            } else if (prevdashDistH <= dashDistH) {
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopLeftRightDash' style='height:" + (dashDistH - prevdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (prevdashDistH) + "px'></div>";
+                            }
+                            
+                        }
+                        
+                    } else {
+                        
+                        nextDistH = Math.floor(scale(data.nodeDistribution[i+1]));
+                        nextdashDistH = Math.floor(scale(data.overallDistribution[i+1]));
+                        if (solidDistH < dashDistH) {
+                            if (dashDistH < nextdashDistH) {
+                                t = t + "<div class='tipNocolRightDash' style='height:" + (nextdashDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipNocolTopDash' style='height:" + (dashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH) + "px'></div>";
+                            } else if (solidDistH < nextdashDistH && nextdashDistH <= dashDistH ) {
+                                t = t + "<div class='tipNocolTopRightDash' style='height:" + (dashDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipNocolNoDash' style='height:" + (nextdashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH) + "px'></div>";
+                            } else if (nextdashDistH <= solidDistH) {
+                                t = t + "<div class='tipNocolTopRightDash' style='height:" + (dashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (solidDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (nextdashDistH) + "px'></div>";
+                            }
+                        } else {
+                            if (solidDistH < nextdashDistH) {
+                                t = t + "<div class='tipNocolRightDash' style='height:" + (nextdashDistH - solidDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (solidDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopDash' style='height:" + (dashDistH) + "px'></div>";
+                            } else if (dashDistH < nextdashDistH && nextdashDistH <= solidDistH ) {
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueRightDash' style='height:" + (nextdashDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopDash' style='height:" + (dashDistH) + "px'></div>";
+                            } else if (nextdashDistH <= dashDistH) {
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (solidDistH - dashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueTopRightDash' style='height:" + (dashDistH - nextdashDistH) + "px'></div>";
+                                t = t + "<div class='tipBlueNoDash' style='height:" + (nextdashDistH) + "px'></div>";
+                            }
+                        }
+                    }
+                    t = t  + "</td>";
+                    prevDistH = solidDistH;
+                    prevdashDistH = dashDistH;
+                }
+                t = t + "</tr>";
+                t = t + "</table></div>";
+                t = t + "<div class='tipTextAfterTable'>"
+                        + "Node Mean = " + realFormatter(data.y)
+                        + ", Global Mean = " + realFormatter(data.y0)
+                        + ", n = " + realFormatter(data.n) + "</div>";
+                data.tooltip = t;
+            } else {
+                data.tooltip = "<div class='tipTableContainer'>"
+                        + "Node Mean = " + realFormatter(data.y)
+                        + ", Global Mean = " + realFormatter(data.y0)
+                        + ", n = " + realFormatter(data.n) + "</div>";
+            }
+
+            if (data.children) {
+                tooltip.createRgTips(data.children[0], scale, maxL);
+                tooltip.createRgTips(data.children[1], scale, maxL);
+            }
+            
+        }
+        
+    };
     
     function chart(selection) {
 
-      var treeData = data; 
+        var treeData = data; 
     
         // Calculate total nodes, max label length
         var totalNodes = 0;
@@ -41,9 +191,24 @@ function Sankey() {
         if(opts.tooltip){
           tip = d3.tip()
                   .attr('class', 'd3-tip')
-                  .html(function(d) {return d; });
+                  .html(function(d) {return d[opts.tooltip]; });
+            
+            if (opts.numericDistribution) {
+                var tipBarScale;
+                if (treeData.treeType === "Classification") {
+                    maxBarLength = 30;
+                    tipBarScale = d3.scale.linear().domain([0, 1]).range([0, maxBarLength]);
+                    tooltip.createClTips(treeData, tipBarScale, maxBarLength);
+                } else if (treeData.treeType === "Regression") {
+                    maxBarLength = 50;
+                    tipBarScale = d3.scale.linear().domain([0, 1]).range([0, maxBarLength]);
+                    tooltip.createRgTips(treeData, tipBarScale, maxBarLength);
+                }
+            }
+            
+            console.log(treeData);
 
-          if(Array.isArray(opts.tooltip)){
+          /*if(Array.isArray(opts.tooltip)){
             tip.html(function(d){
               var htmltip = [];
               opts.tooltip.forEach(function(ky){
@@ -57,14 +222,36 @@ function Sankey() {
             tip.html(function(d) { 
               return d[opts.tooltip];
             });
-          }
+          }*/
         }
         
         // size of the diagram
         var viewerWidth = width;
         var viewerHeight = height;
+        // define the baseSvg, attaching a class for styling and the zoomListener
+        var baseSvg = selection.select("svg");
+    
+        var tree = d3.layout.tree()
+            .size([viewerHeight, viewerWidth])
+            .children(function(d){return d[opts.childrenName]});
+    
+        // define a d3 diagonal projection for use by the node paths later on.
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) {
+                return [d.y, d.x];
+            })
+            .source(function(d){
+              if(d.ystacky) return d;
+              return d.source;
+            });
+            
+        var nodeHeightRatio = getNodeHeightRatio();
         
-        function attachLegend(){
+        var nhScale = d3.scale.pow()
+                      .exponent(4).domain([0.5,1]).range([1,3]);
+        nodeHeightRatio = nhScale(nodeHeightRatio);
+        
+        /*function attachLegend(){
           // assumes two sets of data, color and text of the legend, has been passed on 
           // as input from the R binding
           var legendColor = treeData.legendColor.reverse();
@@ -206,24 +393,8 @@ function Sankey() {
                               .style("fill","transparent");
                               
 
-        }
-        // define the baseSvg, attaching a class for styling and the zoomListener
-        var baseSvg = selection.select("svg");
-    
-        var tree = d3.layout.tree()
-            .size([viewerHeight, viewerWidth])
-            .children(function(d){return d[opts.childrenName]});
-    
-        // define a d3 diagonal projection for use by the node paths later on.
-        var diagonal = d3.svg.diagonal()
-            .projection(function(d) {
-                return [d.y, d.x];
-            })
-            .source(function(d){
-              if(d.ystacky) return d;
-              return d.source;
-            });
-    
+        }*/
+
         function getNodeHeightRatio() {
           var nRatio = 0.0;
           var maxRatio = 0.0;
@@ -239,12 +410,6 @@ function Sankey() {
           return maxRatio;
         }
         
-        var nodeHeightRatio = getNodeHeightRatio();
-        
-        var nhScale = d3.scale.pow()
-                      .exponent(4).domain([0.5,1]).range([1,3]);
-        nodeHeightRatio = nhScale(nodeHeightRatio);
-        
         // A recursive helper function for performing some setup by walking through all nodes
         function visit(parent, visitFn, childrenFn) {
             if (!parent) return;
@@ -259,7 +424,12 @@ function Sankey() {
                 }
             }
         }
-    
+
+         // Define the zoom function for the zoomable tree
+        function zoom() {
+            svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        }
+        
         // Call visit function to establish maxLabelLength
         var meanLabelLength = 0.0;
         visit(treeData, function(d) {
@@ -271,61 +441,26 @@ function Sankey() {
         });
         meanLabelLength = (meanLabelLength/totalNodes) | 0 + 1;
         meanLabelLength = meanLabelLength > 10 ? meanLabelLength : 10;
-        // sort the tree according to the node names
-    
-        function sortTree() {
-            tree.sort(function(a, b) {
-                return b[opts.name].toLowerCase() < a[opts.name].toLowerCase() ? 1 : -1;
-            });
-        }
-        // Sort the tree initially in case the JSON isn't in a sorted order.
-        sortTree();
-    
-        // TODO: Pan function, can be better implemented.
-    
-        /*function pan(domNode, direction) {
-            var speed = panSpeed;
-            if (panTimer) {
-                clearTimeout(panTimer);
-                translateCoords = d3.transform(svgGroup.attr("transform"));
-                if (direction == 'left' || direction == 'right') {
-                    translateX = direction == 'left' ? translateCoords.translate[0] + speed : translateCoords.translate[0] - speed;
-                    translateY = translateCoords.translate[1];
-                } else if (direction == 'up' || direction == 'down') {
-                    translateX = translateCoords.translate[0];
-                    translateY = direction == 'up' ? translateCoords.translate[1] + speed : translateCoords.translate[1] - speed;
-                }
-                scaleX = translateCoords.scale[0];
-                scaleY = translateCoords.scale[1];
-                scale = zoomListener.scale();
-                svgGroup.transition().attr("transform", "translate(" + translateX + "," + translateY + ")scale(" + scale + ")");
-                d3.select(domNode).select('g.node').attr("transform", "translate(" + translateX + "," + translateY + ")");
-                zoomListener.scale(zoomListener.scale());
-                zoomListener.translate([translateX, translateY]);
-                panTimer = setTimeout(function() {
-                    pan(domNode, speed, direction);
-                }, 50);
-            }
-        }*/
-    
-        // Define the zoom function for the zoomable tree
-    
-        function zoom() {
-            svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        }
         
-        function zoomLegend() {
+        // sort the tree according to the node names
+        tree.sort(function(a, b) {
+            return b[opts.name].toLowerCase() < a[opts.name].toLowerCase() ? 1 : -1;
+        });
+        var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
+       
+    
+        /*function zoomLegend() {
             legendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
         }
     
         function zoomCatLegend() {
             catLegendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        }
+        }*/
     
         // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-        var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
-        var zoomListenerLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomLegend);
-        var zoomListenerCatLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomCatLegend);
+        
+        //var zoomListenerLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomLegend);
+        //var zoomListenerCatLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomCatLegend);
         /*function initiateDrag(d, domNode) {
             draggingNode = d;
             d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
@@ -600,7 +735,7 @@ function Sankey() {
                         levelWidth.length * 10; // node link size + node rect size
             }
             
-            dummyRect.attr("width", newWidth + meanLabelLength*pxPerChar).attr("height", newHeight);
+            //dummyRect.attr("width", newWidth + meanLabelLength*pxPerChar).attr("height", newHeight);
             
             // Size link width according to n based on total n
             wscale = d3.scale.linear()
@@ -626,14 +761,13 @@ function Sankey() {
                 });
             }
 
-
-    
             // Update the nodes…
             node = svgGroup.selectAll("g.node")
                 .data(nodes, function(d) {
                     return d[opts.id] || (d[opts.id] = ++i);
                 });
-    
+            
+            console.log(nodes);
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
                // .call(dragListener)
@@ -914,16 +1048,14 @@ function Sankey() {
         }
     
         // Append a group which holds all nodes and which the zoom Listener can act upon.
-        var svgGroup = baseSvg.append("g")
-                      .call(zoomListener)
-                      .on("dblclick.zoom", null)
-                      .on("mousemove.zoom", null)
-                      .on("touchstart.zoom", null)
-                      .on("MozMousePixelScroll.zoom", null)
-                      .append("g");
+        var svgGroup = baseSvg
+                    .call(zoomListener)
+                    .on("dblclick.zoom", null)
+                    .append("g")
+                    .attr("class", "treeGroup");
         
         // Append a dummy rectangle which can be used to move the tree
-        var dummyRect = svgGroup.append("rect")
+        /*var dummyRect = svgGroup.append("rect")
                         .attr("width", viewerWidth)
                         .attr("height", viewerHeight)
                         .attr("x", -meanLabelLength*pxPerChar)
@@ -931,11 +1063,11 @@ function Sankey() {
                         .attr("id", "dummyRect")
                         .style("cursor", "move")
                         .style("pointer-events","all")
-                        .attr("fill","none");         
+                        .attr("fill","none");         */
                   
         // if tooltip then set it up
         if(opts.tooltip){
-          svgGroup.call(tip);
+            svgGroup.call(tip);
         }
     
         // Define the root
@@ -946,7 +1078,6 @@ function Sankey() {
         // Layout the tree initially and center on the root node.
         update(root);
         
-
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
         if (zoomListener.scale() == 1) {
@@ -962,7 +1093,7 @@ function Sankey() {
         centerNode(root);
         
         
-        if (opts.colorLegend) {
+        /*if (opts.colorLegend) {
           var legendBox = baseSvg.append("g")
                           .attr("id", "colorLegend")
                           .style("cursor", "move")
@@ -975,9 +1106,9 @@ function Sankey() {
                           .on("MozMousePixelScroll.zoom", null)
                           .append("g");
           attachLegend();
-        } 
+        }*/
         
-        if (opts.categoryLegend && treeData.categoryLegend) {
+        /*if (opts.categoryLegend && treeData.categoryLegend) {
           var catLegendBox = baseSvg.append("g")
                             .attr("id", "catLegend")
                              .style("cursor", "move")
@@ -990,7 +1121,7 @@ function Sankey() {
                             .on("MozMousePixelScroll.zoom", null)
                             .append("g");
           attachCategoryLegend();                 
-        }
+        }*/
    
 
     }

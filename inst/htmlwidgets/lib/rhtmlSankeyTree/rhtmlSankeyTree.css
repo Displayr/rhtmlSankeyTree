@@ -69,3 +69,182 @@
 .ghostCircle, .activeDrag .ghostCircle{
      display: none;
 }
+
+.tipTableContainer {
+    background-color: #333;
+    font-family: sans-serif;
+    margin: 2px;
+}
+
+
+.tipTextAfterTable {
+    text-align: center;
+    font-family: sans-serif;
+    margin-top: 4px;
+}
+
+.tipTable {
+    margin: 0 auto;
+    border-collapse: collapse;
+    border: 0;
+    vertical-align:bottom;
+    padding:0;
+    font-family: sans-serif;
+}
+
+.tipD {
+    margin: 0;
+    border-collapse: collapse;
+    border: 0;
+    vertical-align:bottom;
+    padding:0;
+    font-family: sans-serif;
+}
+
+.tipBlueNoDash {
+    width:10px;
+    background-color: steelblue;
+}
+
+
+.tipBlueLeftDash {
+    width:10px;
+    background-color: steelblue;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-left: 1px dashed #efefef;
+}
+
+.tipBlueRightDash {
+    width:10px;
+    background-color: steelblue;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-right: 1px dashed #efefef;
+}
+
+.tipBlueLeftRightDash {
+    width:10px;
+    background-color: steelblue;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-left: 1px dashed #efefef;
+    border-right: 1px dashed #efefef;
+}
+
+
+.tipBlueTopDash {
+    width:10px;
+    background-color: steelblue;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+}
+
+.tipBlueTopLeftDash {
+    width:10px;
+    background-color: steelblue;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+    border-left: 1px dashed #efefef;
+}
+
+.tipBlueTopRightDash {
+    width:10px;
+    background-color: steelblue;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+    border-right: 1px dashed #efefef;
+}
+
+.tipBlueTopLeftRightDash {
+    width:10px;
+    background-color: steelblue;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+    border-left: 1px dashed #efefef;
+    border-right: 1px dashed #efefef;
+}
+
+.tipNocolNoDash {
+    width:10px;
+    background-color: transparent;
+}
+
+.tipNocolLeftDash {
+    width:10px;
+    background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-left: 1px dashed #efefef;
+}
+
+.tipNocolRightDash {
+    width:10px;
+    background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-right: 1px dashed #efefef;
+}
+
+.tipNocolLeftRightDash {
+    width:10px;
+    background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-left: 1px dashed #efefef;
+    border-right: 1px dashed #efefef;
+}
+
+.tipNocolTopDash {
+    width:10px;
+    background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+}
+
+.tipNocolTopLeftDash {
+    width:10px;
+    background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+    border-left: 1px dashed #efefef;
+}
+
+.tipNocolTopRightDash {
+    width:10px;
+    background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+    border-right: 1px dashed #efefef;
+}
+
+.tipNocolTopLeftRightDash {
+    width:10px;
+    background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border-top: 1px dashed #efefef;
+    border-left: 1px dashed #efefef;
+    border-right: 1px dashed #efefef;
+}
