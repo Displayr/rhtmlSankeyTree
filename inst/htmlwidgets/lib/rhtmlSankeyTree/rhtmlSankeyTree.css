@@ -274,8 +274,8 @@
 .northTip {
 	width: 0;
 	height: 0;
-	border-left: 7px solid transparent;
-	border-right: 7px solid transparent;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
 	border-top: 10px solid #333;
 	font-size: 0;
 	line-height: 0;
@@ -285,8 +285,8 @@
 .southTip {
 	width: 0;
 	height: 0;
-	border-left: 7px solid transparent;  /* left arrow slant */
-	border-right: 7px solid transparent; /* right arrow slant */
+	border-left: 5px solid transparent;  /* left arrow slant */
+	border-right: 5px solid transparent; /* right arrow slant */
 	border-bottom: 10px solid #333; /* bottom, add background color here */
 	font-size: 0;
 	line-height: 0;
@@ -296,8 +296,8 @@
 .eastTip {
 	width: 0;
 	height: 0;
-	border-top: 7px solid transparent;
-	border-bottom: 7px solid transparent;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
 	border-right: 10px solid #333;
 	font-size: 0;
 	line-height: 0;
@@ -307,8 +307,8 @@
 .westTip {
 	width: 0;
 	height: 0;
-	border-top: 7px solid transparent;
-	border-bottom: 7px solid transparent;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
 	border-left: 10px solid #333;
 	font-size: 0;
 	line-height: 0;

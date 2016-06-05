@@ -759,15 +759,14 @@ function Sankey() {
             var tipNorth = clientRect.top - 5;
             var tipEast = clientRect.right + 5;
             var tipWest = clientRect.left - 5;
-            console.log(clientRect);
             
-            if (height - tipSouth >= tipHeight) {
-                
-                thisTip = thisTip.direction("s").offset([10,0]).show(d, tipRect);
+            if (tipNorth - tipHeight >= 0) {
+                // northward tip
+                thisTip = thisTip.direction("n").offset([-10,0]).show(d, tipRect);
                 d3.select("#littleTriangle")
-                .attr("class", "southTip")
+                .attr("class", "northTip")
                 .style("visibility", "visible")
-                .style("top", (clientRect.bottom) + "px")
+                .style("top", (clientRect.top - 12.5) + "px")
                 .style("left", (clientRect.left + clientRect.width/2 - 5) + "px");
                 
                 if (parseFloat(thisTip.style("left")) < 0) {
@@ -776,13 +775,13 @@ function Sankey() {
                     thisTip.style("left", (width - 5 - tipWidth) + "px");
                 }
                 
-            } else if (tipNorth - tipHeight >= 0) {
-                // northward tip
-                thisTip = thisTip.direction("n").offset([-10,0]).show(d, tipRect);
+            } else if (height - tipSouth >= tipHeight) {
+                
+                thisTip = thisTip.direction("s").offset([10,0]).show(d, tipRect);
                 d3.select("#littleTriangle")
-                .attr("class", "northTip")
+                .attr("class", "southTip")
                 .style("visibility", "visible")
-                .style("top", (clientRect.top - 10) + "px")
+                .style("top", (clientRect.bottom + 2.5) + "px")
                 .style("left", (clientRect.left + clientRect.width/2 - 5) + "px");
                 
                 if (parseFloat(thisTip.style("left")) < 0) {
@@ -798,7 +797,7 @@ function Sankey() {
                 .attr("class", "westTip")
                 .style("visibility", "visible")
                 .style("top", (clientRect.top + clientRect.height/2 - 5) + "px")
-                .style("left", (clientRect.left - 10) + "px");
+                .style("left", (clientRect.left - 12.5) + "px");
                 
                 if (parseFloat(thisTip.style("top")) < 0) {
                     thisTip.style("top", "5px");
@@ -812,7 +811,7 @@ function Sankey() {
                 .attr("class", "eastTip")
                 .style("visibility", "visible")
                 .style("top", (clientRect.top + clientRect.height/2 - 5) + "px")
-                .style("left", (clientRect.right) + "px");
+                .style("left", (clientRect.right + 2.5) + "px");
                 
                 if (parseFloat(thisTip.style("top")) < 0) {
                     thisTip.style("top", "5px");
@@ -887,18 +886,18 @@ function Sankey() {
                     return d[opts.id] || (d[opts.id] = ++i);
                 });
             
+            var nodeRectWidth = 5;
+            var nodeVisibleWidth = meanLabelLength*pxPerChar-nodeRectWidth;
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
                // .call(dragListener)
                 .attr("class", "node")
+                .style("opacity", 0)
                 .attr("id", function(d) { return "node" + d[opts.id];})
                 .attr("transform", function(d) {
-                    return "translate(" + source.y0 + "," + source.x0 + ")";
+                    return "translate(" + (source.y0 + 7.5) + "," + source.x0 + ")";
                 });
                 
-
-            var nodeRectWidth = 5;
-            var nodeVisibleWidth = meanLabelLength*pxPerChar-nodeRectWidth;
             nodeEnter.append("rect")
                 .attr("class", "nodeRect")
                 .attr("id", function(d,i) { return "nodeRect" + d[opts.id];})
@@ -1039,6 +1038,7 @@ function Sankey() {
             // Transition nodes to their new position.
             var nodeUpdate = node.transition()
                 .duration(duration)
+                .style("opacity", 1)
                 .attr("transform", function(d) {
                     return "translate(" + d.y + "," + d.x + ")";
                 });
@@ -1050,8 +1050,9 @@ function Sankey() {
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit().transition()
                 .duration(duration)
+                .style("opacity", 0)
                 .attr("transform", function(d) {
-                    return "translate(" + source.y + "," + source.x + ")";
+                    return "translate(" + (source.y + 7.5) + "," + source.x + ")";
                 })
                 .remove();
     
@@ -1126,7 +1127,7 @@ function Sankey() {
                 .attr("class", "link")
                 .attr("d", function(d) {
                     var o = {
-                        x: source.x0,
+                        x: source.x0 + 5,
                         y: source.y0
                     };
                     return diagonal({
@@ -1164,7 +1165,7 @@ function Sankey() {
                 .duration(duration)
                 .attr("d", function(d) {
                     var o = {
-                        x: source.x,
+                        x: source.x + 5,
                         y: source.y
                     };
                     return diagonal({
