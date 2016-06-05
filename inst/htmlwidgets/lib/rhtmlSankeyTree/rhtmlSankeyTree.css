@@ -268,3 +268,49 @@
     border-left: 1px dashed #efefef;
     border-right: 1px dashed #efefef;
 }
+
+
+
+.northTip {
+	width: 0;
+	height: 0;
+	border-left: 7px solid transparent;
+	border-right: 7px solid transparent;
+	border-top: 10px solid #333;
+	font-size: 0;
+	line-height: 0;
+	position: absolute;
+}
+
+.southTip {
+	width: 0;
+	height: 0;
+	border-left: 7px solid transparent;  /* left arrow slant */
+	border-right: 7px solid transparent; /* right arrow slant */
+	border-bottom: 10px solid #333; /* bottom, add background color here */
+	font-size: 0;
+	line-height: 0;
+	position: absolute;
+}
+
+.eastTip {
+	width: 0;
+	height: 0;
+	border-top: 7px solid transparent;
+	border-bottom: 7px solid transparent;
+	border-right: 10px solid #333;
+	font-size: 0;
+	line-height: 0;
+	position: absolute;
+}
+
+.westTip {
+	width: 0;
+	height: 0;
+	border-top: 7px solid transparent;
+	border-bottom: 7px solid transparent;
+	border-left: 10px solid #333;
+	font-size: 0;
+	line-height: 0;
+	position: absolute;
+}

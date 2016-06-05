@@ -217,7 +217,11 @@ function Sankey() {
           tip = d3.tip()
                   .attr('class', 'd3-tip')
                   .html(function(d) {return d[opts.tooltip]; });
-            
+                  
+            var tipTriangle = d3.select("body")
+                            .append("div")
+                            .attr("id", "littleTriangle")
+                            .style("visibility", "hidden");
             if (opts.numericDistribution) {
                 var tipBarScale;
                 if (treeData.treeType === "Classification") {
@@ -625,7 +629,7 @@ function Sankey() {
   */
         // Helper functions for collapsing and expanding nodes.
     
-        function collapse(d) {
+        /*function collapse(d) {
             if (d[opts.childrenName]) {
                 d._children = d[opts.childrenName];
                 d._children.forEach(collapse);
@@ -676,7 +680,7 @@ function Sankey() {
             link.attr("d", d3.svg.diagonal());
     
             link.exit().remove();
-        };
+        };*/
     
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
     
@@ -715,8 +719,9 @@ function Sankey() {
             centerNode(d);
         }
         
-        function clickText() {
+        function clickText(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
+            d.hidden = true;
             d3.select(this).style("display", "none");
             svgGroup.select("#bgt" + this.id.substring(1)).style("display", "none");
             var selector = "#c" + this.id.substring(1);
@@ -724,13 +729,103 @@ function Sankey() {
             svgGroup.select("#bgc" + this.id.substring(1)).style("display", "inline");
         }
         
-        function clickHiddenText() {
+        function clickHiddenText(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
+            d.hidden = false;
             d3.select(this).style("display", "none");
             svgGroup.select("#bgc" + this.id.substring(1)).style("display", "none");
             var selector = "#t" + this.id.substring(1);
             svgGroup.select(selector).style("display", "inline");
             svgGroup.select("#bgt" + this.id.substring(1)).style("display", "inline");
+        }
+        
+        function mouseOverNode(d, el, sel) {
+            var tipRect = sel.select("#nodeRect" + d[opts.id]);
+            var tipNode = sel.select("#node" + d[opts.id]);
+            var thisTip = tip.show(d, tipRect);
+            
+            var x = Number(sel.select("#nodeRect" + d[opts.id]).attr("x")),
+                y = Number(sel.select("#nodeRect" + d[opts.id]).attr("y")),
+                w = Number(sel.select("#nodeRect" + d[opts.id]).attr("width")),
+                h = Number(sel.select("#nodeRect" + d[opts.id]).attr("height"));
+            
+            // height of the tip
+            var tipHeight = parseFloat(thisTip.style("height"));
+            // width of the tip
+            var tipWidth = parseFloat(thisTip.style("width"));
+            var clientRect = el.getBoundingClientRect();
+            // southward and northward tip top y position
+            var tipSouth = clientRect.bottom + 5;
+            var tipNorth = clientRect.top - 5;
+            var tipEast = clientRect.right + 5;
+            var tipWest = clientRect.left - 5;
+            console.log(clientRect);
+            
+            if (height - tipSouth >= tipHeight) {
+                
+                thisTip = thisTip.direction("s").offset([10,0]).show(d, tipRect);
+                d3.select("#littleTriangle")
+                .attr("class", "southTip")
+                .style("visibility", "visible")
+                .style("top", (clientRect.bottom) + "px")
+                .style("left", (clientRect.left + clientRect.width/2 - 5) + "px");
+                
+                if (parseFloat(thisTip.style("left")) < 0) {
+                    thisTip.style("left", "5px");
+                } else if (parseFloat(thisTip.style("left")) + tipWidth > width) {
+                    thisTip.style("left", (width - 5 - tipWidth) + "px");
+                }
+                
+            } else if (tipNorth - tipHeight >= 0) {
+                // northward tip
+                thisTip = thisTip.direction("n").offset([-10,0]).show(d, tipRect);
+                d3.select("#littleTriangle")
+                .attr("class", "northTip")
+                .style("visibility", "visible")
+                .style("top", (clientRect.top - 10) + "px")
+                .style("left", (clientRect.left + clientRect.width/2 - 5) + "px");
+                
+                if (parseFloat(thisTip.style("left")) < 0) {
+                    thisTip.style("left", "5px");
+                } else if (parseFloat(thisTip.style("left")) + tipWidth > width) {
+                    thisTip.style("left", (width - 5 - tipWidth) + "px");
+                }
+                
+            } else if (tipEast >= width * 0.5) {
+                
+                thisTip = thisTip.direction("w").offset([0,-10]).show(d, tipRect);
+                d3.select("#littleTriangle")
+                .attr("class", "westTip")
+                .style("visibility", "visible")
+                .style("top", (clientRect.top + clientRect.height/2 - 5) + "px")
+                .style("left", (clientRect.left - 10) + "px");
+                
+                if (parseFloat(thisTip.style("top")) < 0) {
+                    thisTip.style("top", "5px");
+                } else if (parseFloat(thisTip.style("top")) + tipHeight > height) {
+                    thisTip.style("top", (height - tipHeight - 5) + "px");
+                }
+                
+            } else {
+                thisTip = thisTip.direction("e").offset([0,10]).show(d, tipRect);
+                d3.select("#littleTriangle")
+                .attr("class", "eastTip")
+                .style("visibility", "visible")
+                .style("top", (clientRect.top + clientRect.height/2 - 5) + "px")
+                .style("left", (clientRect.right) + "px");
+                
+                if (parseFloat(thisTip.style("top")) < 0) {
+                    thisTip.style("top", "5px");
+                } else if (parseFloat(thisTip.style("top")) + tipHeight > height) {
+                    thisTip.style("top", (height - tipHeight - 5) + "px");
+                }
+            }
+            
+        }
+        
+        function mouseOutNode(d) {
+            d3.select("#littleTriangle").style("visibility", "hidden");
+            tip.hide(d);
         }
         
         function update(source) {
@@ -763,7 +858,7 @@ function Sankey() {
             //dummyRect.attr("width", newWidth + meanLabelLength*pxPerChar).attr("height", newHeight);
             
             // Size link width according to n based on total n
-            wscale = d3.scale.linear()
+            var wscale = d3.scale.linear()
                 .range([0,opts.nodeHeight/nodeHeightRatio || 25])
                 .domain([0,treeData[opts.value]]);
             
@@ -792,11 +887,11 @@ function Sankey() {
                     return d[opts.id] || (d[opts.id] = ++i);
                 });
             
-            console.log(nodes);
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
                // .call(dragListener)
                 .attr("class", "node")
+                .attr("id", function(d) { return "node" + d[opts.id];})
                 .attr("transform", function(d) {
                     return "translate(" + source.y0 + "," + source.x0 + ")";
                 });
@@ -806,13 +901,14 @@ function Sankey() {
             var nodeVisibleWidth = meanLabelLength*pxPerChar-nodeRectWidth;
             nodeEnter.append("rect")
                 .attr("class", "nodeRect")
+                .attr("id", function(d,i) { return "nodeRect" + d[opts.id];})
                 .attr("x", -nodeRectWidth/2)
                 .attr("y", function(d){return -wscale(d[opts.value])/2})
                 .attr("height", function(d){return wscale(d[opts.value])})
                 .attr("width", nodeRectWidth)
                 .on('click', click)
-                .on('mouseover', opts.tooltip ? tip.show : null)
-                .on('mouseout', opts.tooltip ? tip.hide : null);
+                .on('mouseover', opts.tooltip ? function(d) { mouseOverNode(d,this,baseSvg);} : null)
+                .on('mouseout', opts.tooltip ? function(d) { mouseOutNode(d);} : null);
                 
             var nrect1 = nodeEnter.append("rect")
                             .attr("class", "nodeTextBg1")
@@ -850,6 +946,7 @@ function Sankey() {
                 })
                 .on("click", clickHiddenText);
             
+            // Issue: rect height bug when clicked
             nrect1.attr("x", function(d) {
                       return -svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
                   })
@@ -876,26 +973,38 @@ function Sankey() {
                       return svgGroup.select("#c" + d[opts.id])[0][0].getBoundingClientRect().height;
                   });
                   
-            svgGroup.selectAll(".nodeText2").style("display", "none");
-            nrect2.style("display", "none");
+            svgGroup.selectAll(".nodeText2").style("display", function(d) {
+                if (d.hidden) {
+                    return "inline";
+                } else {
+                    return "none";
+                }
+            });
+            svgGroup.selectAll(".nodeTextBg2").style("display", function(d) {
+                if (d.hidden) {
+                    return "inline";
+                } else {
+                    return "none";
+                }
+            });
             
             if (opts.terminalDescription) {
-              nodeEnter.append("text")
-                  .attr("id", function(d) { return "terminal" + d[opts.id];})
-                  .attr("x", nodeTextDx)
-                  .attr("dy", ".35em")
-                  .attr('class', 'nodeText')
-                  .attr("text-anchor", "start")
-                  .text(function(d) {
-                      return d.terminalDescription;
-                  })
-                  .attr("font-weight", function(d) {
-                    return d[opts.childrenName] || d._children ? "normal" : "bold";
-                  });
+                nodeEnter.append("text")
+                    .attr("id", function(d) { return "terminal" + d[opts.id];})
+                    .attr("x", nodeTextDx)
+                    .attr("dy", ".35em")
+                    .attr('class', 'nodeText')
+                    .attr("text-anchor", "start")
+                    .text(function(d) {
+                        return d.terminalDescription;
+                    })
+                    .attr("font-weight", function(d) {
+                        return d[opts.childrenName] || d._children ? "normal" : "bold";
+                    });
             }
     
             // phantom node to give us mouseover in a radius around it
-            nodeEnter.append("circle")
+            /*nodeEnter.append("circle")
                 .attr('class', 'ghostCircle')
                 .attr("r", 30)
                 .attr("opacity", 0.2) // change this to zero to hide the target area
@@ -906,7 +1015,7 @@ function Sankey() {
                 })
                 .on("mouseout", function(node) {
                     outCircle(node);
-                });
+                });*/
     
             // Update the text to reflect whether node has children or not.
             /*node.select('text')
@@ -1222,7 +1331,10 @@ HTMLWidgets.widget({
   },
 
   resize: function(el, width, height, instance) {
+      
+        //d3.select(el).select("svg").attr("viewBox", "0 0 " + width + " " + height);
 
+        instance.width(width).height(height);
   }
 
 });
