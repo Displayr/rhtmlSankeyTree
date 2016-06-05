@@ -12,6 +12,31 @@ function Sankey() {
         
         createClTips: function(data, scale, maxL) {
             
+            if (data.nodeDistribution) {
+                data.tooltip = "";
+                nval = data.nodeDistribution.length;
+                
+                var t = "n: " + intFormatter(data.n) + "<br>";
+                t = t + "Description: ";
+                t = t + "<div class='tipTableContainer'><table class='tipTable'>";
+                // main tip table
+                for (var i = 0; i < nval; i++) {
+                    t = t + "<tr>";
+                    t = t + "<td class='tipDClassificationNum'>" + intFormatter(Math.round(data.nodeDistribution[i]*100)) + "%</td>";
+                    t = t + "<td class='tipDClassification'>" + data.nodeVariables[i] + "</td>";
+                    t = t + "<td class='tipDClassification'>";
+                    t = t + "<div style='width:" + scale(data.nodeDistribution[i]) + "px;height:8px;background-color:steelblue'></div>" + "</td>";
+                    t = t + "</tr>";
+                }
+                
+                t = t + "</table></div>";
+                data.tooltip = t;
+            }
+            
+            if (data.children) {
+                tooltip.createClTips(data.children[0], scale, maxL);
+                tooltip.createClTips(data.children[1], scale, maxL);
+            }
         },
         
         
@@ -196,7 +221,7 @@ function Sankey() {
             if (opts.numericDistribution) {
                 var tipBarScale;
                 if (treeData.treeType === "Classification") {
-                    maxBarLength = 30;
+                    maxBarLength = 40;
                     tipBarScale = d3.scale.linear().domain([0, 1]).range([0, maxBarLength]);
                     tooltip.createClTips(treeData, tipBarScale, maxBarLength);
                 } else if (treeData.treeType === "Regression") {
