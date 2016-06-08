@@ -84,7 +84,7 @@
 }
 
 .tipTable {
-    margin: 0;
+    margin: 0 auto;
     border-collapse: collapse;
     border: 0;
     vertical-align: middle;

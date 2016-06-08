@@ -44,6 +44,8 @@ function Sankey() {
             if (data.nodeDistribution !==  0) {
                 data.tooltip = "";
                 nval = data.overallDistribution.length;
+                var maxDomain = Math.max(d3.max(data.overallDistribution), d3.max(data.nodeDistribution));
+                scale.domain([0, maxDomain]);
                 var t = "<div class='tipTableContainer'><table class='tipTable'>";
                 t = t + "<tr>";
                 var prevDistH, prevdashDistH, solidDistH, dashDistH, nextDistH, nextdashDistH;
