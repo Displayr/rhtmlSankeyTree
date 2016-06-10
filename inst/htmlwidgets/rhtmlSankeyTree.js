@@ -952,26 +952,26 @@ function Sankey() {
                       return -svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
                   })
                   .attr("y", function(d) {
-                      return -svgGroup.select("#t" + d[opts.id])[0][0].getBoundingClientRect().height/2;
+                      return -svgGroup.select("#t" + d[opts.id])[0][0].getBBox().height/2;
                   })
                   .attr("width", function(d) {
                       return svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength();
                   })
                   .attr("height", function(d) {
-                      return svgGroup.select("#t" + d[opts.id])[0][0].getBoundingClientRect().height;
+                      return svgGroup.select("#t" + d[opts.id])[0][0].getBBox().height;
                   });
                   
             nrect2.attr("x", function(d) {
                       return -svgGroup.select("#c" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
                   })
                   .attr("y", function(d) {
-                      return -svgGroup.select("#c" + d[opts.id])[0][0].getBoundingClientRect().height/2;
+                      return -svgGroup.select("#c" + d[opts.id])[0][0].getBBox().height/2;
                   })
                   .attr("width", function(d) {
                       return svgGroup.select("#c" + d[opts.id])[0][0].getComputedTextLength();
                   })
                   .attr("height", function(d) {
-                      return svgGroup.select("#c" + d[opts.id])[0][0].getBoundingClientRect().height;
+                      return svgGroup.select("#c" + d[opts.id])[0][0].getBBox().height;
                   });
                   
             svgGroup.selectAll(".nodeText2").style("display", function(d) {
