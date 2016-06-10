@@ -919,7 +919,7 @@ function Sankey() {
                             .attr("class", "nodeTextBg2")
                             .attr("id", function(d) { return "bgc" + d[opts.id];});
                             
-            nodeEnter.append("text")
+            var ntxt1 = nodeEnter.append("text")
                 .attr("id", function(d) { return "t" + d[opts.id];})
                 .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
@@ -936,7 +936,7 @@ function Sankey() {
                 .style("fill-opacity", 0)
                 .on("click", clickText);
             
-            nodeEnter.append("text")
+            var ntxt2 = nodeEnter.append("text")
                 .attr("id", function(d) { return "c" + d[opts.id];})
                 .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
@@ -974,14 +974,35 @@ function Sankey() {
                       return svgGroup.select("#c" + d[opts.id])[0][0].getBBox().height;
                   });
                   
-            svgGroup.selectAll(".nodeText2").style("display", function(d) {
+            nrect1.each(function(d) {
+                d.hidden = false;
+            });
+
+            ntxt1.style("display", function(d) {
+                if (d.hidden) {
+                    return "none";
+                } else {
+                    return "inline";
+                }
+            });
+            
+            ntxt2.style("display", function(d) {
                 if (d.hidden) {
                     return "inline";
                 } else {
                     return "none";
                 }
             });
-            svgGroup.selectAll(".nodeTextBg2").style("display", function(d) {
+            
+            nrect1.style("display", function(d) {
+                if (d.hidden) {
+                    return "none";
+                } else {
+                    return "inline";
+                }
+            });
+            
+            nrect2.style("display", function(d) {
                 if (d.hidden) {
                     return "inline";
                 } else {
