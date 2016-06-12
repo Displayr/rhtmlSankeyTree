@@ -6,8 +6,8 @@
 \usage{
 SankeyTree(data = NULL, name = "name", id = "id", value = "size",
   childrenName = "children", treeColors = TRUE, maxLabelLength = NULL,
-  nodeHeight = NULL, tooltip = NULL, colorLegend = FALSE,
-  categoryLegend = FALSE, terminalDescription = FALSE, width = NULL,
+  nodeHeight = NULL, tooltip = NULL, categoryLegend = FALSE,
+  terminalDescription = FALSE, numeric.distribution = TRUE, width = NULL,
   height = NULL)
 }
 \description{

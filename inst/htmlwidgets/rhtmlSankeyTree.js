@@ -947,7 +947,6 @@ function Sankey() {
                 })
                 .on("click", clickHiddenText);
             
-            // Issue: rect height bug when clicked
             nrect1.attr("x", function(d) {
                       return -svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
                   })
