@@ -236,8 +236,6 @@ function Sankey() {
                     tooltip.createRgTips(treeData, tipBarScale, maxBarLength);
                 }
             }
-            
-            console.log(treeData);
 
           /*if(Array.isArray(opts.tooltip)){
             tip.html(function(d){
@@ -881,6 +879,12 @@ function Sankey() {
                     d.y = (d.depth * (meanLabelLength * pxPerChar) + nodeTextDx); //meanLabelLength * 5px
                 });
             }
+            
+            // flip the tree up and down to conform with R plot
+            var initNodeX = nodes[nodes.length-1].x;
+            nodes.forEach(function(d) {
+                d.x = initNodeX + initNodeX - d.x;
+            });
 
             // Update the nodes…
             node = svgGroup.selectAll("g.node")
@@ -897,7 +901,7 @@ function Sankey() {
                 .style("opacity", 0)
                 .attr("id", function(d) { return "node" + d[opts.id];})
                 .attr("transform", function(d) {
-                    return "translate(" + (source.y0 + 7.5) + "," + source.x0 + ")";
+                    return "translate(" + (source.y0) + "," + source.x0 + ")";
                 });
                 
             nodeEnter.append("rect")
@@ -1074,7 +1078,7 @@ function Sankey() {
                 .duration(duration)
                 .style("opacity", 0)
                 .attr("transform", function(d) {
-                    return "translate(" + (source.y + 7.5) + "," + source.x + ")";
+                    return "translate(" + (source.y) + "," + source.x + ")";
                 })
                 .remove();
     
@@ -1103,11 +1107,12 @@ function Sankey() {
             //      did not work
             link_nested.forEach(function(d){
               var ystacky = 0;
-              d.values.reverse().forEach(function(dd){
+              d.values.forEach(function(dd){
                 var ywidth = wscale(dd.target[opts.value]);
                 var srcwidth = wscale(dd.source[opts.value]);
                 srcwidth = isNaN(srcwidth) ? wscale.range()[1]/2 : srcwidth;
-                ystacky = ystacky + ywidth;                               
+                ystacky = ystacky + ywidth;        
+                // dd.x = dd.source.x;
                 dd.x = dd.source.x + srcwidth/2 - ystacky + ywidth/2;
                 dd.y = dd.source.y;
                 dd.ystacky = ystacky;
@@ -1149,7 +1154,7 @@ function Sankey() {
                 .attr("class", "link")
                 .attr("d", function(d) {
                     var o = {
-                        x: source.x0 + 5,
+                        x: source.x0,
                         y: source.y0
                     };
                     return diagonal({
@@ -1187,7 +1192,7 @@ function Sankey() {
                 .duration(duration)
                 .attr("d", function(d) {
                     var o = {
-                        x: source.x + 5,
+                        x: source.x,
                         y: source.y
                     };
                     return diagonal({
