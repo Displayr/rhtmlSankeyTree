@@ -5,6 +5,7 @@ function Sankey() {
         maxBarLength,
         treeMargins = {top: 5, left: 10, bottom: 5, right: 10},
         treeDim,
+        newTreeDim,
         xscale = 1,
         yscale = 1,
         x,
@@ -12,6 +13,8 @@ function Sankey() {
         scale,
         newScale,
         svgTrans,
+        svgGroup,
+        zoomListener,
         init = true,
         width = 500,
         realFormatter = d3.format(",.1f"),
@@ -191,9 +194,34 @@ function Sankey() {
         }
         
     };
+
+    // Define the zoom function for the zoomable tree
+    function zoom() {
+        svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    }
     
     function resizeChart(el) {
+        svgTrans = d3.transform(svgGroup.attr("transform"));
+        scale = svgTrans.scale[0];
+        newScale = scale;
+        x = svgTrans.translate[0];
+        y = svgTrans.translate[1];
         
+        xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
+        yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
+        newScale = xscale > yscale ? yscale : xscale;
+        
+        svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")")
+        .each(function() {
+            newTreeDim = this.getBoundingClientRect();
+        });
+        
+        x = (width/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
+        y = (height/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
+        svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
+        treeDim = newTreeDim;            
+        zoomListener.scale(newScale);
+        zoomListener.translate([x, y]);
     }
     
     function chart(selection) {
@@ -269,13 +297,11 @@ function Sankey() {
         }
         
         // size of the diagram
-        var viewerWidth = width;
-        var viewerHeight = height;
         // define the baseSvg, attaching a class for styling and the zoomListener
         var baseSvg = selection.select("svg");
     
         var tree = d3.layout.tree()
-            .size([viewerHeight, viewerWidth])
+            .size([height, width])
             .children(function(d){return d[opts.childrenName]});
     
         // define a d3 diagonal projection for use by the node paths later on.
@@ -302,13 +328,13 @@ function Sankey() {
           
           // fixed dimensions
           // Y
-          var leftY = viewerHeight*0.35;
-          var legendBoxHeight = viewerHeight*0.3;
+          var leftY = height*0.35;
+          var legendBoxHeight = height*0.3;
           var txtHeight = legendBoxHeight/legendText.length;
           var fontSize = txtHeight*0.7;
           
           // X
-          var rectWidth = viewerWidth*0.025;
+          var rectWidth = width*0.025;
           var textLength = 3;
           legendText.forEach(function(d){
             if (d.length > textLength) {
@@ -316,7 +342,7 @@ function Sankey() {
             }
           });
           var legendBoxWidth = rectWidth + textLength*fontSize;
-          var leftX = viewerWidth*0.99-legendBoxWidth;
+          var leftX = width*0.99-legendBoxWidth;
           var rectX = leftX + textLength*fontSize*0.1;
           var textX = leftX + rectWidth + textLength*fontSize*0.3;
           
@@ -366,9 +392,9 @@ function Sankey() {
           
           // independent
           var catLegend = treeData.categoryLegend;
-          var rectX = Math.min(viewerWidth*0.02, 5);
-          var maxRectWidth = viewerWidth*0.9;
-          var maxRectHeight = viewerHeight*0.15;
+          var rectX = Math.min(width*0.02, 5);
+          var maxRectWidth = width*0.9;
+          var maxRectHeight = height*0.15;
           var maxFontSize = 14;
           
           // work out a proper font size
@@ -388,10 +414,10 @@ function Sankey() {
             textSize = deltaY/1.5;
           }
           
-          var rectY = viewerHeight*0.99-rectHeight;
+          var rectY = height*0.99-rectHeight;
           var padding = textSize/2;
           
-          //var txtY = d3.range(0,(viewerHeight+1)/3.0, txtHeight);
+          //var txtY = d3.range(0,(height+1)/3.0, txtHeight);
 
           
           //var wdithScale = d3.scale.linear()
@@ -468,10 +494,6 @@ function Sankey() {
             }
         }
 
-         // Define the zoom function for the zoomable tree
-        function zoom() {
-            svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        }
         
         // Call visit function to establish maxLabelLength
         var meanLabelLength = 0.0;
@@ -489,7 +511,7 @@ function Sankey() {
         tree.sort(function(a, b) {
             return b[opts.name].toLowerCase() < a[opts.name].toLowerCase() ? 1 : -1;
         });
-        var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
+        zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
        
     
         /*function zoomLegend() {
@@ -574,14 +596,14 @@ function Sankey() {
                 if (relCoords[0] < panBoundary) {
                     panTimer = true;
                     pan(this, 'left');
-                } else if (relCoords[0] > (viewerWidth - panBoundary)) {
+                } else if (relCoords[0] > (width - panBoundary)) {
     
                     panTimer = true;
                     pan(this, 'right');
                 } else if (relCoords[1] < panBoundary) {
                     panTimer = true;
                     pan(this, 'up');
-                } else if (relCoords[1] > (viewerHeight - panBoundary)) {
+                } else if (relCoords[1] > (height - panBoundary)) {
                     panTimer = true;
                     pan(this, 'down');
                 } else {
@@ -708,8 +730,8 @@ function Sankey() {
                 .attr("transform", "translate(" + (x) + "," + (y) + ")scale(" + scale + ")")
                 .each("end", function(d) {
                     treeDim = this.getBoundingClientRect();
-                    x = (viewerWidth/2 - treeDim.width/2) - treeDim.left + x;
-                    y = (viewerHeight/2 - treeDim.height/2) - treeDim.top + y;
+                    x = (width/2 - treeDim.width/2) - treeDim.left + x;
+                    y = (height/2 - treeDim.height/2) - treeDim.top + y;
                     d3.select(this).transition()
                     .duration(400)
                     .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
@@ -719,7 +741,7 @@ function Sankey() {
                 });
             //x = -source.y0;
             //y = -source.x0;
-            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  viewerWidth / 2 : viewerWidth / 4 );
+            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  width / 2 : width / 4 );
             //centering.transition().duration(200).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
         }*/
 
@@ -729,10 +751,8 @@ function Sankey() {
             if (init) {
                 scale = zoomListener.scale();
                 newScale = scale;
-                x = 0;
-                y = 0;
-                //x = -source.y0 * scale + viewerWidth / 4;
-                //y = -source.x0 * scale + viewerHeight / 2;
+                x = -source.y0 * scale + width / 4;
+                y = -source.x0 * scale + height / 2;
             } else {
                 svgTrans = d3.transform(svgGroup.attr("transform"));
                 scale = svgTrans.scale[0];
@@ -745,19 +765,23 @@ function Sankey() {
                 .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
                 .each("end", function(d) {
                     treeDim = this.getBoundingClientRect();
-                    if (init && (treeDim.width < viewerWidth - treeMargins.left - treeMargins.right - 20 || 
-                        treeDim.height < viewerHeight - treeMargins.top - treeMargins.bottom - 10)) {
-                        xscale = (viewerWidth - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
-                        yscale = (viewerHeight - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
+                    xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
+                    yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
+                    newScale = xscale > yscale ? yscale : xscale;
+                    /*if (treeDim.width < width - treeMargins.left - treeMargins.right - 20 || 
+                        treeDim.height < height - treeMargins.top - treeMargins.bottom - 10) {
+                        xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
+                        yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
                         newScale = xscale > yscale ? yscale : xscale;
-                    }
+                    }*/
                     d3.select(this).attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
-                    var newTreeDim = this.getBoundingClientRect();
-                    //var x1 = (viewerWidth/2 - treeDim.width/2 / scale * newScale) - (treeDim.left - (treeDim.width / scale * newScale - treeDim.width)/2 ) + x;
-                    //var y1 = (viewerHeight/2 - treeDim.height/2 / scale * newScale) - (treeDim.top - (treeDim.height / scale * newScale - treeDim.height)/2 ) + y;
+                    newTreeDim = this.getBoundingClientRect();
+                    treeDim = newTreeDim;
+                    //var x1 = (width/2 - treeDim.width/2 / scale * newScale) - (treeDim.left - (treeDim.width / scale * newScale - treeDim.width)/2 ) + x;
+                    //var y1 = (height/2 - treeDim.height/2 / scale * newScale) - (treeDim.top - (treeDim.height / scale * newScale - treeDim.height)/2 ) + y;
                     d3.select(this).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
-                    x = (viewerWidth/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
-                    y = (viewerHeight/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
+                    x = (width/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
+                    y = (height/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
                     d3.select(this).transition()
                     .duration(duration)
                     .attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
@@ -766,7 +790,7 @@ function Sankey() {
                 });
             //x = -source.y0;
             //y = -source.x0;
-            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  viewerWidth / 2 : viewerWidth / 4 );
+            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  width / 2 : width / 4 );
             //centering.transition().duration(200).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
         }
 
@@ -1283,16 +1307,15 @@ function Sankey() {
         }
     
         // Append a group which holds all nodes and which the zoom Listener can act upon.
-        var svgGroup = baseSvg
-                    .call(zoomListener)
+        svgGroup = baseSvg.call(zoomListener)
                     .on("dblclick.zoom", null)
                     .append("g")
                     .attr("class", "treeGroup");
         
         // Append a dummy rectangle which can be used to move the tree
         /*var dummyRect = svgGroup.append("rect")
-                        .attr("width", viewerWidth)
-                        .attr("height", viewerHeight)
+                        .attr("width", width)
+                        .attr("height", height)
                         .attr("x", -meanLabelLength*pxPerChar)
                         .attr("y", 0)
                         .attr("id", "dummyRect")
@@ -1307,7 +1330,7 @@ function Sankey() {
     
         // Define the root
         root = treeData;
-        root.x0 = viewerHeight / 2;
+        root.x0 = height / 2;
         root.y0 = 0;
     
         // Layout the tree initially and center on the root node.
@@ -1324,22 +1347,15 @@ function Sankey() {
         });
 
         if (zoomListener.scale() == 1) {
-            xscale = (viewerWidth - treeMargins.left - treeMargins.right - headLength - tailLength)/treeSize[1];
-            yscale = (viewerHeight - treeMargins.top - treeMargins.bottom)/treeSize[0];
+            xscale = (width - treeMargins.left - treeMargins.right - headLength - tailLength)/treeSize[1];
+            yscale = (height - treeMargins.top - treeMargins.bottom)/treeSize[0];
             scale = xscale > yscale ? yscale : xscale;
-            //svgTrans = d3.transform(svgGroup.attr("transform"));
-            //svgGroup.attr("transform", "scale(" + scale + ")");
-            //while () {
-                
-            //}
-            
-            
             zoomListener.scale(scale);
         }
 
         /*if (zoomListener.scale() == 1) {
-          var xscale = viewerHeight/tree.size()[0]*0.85,
-              yscale = viewerWidth/tree.size()[1]*0.75;
+          var xscale = height/tree.size()[0]*0.85,
+              yscale = width/tree.size()[1]*0.75;
           if (xscale < yscale) {
             zoomListener.scale( xscale ); 
           } else {
