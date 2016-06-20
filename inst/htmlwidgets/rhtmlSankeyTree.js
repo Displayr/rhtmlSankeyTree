@@ -5,6 +5,14 @@ function Sankey() {
         maxBarLength,
         treeMargins = {top: 5, left: 10, bottom: 5, right: 10},
         treeDim,
+        xscale = 1,
+        yscale = 1,
+        x,
+        y,
+        scale,
+        newScale,
+        svgTrans,
+        init = true,
         width = 500,
         realFormatter = d3.format(",.1f"),
         intFormatter = d3.format(",d"),
@@ -183,6 +191,10 @@ function Sankey() {
         }
         
     };
+    
+    function resizeChart(el) {
+        
+    }
     
     function chart(selection) {
 
@@ -682,17 +694,18 @@ function Sankey() {
             link.attr("d", d3.svg.diagonal());
     
             link.exit().remove();
-        };*/
+        };
         
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
         function centerNode(source) {
             var scale = zoomListener.scale();
+            var trans = zoomListener.translate();
             var t = d3.transform(svgGroup.attr("transform")),
                 x = t.translate[0],
                 y = t.translate[1];
             var centering = svgGroup.transition()
                 .duration(duration)
-                .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
+                .attr("transform", "translate(" + (x) + "," + (y) + ")scale(" + scale + ")")
                 .each("end", function(d) {
                     treeDim = this.getBoundingClientRect();
                     x = (viewerWidth/2 - treeDim.width/2) - treeDim.left + x;
@@ -702,6 +715,53 @@ function Sankey() {
                     .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
                     
                     zoomListener.scale(scale);
+                    zoomListener.translate([x, y]);
+                });
+            //x = -source.y0;
+            //y = -source.x0;
+            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  viewerWidth / 2 : viewerWidth / 4 );
+            //centering.transition().duration(200).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+        }*/
+
+        // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
+        function centerNodeFit(source) {
+
+            if (init) {
+                scale = zoomListener.scale();
+                newScale = scale;
+                x = 0;
+                y = 0;
+                //x = -source.y0 * scale + viewerWidth / 4;
+                //y = -source.x0 * scale + viewerHeight / 2;
+            } else {
+                svgTrans = d3.transform(svgGroup.attr("transform"));
+                scale = svgTrans.scale[0];
+                newScale = scale;
+                x = svgTrans.translate[0];
+                y = svgTrans.translate[1];
+            }
+            var centering = svgGroup.transition()
+                .duration(duration)
+                .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
+                .each("end", function(d) {
+                    treeDim = this.getBoundingClientRect();
+                    if (init && (treeDim.width < viewerWidth - treeMargins.left - treeMargins.right - 20 || 
+                        treeDim.height < viewerHeight - treeMargins.top - treeMargins.bottom - 10)) {
+                        xscale = (viewerWidth - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
+                        yscale = (viewerHeight - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
+                        newScale = xscale > yscale ? yscale : xscale;
+                    }
+                    d3.select(this).attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
+                    var newTreeDim = this.getBoundingClientRect();
+                    //var x1 = (viewerWidth/2 - treeDim.width/2 / scale * newScale) - (treeDim.left - (treeDim.width / scale * newScale - treeDim.width)/2 ) + x;
+                    //var y1 = (viewerHeight/2 - treeDim.height/2 / scale * newScale) - (treeDim.top - (treeDim.height / scale * newScale - treeDim.height)/2 ) + y;
+                    d3.select(this).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+                    x = (viewerWidth/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
+                    y = (viewerHeight/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
+                    d3.select(this).transition()
+                    .duration(duration)
+                    .attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
+                    zoomListener.scale(newScale);
                     zoomListener.translate([x, y]);
                 });
             //x = -source.y0;
@@ -728,7 +788,8 @@ function Sankey() {
             if (d3.event.defaultPrevented) return; // click suppressed
             d = toggleChildren(d);
             update(d);
-            centerNode(d);
+            //centerNode(d);
+            centerNodeFit(d);
         }
         
         function clickText(d) {
@@ -1262,18 +1323,18 @@ function Sankey() {
             tailLength = Math.max(tailLength, this.getComputedTextLength());
         });
 
-        var xscale = 1,
-            yscale = 1;
         if (zoomListener.scale() == 1) {
             xscale = (viewerWidth - treeMargins.left - treeMargins.right - headLength - tailLength)/treeSize[1];
             yscale = (viewerHeight - treeMargins.top - treeMargins.bottom)/treeSize[0];
-            console.log(xscale);
-            console.log(yscale);
-            if (xscale > yscale) {
-                zoomListener.scale( yscale ); 
-            } else {
-                zoomListener.scale( xscale ); 
-            }
+            scale = xscale > yscale ? yscale : xscale;
+            //svgTrans = d3.transform(svgGroup.attr("transform"));
+            //svgGroup.attr("transform", "scale(" + scale + ")");
+            //while () {
+                
+            //}
+            
+            
+            zoomListener.scale(scale);
         }
 
         /*if (zoomListener.scale() == 1) {
@@ -1286,7 +1347,9 @@ function Sankey() {
           }
           
         }*/
-        centerNode(root);
+        centerNodeFit(root);
+        setTimeout(function() {init = false;}, duration*1.5);
+        
         
         
         /*if (opts.colorLegend) {
@@ -1334,6 +1397,10 @@ function Sankey() {
         opts = v;
         return chart;
     };
+    
+    chart.resize = function(el) {
+        resizeChart(el);
+    };
 
     chart.width = function(v) {
         // width getter/setter
@@ -1368,14 +1435,10 @@ HTMLWidgets.widget({
         height = h < 100 ? 100 : h;
 
         d3.select(el)
-            .append("div")
-            .attr("class", "svg-container")
             .append("svg")
-            .attr("preserveAspectRatio", "xMinYMin meet")
-            .attr("viewBox", "0 0 " + width + " " + height)
             .attr("class", "svg-content-responsive")
-            .attr("width", "100%")
-            .attr("height", "100%");
+            .attr("width", width)
+            .attr("height", height);
             
         return Sankey().width(width).height(height);
 
@@ -1394,9 +1457,13 @@ HTMLWidgets.widget({
 
   resize: function(el, width, height, instance) {
       
+        d3.select(el).select("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        return instance.width(width).height(height).resize(el);
         //d3.select(el).select("svg").attr("viewBox", "0 0 " + width + " " + height);
 
-        instance.width(width).height(height);
   }
 
 });
