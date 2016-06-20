@@ -209,7 +209,7 @@ function Sankey() {
         
         xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
         yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
-        newScale = xscale > yscale ? yscale : xscale;
+        newScale = Math.min(xscale, yscale, 3);
         
         svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")")
         .each(function() {
@@ -767,7 +767,7 @@ function Sankey() {
                     treeDim = this.getBoundingClientRect();
                     xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
                     yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
-                    newScale = xscale > yscale ? yscale : xscale;
+                    newScale = Math.min(xscale, yscale, 3);
                     /*if (treeDim.width < width - treeMargins.left - treeMargins.right - 20 || 
                         treeDim.height < height - treeMargins.top - treeMargins.bottom - 10) {
                         xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
