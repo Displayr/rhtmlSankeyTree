@@ -3,6 +3,8 @@ function Sankey() {
     var data,
         opts,
         maxBarLength,
+        treeMargins = {top: 5, left: 10, bottom: 5, right: 10},
+        treeDim,
         width = 500,
         realFormatter = d3.format(",.1f"),
         intFormatter = d3.format(",d"),
@@ -197,7 +199,7 @@ function Sankey() {
         var panBoundary = 20; // Within 20px from edges will pan when dragging.
         // Misc. variables
         var i = 0;
-        var duration = 750;
+        var duration = 400;
         var root;
         var pxPerChar = 8;
         var newWidth;
@@ -681,24 +683,34 @@ function Sankey() {
     
             link.exit().remove();
         };*/
-    
+        
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
-    
         function centerNode(source) {
-            scale = zoomListener.scale();
-            x = -source.y0;
-            y = -source.x0;
-            x = x * scale + ( source[opts.name] !== root[opts.name] ?  viewerWidth / 2 : viewerWidth / 4 );
-            y = y * scale + viewerHeight / 2;
-            svgGroup.transition()
+            var scale = zoomListener.scale();
+            var t = d3.transform(svgGroup.attr("transform")),
+                x = t.translate[0],
+                y = t.translate[1];
+            var centering = svgGroup.transition()
                 .duration(duration)
-                .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
-            zoomListener.scale(scale);
-            zoomListener.translate([x, y]);
+                .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
+                .each("end", function(d) {
+                    treeDim = this.getBoundingClientRect();
+                    x = (viewerWidth/2 - treeDim.width/2) - treeDim.left + x;
+                    y = (viewerHeight/2 - treeDim.height/2) - treeDim.top + y;
+                    d3.select(this).transition()
+                    .duration(400)
+                    .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+                    
+                    zoomListener.scale(scale);
+                    zoomListener.translate([x, y]);
+                });
+            //x = -source.y0;
+            //y = -source.x0;
+            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  viewerWidth / 2 : viewerWidth / 4 );
+            //centering.transition().duration(200).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
         }
-    
+
         // Toggle children function
-    
         function toggleChildren(d) {
             if (d[opts.childrenName]) {
                 d._children = d[opts.childrenName];
@@ -1242,7 +1254,29 @@ function Sankey() {
         
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
+        var treeSize = tree.size();
+        var headLength = svgGroup.select("#t1").node().getComputedTextLength();
+        headLength = headLength ? headLength : 0;
+        var tailLength = 0;
+        svgGroup.selectAll(".nodeText").each(function(d) {
+            tailLength = Math.max(tailLength, this.getComputedTextLength());
+        });
+
+        var xscale = 1,
+            yscale = 1;
         if (zoomListener.scale() == 1) {
+            xscale = (viewerWidth - treeMargins.left - treeMargins.right - headLength - tailLength)/treeSize[1];
+            yscale = (viewerHeight - treeMargins.top - treeMargins.bottom)/treeSize[0];
+            console.log(xscale);
+            console.log(yscale);
+            if (xscale > yscale) {
+                zoomListener.scale( yscale ); 
+            } else {
+                zoomListener.scale( xscale ); 
+            }
+        }
+
+        /*if (zoomListener.scale() == 1) {
           var xscale = viewerHeight/tree.size()[0]*0.85,
               yscale = viewerWidth/tree.size()[1]*0.75;
           if (xscale < yscale) {
@@ -1251,7 +1285,7 @@ function Sankey() {
             zoomListener.scale( yscale ); 
           }
           
-        }
+        }*/
         centerNode(root);
         
         
