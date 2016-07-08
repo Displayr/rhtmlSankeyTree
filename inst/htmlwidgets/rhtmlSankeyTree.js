@@ -16,10 +16,12 @@ function Sankey() {
         svgGroup,
         zoomListener,
         init = true,
-        width = 500,
         realFormatter = d3.format(",.1f"),
         intFormatter = d3.format(",d"),
-        height = 500;
+        width = 500,
+        height = 500,
+        prevWidth,
+        prevHeight;
         
     var tooltip = {
         
@@ -46,9 +48,9 @@ function Sankey() {
                 data.tooltip = t;
             }
             
-            if (data.children) {
-                tooltip.createClTips(data.children[0], scale, maxL);
-                tooltip.createClTips(data.children[1], scale, maxL);
+            if (data[opts.childrenName]) {
+                tooltip.createClTips(data[opts.childrenName][0], scale, maxL);
+                tooltip.createClTips(data[opts.childrenName][1], scale, maxL);
             }
         },
         
@@ -186,9 +188,9 @@ function Sankey() {
                         + ", n = " + realFormatter(data.n) + "</div>";
             }
 
-            if (data.children) {
-                tooltip.createRgTips(data.children[0], scale, maxL);
-                tooltip.createRgTips(data.children[1], scale, maxL);
+            if (data[opts.childrenName]) {
+                tooltip.createRgTips(data[opts.childrenName][0], scale, maxL);
+                tooltip.createRgTips(data[opts.childrenName][1], scale, maxL);
             }
             
         }
@@ -207,21 +209,39 @@ function Sankey() {
         x = svgTrans.translate[0];
         y = svgTrans.translate[1];
         
-        xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
-        yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
-        newScale = Math.min(xscale, yscale, 3);
+        var boxWidth = width - treeMargins.left - treeMargins.right - 20,
+            boxHeight = height - treeMargins.top - treeMargins.bottom - 10,
+            treeWidth = treeDim.width,
+            treeHeight = treeDim.height;
         
+        xscale = (boxWidth)/(prevWidth - treeMargins.left - treeMargins.right - 20)*scale;
+        yscale = (boxHeight)/(prevHeight - treeMargins.top - treeMargins.bottom - 10)*scale;
+        
+        if (boxWidth >= treeWidth*xscale) {
+            if (boxHeight >= treeHeight*yscale) {
+                newScale = Math.min(Math.max(xscale, yscale), 3);
+            } else {
+                newScale = Math.min(yscale, 3);
+            }
+        } else {
+            if (boxHeight >= treeHeight*yscale) {
+                newScale = Math.min(xscale, 3);
+            } else {
+                newScale = Math.min(xscale, yscale, 3);
+            }
+        }
+
         svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")")
         .each(function() {
             newTreeDim = this.getBoundingClientRect();
         });
         
-        x = (width/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
-        y = (height/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
         svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
         treeDim = newTreeDim;            
         zoomListener.scale(newScale);
         zoomListener.translate([x, y]);
+        prevWidth = width;
+        prevHeight = height;
     }
     
     function chart(selection) {
@@ -242,10 +262,14 @@ function Sankey() {
         var duration = 400;
         var root;
         var pxPerChar = 8;
+        var nodeTextSize = 10; // initial node text size in pixcels
         var newWidth;
         var newHeight;
         var nodeScale;
         var heightScale;
+        var nodeRectWidth = 5;
+        var nodeTextDx = 10;
+        
         
         // add treeColors if told yes
         if(opts.treeColors){
@@ -963,10 +987,12 @@ function Sankey() {
             // Compute the new tree layout.
             var nodes = tree.nodes(root).reverse(),
                 links = tree.links(nodes);
+                
+            console.log(nodes);
     
             // Set widths between levels based on maxLabelLength.
 
-            var nodeTextDx = 10;
+
             if (opts.maxLabelLength) {
                 nodes.forEach(function(d) {
                     d.y = (d.depth * (maxLabelLength * 10) + nodeTextDx);  //maxLabelLength * 10px
@@ -989,7 +1015,7 @@ function Sankey() {
                     return d[opts.id] || (d[opts.id] = ++i);
                 });
             
-            var nodeRectWidth = 5;
+            
             var nodeVisibleWidth = meanLabelLength*pxPerChar-nodeRectWidth;
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
@@ -1027,6 +1053,7 @@ function Sankey() {
                 .attr('class', 'nodeText1')                
                 .attr("text-anchor", "end")
                 .text(function(d) {return d[opts.name]})
+                .style("fill-opacity", 0)
                 .text(function(d) {
                   if (this.getComputedTextLength() + nodeTextDx - nodeRectWidth/2 > nodeVisibleWidth) {
                     return d[opts.name].substring(0,meanLabelLength-3) + "...";
@@ -1034,8 +1061,14 @@ function Sankey() {
                     return d[opts.name];
                   }
                 })
-                .style("fill-opacity", 0)
                 .on("click", clickText);
+                
+            svgGroup.selectAll(".node")
+            .each(function(d) {
+                d.nodeTextPos = { left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
+                top: d.x - this.getBBox().height/2, 
+                bottom: d.x + this.getBBox().height/2};
+            });
             
             var ntxt2 = nodeEnter.append("text")
                 .attr("id", function(d) { return "c" + d[opts.id];})
@@ -1123,6 +1156,17 @@ function Sankey() {
                     .attr("font-weight", function(d) {
                         return d[opts.childrenName] || d._children ? "normal" : "bold";
                     });
+                    
+                svgGroup.selectAll(".node")
+                    .each(function(d) {
+                        if (! (d[opts.childrenName] || d._children)) {
+                            d.termTextPos = { right: d.y + nodeRectWidth/2 + nodeTextDx + this.getBBox().width, 
+                                            top: d.x - this.getBBox().height/2, 
+                                            bottom: d.x + this.getBBox().height/2};
+                        }
+                    });
+                    
+                resolveCollision(root, nodes);
             }
     
             // phantom node to give us mouseover in a radius around it
@@ -1305,6 +1349,99 @@ function Sankey() {
                 d.y0 = d.y;
             });
         }
+        
+        function updateNodePos (source, value) {
+            source.x = source.x + value;
+            source.nodeTextPos.bottom = source.nodeTextPos.bottom + value;
+            source.nodeTextPos.top = source.nodeTextPos.top + value;
+            if (! (source[opts.childrenName] || source._children)) {
+                source.termTextPos.bottom = source.termTextPos.bottom + value;
+                source.termTextPos.top = source.termTextPos.top + value;
+            }
+        }
+        
+        function moveParents (source, value) {
+            // TODO move the parent nodes of the colliding nodes
+            // so far only child nodes are moved, which can potentially be a problem
+        }
+        
+        function moveChildren (source, value) {
+            
+            updateNodePos(source, value);
+            
+            if (source[opts.childrenName]) {
+                moveChildren(source[opts.childrenName][0], value);
+                moveChildren(source[opts.childrenName][1], value);
+            }
+        }
+        
+        function moveNodes (source, target) {
+            
+            var dx = target.termTextPos.bottom - target.termTextPos.top;
+            if (source.parent.x < target.parent.x) {
+                // source is on the top branch, move source up
+                updateNodePos(source, -dx);
+                updateNodePos(target, dx);
+                if (source[opts.childrenName]) {
+                    moveChildren(source[opts.childrenName][0], -dx);
+                    moveChildren(source[opts.childrenName][1], -dx);
+                }
+                moveParents(source, -dx);
+                moveParents(target, dx);
+            } else {
+                // source is on the bottom branch, move it down
+                updateNodePos(source, dx);
+                updateNodePos(target, -dx);
+                if (source[opts.childrenName]) {
+                    moveChildren(source[opts.childrenName][0], dx);
+                    moveChildren(source[opts.childrenName][1], dx);
+                }
+                moveParents(source, dx);
+                moveParents(target, -dx);
+            }
+        }
+        
+        // since the tree is drawn from left to right, the target is always on the left 
+        // of the source
+        function nodeCollide (source, target) {
+            if (source.nodeTextPos.left < target.termTextPos.right &&
+                ((source.nodeTextPos.bottom >= target.termTextPos.top && 
+                source.nodeTextPos.top <= target.termTextPos.top) || 
+                (source.nodeTextPos.top <= target.termTextPos.bottom && 
+                source.nodeTextPos.bottom >= target.termTextPos.bottom))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        function resolveCollision (thisNode, nodesArray) {
+            // resolve collision from root node to leaf node
+            // larger branches are moved first
+            // only check collision with lower level nodes
+            // empirically if root has depth 1, only nodes with depth 4 or above 
+            // will collide with previous nodes
+            if (thisNode.depth >= 2) {
+                // collision is only possible with nodes having depth - 1 of current
+                // and that node must be a terminal node
+                for (var i = 0; i < nodesArray.length; i++) {
+                    var targetNode = nodesArray[i];
+                    if (targetNode.depth === thisNode.depth - 1 &&
+                        !(targetNode[opts.childrenName] || targetNode._children)) {
+                        if (nodeCollide(thisNode, targetNode)) {
+                            // move nodes to the side
+                            moveNodes(thisNode, targetNode);
+                        }
+                    }
+                }
+            }
+            
+            // only run the recursion when there is children
+            if (thisNode[opts.childrenName]) {
+                resolveCollision(thisNode[opts.childrenName][0], nodesArray);
+                resolveCollision(thisNode[opts.childrenName][1], nodesArray);
+            }
+        }
     
         // Append a group which holds all nodes and which the zoom Listener can act upon.
         svgGroup = baseSvg.call(zoomListener)
@@ -1364,6 +1501,8 @@ function Sankey() {
           
         }*/
         centerNodeFit(root);
+        prevWidth = width;
+        prevHeight = height;
         setTimeout(function() {init = false;}, duration*1.5);
         
         
