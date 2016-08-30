@@ -785,11 +785,11 @@ function Sankey() {
                 y = svgTrans.translate[1];
             }
             var centering = svgGroup
-                //.transition()
-                //.duration(duration)
+                .transition()
+                .duration(duration)
                 .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
-                //.each("end", function(d) {
-                .each(function(d) {
+                .each("end", function(d) {
+                //.each(function(d) {
                     treeDim = this.getBoundingClientRect();
                     xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
                     yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
@@ -809,8 +809,8 @@ function Sankey() {
                     x = (width/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
                     y = (height/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
                     d3.select(this)
-                    //.transition()
-                    //.duration(duration)
+                    .transition()
+                    .duration(duration)
                     .attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
                     zoomListener.scale(newScale);
                     zoomListener.translate([x, y]);
@@ -1207,8 +1207,8 @@ function Sankey() {
     
             // Transition nodes to their new position.
             var nodeUpdate = node
-                //.transition()
-                //.duration(duration)
+                .transition()
+                .duration(duration)
                 .style("opacity", 1)
                 .attr("transform", function(d) {
                     return "translate(" + d.y + "," + d.x + ")";
@@ -1220,8 +1220,8 @@ function Sankey() {
     
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit()
-                //.transition()
-                //.duration(duration)
+                .transition()
+                .duration(duration)
                 .style("opacity", 0)
                 .attr("transform", function(d) {
                     return "translate(" + (source.y) + "," + source.x + ")";
@@ -1314,8 +1314,8 @@ function Sankey() {
             });
             
             // Transition links to their new position.
-            link//.transition()
-                //.duration(duration)
+            link.transition()
+                .duration(duration)
                 .attr("d", diagonal)
                 .style("stroke",function(d){
                   if(d.target.color){
@@ -1335,8 +1335,8 @@ function Sankey() {
                 
             // Transition exiting nodes to the parent's new position.
             link.exit()
-                //.transition()
-                //.duration(duration)
+                .transition()
+                .duration(duration)
                 .attr("d", function(d) {
                     var o = {
                         x: source.x,
@@ -1509,7 +1509,7 @@ function Sankey() {
         centerNodeFit(root);
         prevWidth = width;
         prevHeight = height;
-        //setTimeout(function() {init = false;}, duration*1.5);
+        setTimeout(function() {init = false;}, duration*1.5);
         
         
         
