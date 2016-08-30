@@ -203,6 +203,9 @@ function Sankey() {
     }
     
     function resizeChart(el) {
+        if (init) {
+            return;
+        }
         svgTrans = d3.transform(svgGroup.attr("transform"));
         scale = svgTrans.scale[0];
         newScale = scale;
@@ -1509,7 +1512,7 @@ function Sankey() {
         centerNodeFit(root);
         prevWidth = width;
         prevHeight = height;
-        setTimeout(function() {init = false;}, duration*1.5);
+        setTimeout(function() {init = false;}, duration*3);
         
         
         
