@@ -1172,7 +1172,14 @@ function Sankey() {
                         }
                     });
                     
-                resolveCollision(root, nodes);
+                var collided = {value: 0}, itr = 0;
+                do {
+                    collided.value = 0;
+                    itr++;
+                    resolveCollision(root, nodes, collided);
+                    //console.log(collided.value + " " + itr);
+                } while (collided.value > 0 && itr < 4)
+                
             }
     
             // phantom node to give us mouseover in a radius around it
@@ -1424,7 +1431,7 @@ function Sankey() {
             }
         }
         
-        function resolveCollision (thisNode, nodesArray) {
+        function resolveCollision (thisNode, nodesArray, collided) {
             // resolve collision from root node to leaf node
             // larger branches are moved first
             // only check collision with lower level nodes
@@ -1439,6 +1446,7 @@ function Sankey() {
                         !(targetNode[opts.childrenName] || targetNode._children)) {
                         if (nodeCollide(thisNode, targetNode)) {
                             // move nodes to the side
+                            collided.value += 1;
                             moveNodes(thisNode, targetNode);
                         }
                     }
@@ -1447,8 +1455,8 @@ function Sankey() {
             
             // only run the recursion when there is children
             if (thisNode[opts.childrenName]) {
-                resolveCollision(thisNode[opts.childrenName][0], nodesArray);
-                resolveCollision(thisNode[opts.childrenName][1], nodesArray);
+                resolveCollision(thisNode[opts.childrenName][0], nodesArray, collided);
+                resolveCollision(thisNode[opts.childrenName][1], nodesArray, collided);
             }
         }
     
