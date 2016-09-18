@@ -1180,6 +1180,10 @@ function Sankey() {
                     //console.log(collided.value + " " + itr);
                 } while (collided.value > 0 && itr < 4)
                 
+                if (itr >= 4) {
+                    console.log("Node text collision failed to resolve. Try increasing maxLabelLength when calling SankeyTree")
+                }
+                
             }
     
             // phantom node to give us mouseover in a radius around it
