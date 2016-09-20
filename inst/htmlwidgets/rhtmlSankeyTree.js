@@ -991,7 +991,7 @@ function Sankey() {
             tree = tree.size([newHeight, newWidth]);
     
             // Compute the new tree layout.
-            var nodes = tree.nodes(root).reverse(),
+            var nodes = tree.nodes(root),
                 links = tree.links(nodes);
                 
             //console.log(nodes);
@@ -1068,13 +1068,14 @@ function Sankey() {
                   }
                 })
                 .on("click", clickText);
+
                 
             svgGroup.selectAll(".node")
-            .each(function(d) {
-                d.nodeTextPos = { left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
-                top: d.x - this.getBBox().height/2, 
-                bottom: d.x + this.getBBox().height/2};
-            });
+                .each(function(d) {
+                    d.nodeTextPos = { left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
+                    top: d.x - this.getBBox().height/2, 
+                    bottom: d.x + this.getBBox().height/2};
+                });
             
             var ntxt2 = nodeEnter.append("text")
                 .attr("id", function(d) { return "c" + d[opts.id];})
@@ -1173,7 +1174,7 @@ function Sankey() {
                     });
                     
                 var collided = {value: 0}, itr = 0;
-                do {
+                /*do {
                     collided.value = 0;
                     itr++;
                     resolveCollision(root, nodes, collided);
@@ -1182,7 +1183,7 @@ function Sankey() {
                 
                 if (itr >= 4) {
                     console.log("Node text collision failed to resolve. Try increasing maxLabelLength when calling SankeyTree")
-                }
+                }*/
                 
             }
     
