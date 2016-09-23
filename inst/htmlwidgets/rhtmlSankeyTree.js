@@ -1061,7 +1061,7 @@ function Sankey() {
                 .text(function(d) {return d[opts.name]})
                 .style("fill-opacity", 0)
                 .text(function(d) {
-                  if (this.getComputedTextLength() + nodeTextDx - nodeRectWidth/2 > nodeVisibleWidth - 10) {
+                  if (this.getComputedTextLength() + nodeTextDx - nodeRectWidth/2 > nodeVisibleWidth - 5) {
                     return d[opts.name].substring(0,meanLabelLength-3) + "...";
                   } else {
                     return d[opts.name];
