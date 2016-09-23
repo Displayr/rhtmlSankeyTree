@@ -1070,7 +1070,7 @@ function Sankey() {
                 .on("click", clickText);
 
                 
-            svgGroup.selectAll(".node")
+            svgGroup.selectAll(".nodeText1")
                 .each(function(d) {
                     d.nodeTextPos = { left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
                     top: d.x - this.getBBox().height/2, 
@@ -1164,7 +1164,7 @@ function Sankey() {
                         return d[opts.childrenName] || d._children ? "normal" : "bold";
                     });
                     
-                svgGroup.selectAll(".node")
+                svgGroup.selectAll(".nodeText1")
                     .each(function(d) {
                         if (! (d[opts.childrenName] || d._children)) {
                             d.termTextPos = { right: d.y + nodeRectWidth/2 + nodeTextDx + this.getBBox().width, 
@@ -1174,7 +1174,7 @@ function Sankey() {
                     });
                     
                 var collided = {value: 0}, itr = 0;
-                /*do {
+                do {
                     collided.value = 0;
                     itr++;
                     resolveCollision(root, nodes, collided);
@@ -1183,7 +1183,7 @@ function Sankey() {
                 
                 if (itr >= 4) {
                     console.log("Node text collision failed to resolve. Try increasing maxLabelLength when calling SankeyTree")
-                }*/
+                }
                 
             }
     
