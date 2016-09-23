@@ -1074,7 +1074,10 @@ function Sankey() {
                 .each(function(d) {
                     d.nodeTextPos = { left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
                     top: d.x - this.getBBox().height/2, 
-                    bottom: d.x + this.getBBox().height/2};
+                    bottom: d.x + this.getBBox().height/2,
+                    rectTop: d.x - this.parentNode.getBBox().height/2,
+                    rectBottom: d.x + this.parentNode.getBBox().height/2,
+                    };
                 });
             
             var ntxt2 = nodeEnter.append("text")
@@ -1164,7 +1167,7 @@ function Sankey() {
                         return d[opts.childrenName] || d._children ? "normal" : "bold";
                     });
                     
-                svgGroup.selectAll(".nodeText1")
+                svgGroup.selectAll(".nodeText")
                     .each(function(d) {
                         if (! (d[opts.childrenName] || d._children)) {
                             d.termTextPos = { right: d.y + nodeRectWidth/2 + nodeTextDx + this.getBBox().width, 
@@ -1374,7 +1377,9 @@ function Sankey() {
         function updateNodePos (source, value) {
             source.x = source.x + value;
             source.nodeTextPos.bottom = source.nodeTextPos.bottom + value;
+            source.nodeTextPos.rectBottom = source.nodeTextPos.rectBottom + value;
             source.nodeTextPos.top = source.nodeTextPos.top + value;
+            source.nodeTextPos.rectTop = source.nodeTextPos.rectTop + value;
             if (! (source[opts.childrenName] || source._children)) {
                 source.termTextPos.bottom = source.termTextPos.bottom + value;
                 source.termTextPos.top = source.termTextPos.top + value;
@@ -1398,7 +1403,7 @@ function Sankey() {
         
         function moveNodes (source, target) {
             
-            var dx = target.termTextPos.bottom - target.termTextPos.top;
+            var dx = (target.termTextPos.bottom - target.termTextPos.top)*0.7;
             if (source.parent.x < target.parent.x) {
                 // source is on the top branch, move source up
                 updateNodePos(source, -dx);
@@ -1425,11 +1430,15 @@ function Sankey() {
         // since the tree is drawn from left to right, the target is always on the left 
         // of the source
         function nodeCollide (source, target) {
-            if (source.nodeTextPos.left < target.termTextPos.right &&
+            if ( source.nodeTextPos.left - 5 < target.termTextPos.right &&
                 ((source.nodeTextPos.bottom >= target.termTextPos.top && 
                 source.nodeTextPos.top <= target.termTextPos.top) || 
                 (source.nodeTextPos.top <= target.termTextPos.bottom && 
-                source.nodeTextPos.bottom >= target.termTextPos.bottom))) {
+                source.nodeTextPos.bottom >= target.termTextPos.bottom) || 
+                (source.nodeTextPos.rectBottom >= target.termTextPos.top && 
+                source.nodeTextPos.rectTop <= target.termTextPos.top) || 
+                (source.nodeTextPos.rectTop <= target.termTextPos.bottom && 
+                source.nodeTextPos.rectBottom >= target.termTextPos.bottom)) ) {
                 return true;
             } else {
                 return false;
@@ -1447,7 +1456,7 @@ function Sankey() {
                 // and that node must be a terminal node
                 for (var i = 0; i < nodesArray.length; i++) {
                     var targetNode = nodesArray[i];
-                    if (targetNode.depth === thisNode.depth - 1 &&
+                    if (targetNode.id !== thisNode.id && targetNode.depth < thisNode.depth &&
                         !(targetNode[opts.childrenName] || targetNode._children)) {
                         if (nodeCollide(thisNode, targetNode)) {
                             // move nodes to the side
