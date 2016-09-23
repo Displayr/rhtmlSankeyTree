@@ -1072,11 +1072,13 @@ function Sankey() {
                 
             svgGroup.selectAll(".nodeText1")
                 .each(function(d) {
-                    d.nodeTextPos = { left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
-                    top: d.x - this.getBBox().height/2, 
-                    bottom: d.x + this.getBBox().height/2,
-                    rectTop: d.x - this.parentNode.getBBox().height/2,
-                    rectBottom: d.x + this.parentNode.getBBox().height/2,
+                    d.nodeTextPos = { 
+                        left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
+                        top: d.x - this.getBBox().height/2, 
+                        bottom: d.x + this.getBBox().height/2,
+                        rectLeft: d.y - nodeRectWidth/2,
+                        rectTop: d.x - this.parentNode.getBBox().height/2,
+                        rectBottom: d.x + this.parentNode.getBBox().height/2,
                     };
                 });
             
@@ -1182,9 +1184,9 @@ function Sankey() {
                     itr++;
                     resolveCollision(root, nodes, collided);
                     //console.log(collided.value + " " + itr);
-                } while (collided.value > 0 && itr < 4)
+                } while (collided.value > 0 && itr < 7)
                 
-                if (itr >= 4) {
+                if (itr >= 7) {
                     console.log("Node text collision failed to resolve. Try increasing maxLabelLength when calling SankeyTree")
                 }
                 
@@ -1430,15 +1432,12 @@ function Sankey() {
         // since the tree is drawn from left to right, the target is always on the left 
         // of the source
         function nodeCollide (source, target) {
-            if ( source.nodeTextPos.left - 5 < target.termTextPos.right &&
-                ((source.nodeTextPos.bottom >= target.termTextPos.top && 
-                source.nodeTextPos.top <= target.termTextPos.top) || 
-                (source.nodeTextPos.top <= target.termTextPos.bottom && 
-                source.nodeTextPos.bottom >= target.termTextPos.bottom) || 
-                (source.nodeTextPos.rectBottom >= target.termTextPos.top && 
-                source.nodeTextPos.rectTop <= target.termTextPos.top) || 
-                (source.nodeTextPos.rectTop <= target.termTextPos.bottom && 
-                source.nodeTextPos.rectBottom >= target.termTextPos.bottom)) ) {
+            if ( (source.nodeTextPos.left - 5 < target.termTextPos.right &&
+                    ((source.nodeTextPos.bottom >= target.termTextPos.top && source.nodeTextPos.top <= target.termTextPos.top) || 
+                    (source.nodeTextPos.top <= target.termTextPos.bottom && source.nodeTextPos.bottom >= target.termTextPos.bottom))) || 
+                (source.nodeTextPos.rectLeft < target.termTextPos.right &&
+                    ((source.nodeTextPos.rectBottom >= target.termTextPos.top && source.nodeTextPos.rectTop <= target.termTextPos.top) || 
+                    (source.nodeTextPos.rectTop <= target.termTextPos.bottom && source.nodeTextPos.rectBottom >= target.termTextPos.bottom))) ) {
                 return true;
             } else {
                 return false;
