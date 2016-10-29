@@ -5,10 +5,35 @@
 \title{Interactive d3.js Sankey Tree Visualization}
 \usage{
 SankeyTree(data = NULL, name = "name", id = "id", value = "size",
-  childrenName = "children", treeColors = TRUE, maxLabelLength = NULL,
-  nodeHeight = NULL, tooltip = NULL, categoryLegend = FALSE,
+  childrenName = "children", treeColors = TRUE, maxLabelLength = 20,
+  nodeHeight = 100, tooltip = NULL, categoryLegend = FALSE,
   terminalDescription = FALSE, numeric.distribution = TRUE, width = NULL,
   height = NULL)
+}
+\arguments{
+\item{data}{Input. Should be a list with fields specified below.}
+
+\item{name}{The variable name of the field that specifies node name in \code{data}. Defaults to "name".}
+
+\item{id}{Should not change this.}
+
+\item{value}{The variable name of the field that specifies counts in \code{data}. Defaults to "size".}
+
+\item{childrenName}{The variable name of the field that specifies children in \code{data}. Defaults to "children".}
+
+\item{treeColors}{Logical. Colored tree?}
+
+\item{maxLabelLength}{Integer. Line wrapping will occur when the label of the node has width more than this value * 8 (pixels per char). Defaults to 20.}
+
+\item{nodeHeight}{Height of each node in pixels. Defaults to 100 pixels.}
+
+\item{tooltip}{Tooltip to attach to each node.}
+
+\item{categoryLegend}{Logical. Attach a category legend? (Not used at the moment).}
+
+\item{terminalDescription}{Logical. Add description for terminal nodes? Defaults to FALSE.}
+
+\item{numeric.distribution}{Logical. Show numerical distribution for each node? If regression tree, then a histogram is plotted. If classification tree, then a horizontal bar plot is drawn.}
 }
 \description{
 Create interactive d3.js visualizations of hierarchical data combining

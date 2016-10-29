@@ -2,7 +2,20 @@
 #'
 #' Create interactive d3.js visualizations of hierarchical data combining
 #' Sankey diagrams with tree layout.
-#'
+#' @param data Input. Should be a list with fields specified below.
+#' @param name The variable name of the field that specifies node name in \code{data}. Defaults to "name".
+#' @param id Should not change this.
+#' @param value The variable name of the field that specifies counts in \code{data}. Defaults to "size".
+#' @param childrenName The variable name of the field that specifies children in \code{data}. Defaults to "children".
+#' @param treeColors Logical. Colored tree? 
+#' @param maxLabelLength Integer. Line wrapping will occur when the label of the node has width more than this value * 8 (pixels per char). Defaults to 20.
+#' @param nodeHeight Height of each node in pixels. Defaults to 100 pixels.
+#' @param tooltip Tooltip to attach to each node. 
+#' @param categoryLegend Logical. Attach a category legend? (Not used at the moment).
+#' @param terminalDescription Logical. Add description for terminal nodes? Defaults to FALSE.
+#' @param numeric.distribution Logical. Show numerical distribution for each node? If regression tree, then a histogram is plotted. If classification tree, then a horizontal bar plot is drawn.
+#' 
+#' 
 #' @import htmlwidgets
 #'
 #' @export
@@ -13,8 +26,8 @@ SankeyTree <- function(
   value = "size",
   childrenName = "children",
   treeColors = TRUE,
-  maxLabelLength = NULL,
-  nodeHeight = NULL,
+  maxLabelLength = 20,
+  nodeHeight = 100,
   tooltip = NULL,
   categoryLegend = FALSE,
   terminalDescription = FALSE,

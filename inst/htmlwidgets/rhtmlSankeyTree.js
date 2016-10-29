@@ -264,7 +264,7 @@ function Sankey() {
         var i = 0;
         var duration = 400;
         var root;
-        var pxPerChar = 8;
+        var pxPerChar = 7;
         var nodeTextSize = 10; // initial node text size in pixcels
         var newWidth;
         var newHeight;
@@ -344,9 +344,9 @@ function Sankey() {
         var nodeHeightRatio = getNodeHeightRatio();
         
         var nhScale = d3.scale.pow()
-                      .exponent(4).domain([0.5,1]).range([1,3]);
+                      .exponent(2).domain([0.5,1]).range([1,2]);
         nodeHeightRatio = nhScale(nodeHeightRatio);
-        
+        //nodeHeightRatio = 1;
         /*function attachLegend(){
           // assumes two sets of data, color and text of the legend, has been passed on 
           // as input from the R binding
@@ -526,225 +526,172 @@ function Sankey() {
         var meanLabelLength = 0.0;
         visit(treeData, function(d) {
             totalNodes++;
-            maxLabelLength = opts.maxLabelLength || Math.max(d[opts.name].length, maxLabelLength);
+            maxLabelLength = opts.maxLabelLength || Math.max(d[opts.name].length, 0);
             meanLabelLength = meanLabelLength + d[opts.name].length;
         }, function(d) {
             return d[opts.childrenName] && d[opts.childrenName].length > 0 ? d[opts.childrenName] : null;
         });
         meanLabelLength = (meanLabelLength/totalNodes) | 0 + 1;
-        meanLabelLength = meanLabelLength > 10 ? meanLabelLength : 10;
-        
+        meanLabelLength = meanLabelLength > 12 ? meanLabelLength : 12;
+        if (meanLabelLength < maxLabelLength) {
+            maxLabelLength = meanLabelLength;
+        }
         // sort the tree according to the node names
         tree.sort(function(a, b) {
             return b[opts.name].toLowerCase() < a[opts.name].toLowerCase() ? 1 : -1;
         });
         zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
-       
+
+
     
-        /*function zoomLegend() {
-            legendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        }
+        function wrap(text, width) {
+            var lineNumbers = [];
+            text.each(function() {
+                var text = d3.select(this),
+                    words = text.text().split(/\s+/).reverse(),
+                    word,
+                    line = [],
+                    nohyph = [],
+                    lineNumber = 0,
+                    lineHeight = 1.1, // ems
+                    x = text.attr("x"),
+                    y = text.attr("y"),
+                    leftOver = "",
+                    dy = parseFloat(text.attr("dy")),
+                    tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+                while (word = words.pop()) {
+                    // add one word to current line
+                    nohyph.push(word);
+                    tspan.text(nohyph.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
     
-        function zoomCatLegend() {
-            catLegendBox.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        }*/
+                        // check if the last added word has hyphen, if yes, break hyphen and try again,
+                        // if no, add the word to a new line
+                        var subwords = word.split(/[-]+/).reverse();
+                        var subword, hyphline = [];
+                        if (subwords.length > 1) {
+                            // has hyphen, try to break up the word
+                            nohyph.pop();
+                            var i = 0, len = subwords.length;
+                            while (subword = subwords.pop()) {
     
-        // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
-        
-        //var zoomListenerLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomLegend);
-        //var zoomListenerCatLegend = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoomCatLegend);
-        /*function initiateDrag(d, domNode) {
-            draggingNode = d;
-            d3.select(domNode).select('.ghostCircle').attr('pointer-events', 'none');
-            d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
-            d3.select(domNode).attr('class', 'node activeDrag');
+                                if (i === 0) {
+                                    // subword is the first part
+                                    if (nohyph.length > 0) {
+                                        tspan.text(nohyph.join(" ") + " " + subword + "-");
+                                    } else {
+                                        tspan.text(subword + "-");
+                                    }
+                                } else if (i === len - 1) {
+                                    // subword is the last part
+                                    if (nohyph.length > 0) {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-" + subword);
+                                        } else {
+                                            console.log("should not be here 1");
+                                        }
+                                    } else {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(hyphline.join("-") + "-" + subword);
+                                        } else {
+                                            tspan.text(subword);
+                                        }
+                                    }
+                                } else {
+                                    if (nohyph.length > 0) {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-" + subword + "-");
+                                        } else {
+                                            console.log("should not be here 2");
+                                        }
     
-            svgGroup.selectAll("g.node").sort(function(a, b) { // select the parent and sort the path's
-                if (a[opts.id] != draggingNode[opts.id]) return 1; // a is not the hovered element, send "a" to the back
-                else return -1; // a is the hovered element, bring "a" to the front
-            });
-            // if nodes has children, remove the links and nodes
-            if (nodes.length > 1) {
-                // remove link paths
-                links = tree.links(nodes);
-                nodePaths = svgGroup.selectAll("path.link")
-                    .data(links, function(d) {
-                        return d.target[opts.id];
-                    }).remove();
-                // remove child nodes
-                nodesExit = svgGroup.selectAll("g.node")
-                    .data(nodes, function(d) {
-                        return d[opts.id];
-                    }).filter(function(d, i) {
-                        if (d[opts.id] == draggingNode[opts.id]) {
-                            return false;
-                        }
-                        return true;
-                    }).remove();
-            }
+                                    } else {
+                                        if (hyphline.length > 0) {
+                                            tspan.text(hyphline.join("-") + "-" + subword + "-");
+                                        } else {
+                                            tspan.text(subword + "-");
+                                        }
+                                    }
+                                }
     
-            // remove parent link
-            parentLink = tree.links(tree.nodes(draggingNode.parent));
-            svgGroup.selectAll('path.link').filter(function(d, i) {
-                if (d.target[opts.id] == draggingNode[opts.id]) {
-                    return true;
-                }
-                return false;
-            }).remove();
+                                hyphline.push(subword);
     
-            dragStarted = null;
-        }*/
+                                if (tspan.node().getComputedTextLength() > width) {
+                                    // if adding the subword exceeds the width, remove the subword,
+                                    // add it to the next line, insert new line
     
-        //baseSvg.call(zoomListener);
+                                    hyphline.pop();
+                                    if (nohyph.length > 0) {
+                                        // starting texts exist before the hyphen line
+                                        if (i === 0) {
+                                            tspan.text(nohyph.join(" "));
+                                            hyphline = [subword];
+                                            nohyph = [];
+                                        } else if (i === len - 1) {
+                                            if (hyphline.length > 0) {
+                                                tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-");
+                                            } else {
+                                                tspan.text(nohyph.join(" ") + " " + subword + "-");
+                                            }
+                                            nohyph = [subword];
+                                        } else {
+                                            if (hyphline.length > 0) {
+                                                tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-");
+                                            } else {
+                                                tspan.text(nohyph.join(" ") + " " + subword + "-");
+                                            }
+                                            nohyph = [];
+                                        }
     
-  /*  
-        // Define the drag listeners for drag/drop behaviour of nodes.
-        dragListener = d3.behavior.drag()
-            .on("dragstart", function(d) {
-                if (d == root) {
-                    return;
-                }
-                dragStarted = true;
-                nodes = tree.nodes(d);
-                d3.event.sourceEvent.stopPropagation();
-                // it's important that we suppress the mouseover event on the node being dragged. Otherwise it will absorb the mouseover event and the underlying node will not detect it d3.select(this).attr('pointer-events', 'none');
-            })
-            .on("drag", function(d) {
-                if (d == root) {
-                    return;
-                }
-                if (dragStarted) {
-                    domNode = this;
-                    initiateDrag(d, domNode);
-                }
+                                    } else {
+                                        if (i === 0) {
+                                            tspan.text(subword + "-");
+                                            hyphline = [];
+                                        } else if (i === len - 1) {
+                                            if (hyphline.length > 0) {
+                                                tspan.text(hyphline.join("-") + "-");
+                                                nohyph = [subword];
+                                            } else {
+                                                tspan.text(subword);
+                                                nohyph = [];
+                                            }
+                                        } else {
+                                            if (hyphline.length > 0) {
+                                                tspan.text(hyphline.join("-") + "-");
+                                                hyphline = [subword];
+                                            } else {
+                                                tspan.text(subword + "-");
+                                                hyphline = [];
+                                            }
+                                        }
+                                    }
     
-                // get coords of mouseEvent relative to svg container to allow for panning
-                relCoords = d3.mouse(svgGroup[0][0]);
-                if (relCoords[0] < panBoundary) {
-                    panTimer = true;
-                    pan(this, 'left');
-                } else if (relCoords[0] > (width - panBoundary)) {
+                                    tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(subword);
+                                } else {
+                                    if (i === len - 1) {
+                                        nohyph = [hyphline.join("-")];
+                                    }
+                                }
+                                i++;
+                            }
     
-                    panTimer = true;
-                    pan(this, 'right');
-                } else if (relCoords[1] < panBoundary) {
-                    panTimer = true;
-                    pan(this, 'up');
-                } else if (relCoords[1] > (height - panBoundary)) {
-                    panTimer = true;
-                    pan(this, 'down');
-                } else {
-                    try {
-                        clearTimeout(panTimer);
-                    } catch (e) {
-    
-                    }
-                }
-    
-                d.x0 += d3.event.dy;
-                d.y0 += d3.event.dx;
-                var node = d3.select(this);
-                node.attr("transform", "translate(" + d.y0 + "," + d.x0 + ")");
-                updateTempConnector();
-            }).on("dragend", function(d) {
-                if (d == root) {
-                    return;
-                }
-                domNode = this;
-                if (selectedNode) {
-                    // now remove the element from the parent, and insert it into the new elements children
-                    var index = draggingNode.parent.children.indexOf(draggingNode);
-                    if (index > -1) {
-                        draggingNode.parent.children.splice(index, 1);
-                    }
-                    if (typeof selectedNode.children !== 'undefined' || typeof selectedNode._children !== 'undefined') {
-                        if (typeof selectedNode.children !== 'undefined') {
-                            selectedNode.children.push(draggingNode);
                         } else {
-                            selectedNode._children.push(draggingNode);
+                            // the word being checked doesn't contain hyphen, cannot be breaked,
+                            // but still > desired length
+                            if (nohyph.length > 1) {
+                                // send the word being checked to next line, if there exists words before it
+                                nohyph.pop();
+                                tspan.text(nohyph.join(" "));
+                                nohyph = [word];
+                                tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                            }
                         }
-                    } else {
-                        selectedNode.children = [];
-                        selectedNode.children.push(draggingNode);
                     }
-                    // Make sure that the node being added to is expanded so user can see added node is correctly moved
-                    expand(selectedNode);
-                    sortTree();
-                    endDrag();
-                } else {
-                    endDrag();
                 }
+                lineNumbers.push(lineNumber + 1);
             });
-    
-        function endDrag() {
-            selectedNode = null;
-            d3.selectAll('.ghostCircle').attr('class', 'ghostCircle');
-            d3.select(domNode).attr('class', 'node');
-            // now restore the mouseover event or we won't be able to drag a 2nd time
-            d3.select(domNode).select('.ghostCircle').attr('pointer-events', '');
-            updateTempConnector();
-            if (draggingNode !== null) {
-                update(root);
-                centerNode(draggingNode);
-                draggingNode = null;
-            }
         }
-  */
-        // Helper functions for collapsing and expanding nodes.
-    
-        /*function collapse(d) {
-            if (d[opts.childrenName]) {
-                d._children = d[opts.childrenName];
-                d._children.forEach(collapse);
-                d[opts.childrenName] = null;
-            }
-        }
-    
-        function expand(d) {
-            if (d._children) {
-                d[opts.childrenName] = d._children;
-                d[opts.childrenName].forEach(expand);
-                d._children = null;
-            }
-        }
-    
-        var overCircle = function(d) {
-            selectedNode = d;
-            updateTempConnector();
-        };
-        var outCircle = function(d) {
-            selectedNode = null;
-            updateTempConnector();
-        };
-    
-        // Function to update the temporary connector indicating dragging affiliation
-        var updateTempConnector = function() {
-            var data = [];
-            if (draggingNode !== null && selectedNode !== null) {
-                // have to flip the source coordinates since we did this for the existing connectors on the original tree
-                data = [{
-                    source: {
-                        x: selectedNode.y0,
-                        y: selectedNode.x0
-                    },
-                    target: {
-                        x: draggingNode.y0,
-                        y: draggingNode.x0
-                    }
-                }];
-            }
-            var link = svgGroup.selectAll(".templink").data(data);
-    
-            link.enter().append("path")
-                .attr("class", "templink")
-                .attr("d", d3.svg.diagonal())
-                .attr('pointer-events', 'none');
-    
-            link.attr("d", d3.svg.diagonal());
-    
-            link.exit().remove();
-        };
-        
+        /*
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
         function centerNode(source) {
             var scale = zoomListener.scale();
@@ -788,40 +735,28 @@ function Sankey() {
                 y = svgTrans.translate[1];
             }
             var centering = svgGroup
-                .transition()
-                .duration(duration)
+                //.transition()
+                //.duration(duration)
                 .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
-                .each("end", function(d) {
-                //.each(function(d) {
+                .each(function(d) {
+                //.each("end", function(d) {
                     treeDim = this.getBoundingClientRect();
                     xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
                     yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
                     newScale = Math.min(xscale, yscale, 3);
-                    /*if (treeDim.width < width - treeMargins.left - treeMargins.right - 20 || 
-                        treeDim.height < height - treeMargins.top - treeMargins.bottom - 10) {
-                        xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
-                        yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
-                        newScale = xscale > yscale ? yscale : xscale;
-                    }*/
                     d3.select(this).attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
                     newTreeDim = this.getBoundingClientRect();
                     treeDim = newTreeDim;
-                    //var x1 = (width/2 - treeDim.width/2 / scale * newScale) - (treeDim.left - (treeDim.width / scale * newScale - treeDim.width)/2 ) + x;
-                    //var y1 = (height/2 - treeDim.height/2 / scale * newScale) - (treeDim.top - (treeDim.height / scale * newScale - treeDim.height)/2 ) + y;
                     d3.select(this).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
                     x = (width/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
                     y = (height/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
                     d3.select(this)
-                    .transition()
-                    .duration(duration)
+                    //.transition()
+                    //.duration(duration)
                     .attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
                     zoomListener.scale(newScale);
                     zoomListener.translate([x, y]);
                 });
-            //x = -source.y0;
-            //y = -source.x0;
-            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  width / 2 : width / 4 );
-            //centering.transition().duration(200).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
         }
 
         // Toggle children function
@@ -846,25 +781,31 @@ function Sankey() {
             centerNodeFit(d);
         }
         
-        function clickText(d) {
+        function toggleText(selector_hide, selector_show) {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            svgGroup.select(selector_hide).style("display", "none");
+            svgGroup.select(selector_show).style("display", "inline");
+        }
+        
+        /*function clickText(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
             d.hidden = true;
-            d3.select(this).style("display", "none");
-            svgGroup.select("#bgt" + this.id.substring(1)).style("display", "none");
-            var selector = "#c" + this.id.substring(1);
-            svgGroup.select(selector).style("display", "inline");
-            svgGroup.select("#bgc" + this.id.substring(1)).style("display", "inline");
+            //d3.select(this).style("display", "none");
+            svgGroup.select("#ndTxtGp1_" + this.id.substring(1)).style("display", "none");
+            //var selector = "#c" + this.id.substring(1);
+            //svgGroup.select(selector).style("display", "inline");
+            svgGroup.select("#ndTxtGp2_" + this.id.substring(1)).style("display", "inline");
         }
         
         function clickHiddenText(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
             d.hidden = false;
-            d3.select(this).style("display", "none");
-            svgGroup.select("#bgc" + this.id.substring(1)).style("display", "none");
-            var selector = "#t" + this.id.substring(1);
-            svgGroup.select(selector).style("display", "inline");
-            svgGroup.select("#bgt" + this.id.substring(1)).style("display", "inline");
-        }
+            //d3.select(this).style("display", "none");
+            svgGroup.select("#ndTxtGp2_" + this.id.substring(1)).style("display", "none");
+            //var selector = "#t" + this.id.substring(1);
+            //svgGroup.select(selector).style("display", "inline");
+            svgGroup.select("#ndTxtGp1_" + this.id.substring(1)).style("display", "inline");
+        }*/
         
         function mouseOverNode(d, el, sel) {
             var tipRect = sel.select("#nodeRect" + d[opts.id]);
@@ -973,19 +914,24 @@ function Sankey() {
             childCount(0, root);
             newHeight = d3.max(levelWidth) * ( opts.nodeHeight || 25 ); // 25 pixels per line
             
-            if (opts.maxLabelLength) {
-              newWidth = levelWidth.length * maxLabelLength * 10 + 
-                        levelWidth.length * 10; // node link size + node rect size              
-            } else {
-              newWidth = levelWidth.length * meanLabelLength * pxPerChar + 
-                        levelWidth.length * 10; // node link size + node rect size
+            //if (opts.maxLabelLength) {
+            newWidth = levelWidth.length * maxLabelLength * pxPerChar + 
+                        levelWidth.length * 10; // node link size + node rect size     
+                        
+            if (newHeight/newWidth < 0.5) {
+                newHeight = 0.5 * newWidth;
             }
+            //} else {
+            //  newWidth = levelWidth.length * meanLabelLength * pxPerChar + 
+            //            levelWidth.length * 10; // node link size + node rect size
+            //}
             
             //dummyRect.attr("width", newWidth + meanLabelLength*pxPerChar).attr("height", newHeight);
             
             // Size link width according to n based on total n
             var wscale = d3.scale.linear()
                 .range([0,opts.nodeHeight/nodeHeightRatio || 25])
+                //.range([0,opts.nodeHeight || 25])
                 .domain([0,treeData[opts.value]]);
             
             tree = tree.size([newHeight, newWidth]);
@@ -999,15 +945,15 @@ function Sankey() {
             // Set widths between levels based on maxLabelLength.
 
 
-            if (opts.maxLabelLength) {
+            //if (opts.maxLabelLength) {
                 nodes.forEach(function(d) {
-                    d.y = (d.depth * (maxLabelLength * 10) + nodeTextDx);  //maxLabelLength * 10px
+                    d.y = (d.depth * (maxLabelLength * pxPerChar) + nodeTextDx);  //maxLabelLength * 10px
                 });
-            } else {
-                nodes.forEach(function(d) {
-                    d.y = (d.depth * (meanLabelLength * pxPerChar) + nodeTextDx); //meanLabelLength * 5px
-                });
-            }
+            //} else {
+            //    nodes.forEach(function(d) {
+            //        d.y = (d.depth * (meanLabelLength * pxPerChar) + nodeTextDx); //meanLabelLength * 5px
+            //    });
+            //}
             
             // flip the tree up and down to conform with R plot
             var initNodeX = nodes[nodes.length-1].x;
@@ -1016,13 +962,11 @@ function Sankey() {
             });
 
             // Update the nodes…
-            node = svgGroup.selectAll("g.node")
+            var node = svgGroup.selectAll("g.node")
                 .data(nodes, function(d) {
                     return d[opts.id] || (d[opts.id] = ++i);
                 });
             
-            
-            var nodeVisibleWidth = meanLabelLength*pxPerChar-nodeRectWidth;
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
                // .call(dragListener)
@@ -1044,15 +988,43 @@ function Sankey() {
                 .on('mouseover', opts.tooltip ? function(d) { mouseOverNode(d,this,baseSvg);} : null)
                 .on('mouseout', opts.tooltip ? function(d) { mouseOutNode(d);} : null);
                 
-            var nrect1 = nodeEnter.append("rect")
+            var nodeTextGroup1 = nodeEnter.append("g")
+                                    .attr("class", "nodeTextGroup1")
+                                    .attr("id", function(d) { return "ndTxtGp1_" + d[opts.id];})
+                                    .on("click", function(d) {
+                                        if (d.hidden) {
+                                            d.hidden = false;
+                                        } else {
+                                            d.hidden = true;
+                                        }
+                                        var selector_hide = "#ndTxtGp1_" + d[opts.id];
+                                        var selector_show = "#ndTxtGp2_" + d[opts.id];
+                                        toggleText(selector_hide, selector_show);
+                                    });
+                                    
+            var nodeTextGroup2 = nodeEnter.append("g")
+                                    .attr("class", "nodeTextGroup2")
+                                    .attr("id", function(d) { return "ndTxtGp2_" + d[opts.id];})
+                                    .on("click", function(d) {
+                                        if (d.hidden) {
+                                            d.hidden = false;
+                                        } else {
+                                            d.hidden = true;
+                                        }
+                                        var selector_hide = "#ndTxtGp2_" + d[opts.id];
+                                        var selector_show = "#ndTxtGp1_" + d[opts.id];
+                                        toggleText(selector_hide, selector_show);
+                                    });
+                                    
+            var nrect1 = nodeTextGroup1.append("rect")
                             .attr("class", "nodeTextBg1")
                             .attr("id", function(d) { return "bgt" + d[opts.id];});;
                 
-            var nrect2 = nodeEnter.append("rect")
+            var nrect2 = nodeTextGroup2.append("rect")
                             .attr("class", "nodeTextBg2")
                             .attr("id", function(d) { return "bgc" + d[opts.id];});
                             
-            var ntxt1 = nodeEnter.append("text")
+            var ntxt1 = nodeTextGroup1.append("text")
                 .attr("id", function(d) { return "t" + d[opts.id];})
                 .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
@@ -1061,17 +1033,16 @@ function Sankey() {
                 .text(function(d) {return d[opts.name]})
                 .style("fill-opacity", 0)
                 .text(function(d) {
-                  if (this.getComputedTextLength() + nodeTextDx - nodeRectWidth/2 > nodeVisibleWidth - 5) {
-                    return d[opts.name].substring(0,meanLabelLength-3) + "...";
+                  if (this.getComputedTextLength() > maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth) {
+                    return d[opts.name].substring(0, maxLabelLength-3) + "...";
                   } else {
                     return d[opts.name];
                   }
-                })
-                .on("click", clickText);
-
+                });
                 
             svgGroup.selectAll(".nodeText1")
                 .each(function(d) {
+                    d.shortNodeTextDim = { width: this.getBBox().width, height: this.getBBox().height};
                     d.nodeTextPos = { 
                         left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
                         top: d.x - this.getBBox().height/2, 
@@ -1082,48 +1053,42 @@ function Sankey() {
                     };
                 });
             
-            var ntxt2 = nodeEnter.append("text")
+            var ntxt2 = nodeTextGroup2.append("text")
                 .attr("id", function(d) { return "c" + d[opts.id];})
                 .attr("x", -nodeTextDx)
-                .attr("dy", ".35em")
+                .attr("y", 0)
+                .attr("dy", "0.95em")
                 .attr('class', 'nodeText2')
                 .attr("text-anchor", "end")
                 .text(function(d) {
                     return d[opts.name];
-                })
-                .on("click", clickHiddenText);
+                });
+                
+            ntxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
+            ntxt2.attr("y", function() { return -this.getBBox().height/2;});
+            ntxt2.each(function(d) {
+                    var self = this;
+                    d3.select(this)
+                        .selectAll("tspan")
+                        .attr("y", function() { return d3.select(self).attr("y");});
+                    d.longNodeTextDim = { width: this.getBBox().width, height: this.getBBox().height};
+                });
             
-            nrect1.attr("x", function(d) {
-                      return -svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
-                  })
-                  .attr("y", function(d) {
-                      return -svgGroup.select("#t" + d[opts.id])[0][0].getBBox().height/2;
-                  })
-                  .attr("width", function(d) {
-                      return svgGroup.select("#t" + d[opts.id])[0][0].getComputedTextLength();
-                  })
-                  .attr("height", function(d) {
-                      return svgGroup.select("#t" + d[opts.id])[0][0].getBBox().height;
-                  });
+            nrect1.attr("x", function(d) { return -d.shortNodeTextDim.width - nodeTextDx;})
+                  .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
+                  .attr("width", function(d) { return d.shortNodeTextDim.width;})
+                  .attr("height", function(d) { return d.shortNodeTextDim.height;});
                   
-            nrect2.attr("x", function(d) {
-                      return -svgGroup.select("#c" + d[opts.id])[0][0].getComputedTextLength() - nodeTextDx;
-                  })
-                  .attr("y", function(d) {
-                      return -svgGroup.select("#c" + d[opts.id])[0][0].getBBox().height/2;
-                  })
-                  .attr("width", function(d) {
-                      return svgGroup.select("#c" + d[opts.id])[0][0].getComputedTextLength();
-                  })
-                  .attr("height", function(d) {
-                      return svgGroup.select("#c" + d[opts.id])[0][0].getBBox().height;
-                  });
+            nrect2.attr("x", function(d) { return -d.longNodeTextDim.width - nodeTextDx;})
+                  .attr("y", function(d) { return -d.longNodeTextDim.height/2;})
+                  .attr("width", function(d) { return d.longNodeTextDim.width;})
+                  .attr("height", function(d) { return d.longNodeTextDim.height;});
                   
-            nrect1.each(function(d) {
+            node.each(function(d) {
                 d.hidden = false;
             });
-
-            ntxt1.style("display", function(d) {
+            
+            nodeTextGroup1.style("display", function(d) {
                 if (d.hidden) {
                     return "none";
                 } else {
@@ -1131,23 +1096,7 @@ function Sankey() {
                 }
             });
             
-            ntxt2.style("display", function(d) {
-                if (d.hidden) {
-                    return "inline";
-                } else {
-                    return "none";
-                }
-            });
-            
-            nrect1.style("display", function(d) {
-                if (d.hidden) {
-                    return "none";
-                } else {
-                    return "inline";
-                }
-            });
-            
-            nrect2.style("display", function(d) {
+            nodeTextGroup2.style("display", function(d) {
                 if (d.hidden) {
                     return "inline";
                 } else {
@@ -1162,13 +1111,56 @@ function Sankey() {
                     .attr("dy", ".35em")
                     .attr('class', 'nodeText')
                     .attr("text-anchor", "start")
+                    .attr("font-weight", function(d) {
+                        return d[opts.childrenName] || d._children ? "normal" : "bold";
+                    })
+                    .text(function(d) {
+                      if (d.terminalDescription.length > opts.maxLabelLength) {
+                        d.terminalWrapped = true;
+                        return d.terminalDescription.substring(0, maxLabelLength-3) + "...";
+                      } else {
+                        d.terminalWrapped = false;
+                        return d.terminalDescription;
+                      }
+                    })
+                    .on("click", function(d) {
+                        var selector_hide = "#terminal" + d[opts.id];
+                        var selector_show = "#terminalLong" + d[opts.id];
+                        toggleText(selector_hide, selector_show);
+                    });
+                    
+                var terTxt2 = nodeEnter.append("text")
+                    .attr("id", function(d) { return "terminalLong" + d[opts.id];})
+                    .attr("x", nodeTextDx)
+                    .attr("y", 0)
+                    .attr("dy", ".35em")
+                    .attr('class', 'nodeTextLong')
+                    .attr("text-anchor", "start")
                     .text(function(d) {
                         return d.terminalDescription;
                     })
                     .attr("font-weight", function(d) {
                         return d[opts.childrenName] || d._children ? "normal" : "bold";
+                    })
+                    .on("click", function(d) {
+                        var selector_hide = "#terminalLong" + d[opts.id];
+                        var selector_show = "#terminal" + d[opts.id];
+                        toggleText(selector_hide, selector_show);
                     });
                     
+                terTxt2.each(function(d) {
+                    var self = this;
+                    if (d.terminalWrapped) {
+                        d3.select(self).attr("dy", ".95em");
+                        wrap(d3.select(self), maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
+                        d3.select(self)
+                            .attr("y", function() { return -self.getBBox().height/2;})
+                            .selectAll("tspan")
+                            .attr("y", function() { return d3.select(self).attr("y");});
+                    }
+                })
+                terTxt2.style("display", "none");
+                
                 svgGroup.selectAll(".nodeText")
                     .each(function(d) {
                         if (! (d[opts.childrenName] || d._children)) {
@@ -1192,32 +1184,6 @@ function Sankey() {
                 
             }
     
-            // phantom node to give us mouseover in a radius around it
-            /*nodeEnter.append("circle")
-                .attr('class', 'ghostCircle')
-                .attr("r", 30)
-                .attr("opacity", 0.2) // change this to zero to hide the target area
-            .style("fill", "red")
-                .attr('pointer-events', 'mouseover')
-                .on("mouseover", function(node) {
-                    overCircle(node);
-                })
-                .on("mouseout", function(node) {
-                    outCircle(node);
-                });*/
-    
-            // Update the text to reflect whether node has children or not.
-            /*node.select('text')
-                .attr("x", function(d) {
-                    return d[opts.childrenName] || d._children ? -10 : 10;
-                })
-                .attr("text-anchor", function(d) {
-                    return d[opts.childrenName] || d._children ? "end" : "start";
-                })
-                .text(function(d) {
-                    return d[opts.name];
-                });*/
-    
             // Change the circle fill depending on whether it has children and is collapsed
             node.select("circle.nodeCircle")
                 .attr("r", 4.5)
@@ -1227,8 +1193,8 @@ function Sankey() {
     
             // Transition nodes to their new position.
             var nodeUpdate = node
-                .transition()
-                .duration(duration)
+                //.transition()
+                //.duration(duration)
                 .style("opacity", 1)
                 .attr("transform", function(d) {
                     return "translate(" + d.y + "," + d.x + ")";
@@ -1240,8 +1206,8 @@ function Sankey() {
     
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit()
-                .transition()
-                .duration(duration)
+                //.transition()
+                //.duration(duration)
                 .style("opacity", 0)
                 .attr("transform", function(d) {
                     return "translate(" + (source.y) + "," + source.x + ")";
@@ -1284,31 +1250,6 @@ function Sankey() {
                 dd.ystacky = ystacky;
               });
             });
-            /*  
-            // use d3 stack layout
-            var stack = d3.layout.stack()
-                          .values(function(d){
-                            return d.values;
-                          })
-                          .x(function(d){
-                            return d.source.x;
-                          })
-                          .y(function(d){
-                            return wscale(
-                              + d.target[opts.name].replace(/.*n = ([0-9]*)/,"$1")
-                            )
-                          })
-                          .out(function(d,y0,y){
-                            d.x = d.source.x - y + 50 ;
-                            d.y = d.source.y;
-                            d.ystack0 = y0;
-                            d.ystacky = y;
-                          });
-                          
-            link_nested.forEach(function(d){
-              stack(d);
-            })
-            */
             
             var link = svgGroup.selectAll("path.link")
                 .data(links, function(d) {
@@ -1334,8 +1275,8 @@ function Sankey() {
             });
             
             // Transition links to their new position.
-            link.transition()
-                .duration(duration)
+            link//.transition()
+                //.duration(duration)
                 .attr("d", diagonal)
                 .style("stroke",function(d){
                   if(d.target.color){
@@ -1355,8 +1296,8 @@ function Sankey() {
                 
             // Transition exiting nodes to the parent's new position.
             link.exit()
-                .transition()
-                .duration(duration)
+                //.transition()
+                //.duration(duration)
                 .attr("d", function(d) {
                     var o = {
                         x: source.x,
@@ -1478,17 +1419,6 @@ function Sankey() {
                     .on("dblclick.zoom", null)
                     .append("g")
                     .attr("class", "treeGroup");
-        
-        // Append a dummy rectangle which can be used to move the tree
-        /*var dummyRect = svgGroup.append("rect")
-                        .attr("width", width)
-                        .attr("height", height)
-                        .attr("x", -meanLabelLength*pxPerChar)
-                        .attr("y", 0)
-                        .attr("id", "dummyRect")
-                        .style("cursor", "move")
-                        .style("pointer-events","all")
-                        .attr("fill","none");         */
                   
         // if tooltip then set it up
         if(opts.tooltip){
