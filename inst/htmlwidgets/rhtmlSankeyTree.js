@@ -542,155 +542,82 @@ function Sankey() {
         });
         zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
 
+    function wrap(text, width) {
+        var separators = {"-": 1, " ": 1};
+        var lineNumbers = [];
+        text.each(function() {
+            var text = d3.select(this),
+                chars = text.text().split("").reverse(),
+                c,
+                nextchar,
+                sep,
+                newline = [];
+                lineTemp = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                x = text.attr("x"),
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+            while (c = chars.pop()) {
+                // remove leading space
+                if (lineTemp.length === 0 && c === " ") {
+                    continue;
+                }
+                lineTemp.push(c);
+                tspan.text(lineTemp.join(""));
+                if (tspan.node().getComputedTextLength() > width) {
 
-    
-        function wrap(text, width) {
-            var lineNumbers = [];
-            text.each(function() {
-                var text = d3.select(this),
-                    words = text.text().split(/\s+/).reverse(),
-                    word,
-                    line = [],
-                    nohyph = [],
-                    lineNumber = 0,
-                    lineHeight = 1.1, // ems
-                    x = text.attr("x"),
-                    y = text.attr("y"),
-                    leftOver = "",
-                    dy = parseFloat(text.attr("dy")),
-                    tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
-                while (word = words.pop()) {
-                    // add one word to current line
-                    nohyph.push(word);
-                    tspan.text(nohyph.join(" "));
-                    if (tspan.node().getComputedTextLength() > width) {
-    
-                        // check if the last added word has hyphen, if yes, break hyphen and try again,
-                        // if no, add the word to a new line
-                        var subwords = word.split(/[-]+/).reverse();
-                        var subword, hyphline = [];
-                        if (subwords.length > 1) {
-                            // has hyphen, try to break up the word
-                            nohyph.pop();
-                            var i = 0, len = subwords.length;
-                            while (subword = subwords.pop()) {
-    
-                                if (i === 0) {
-                                    // subword is the first part
-                                    if (nohyph.length > 0) {
-                                        tspan.text(nohyph.join(" ") + " " + subword + "-");
-                                    } else {
-                                        tspan.text(subword + "-");
-                                    }
-                                } else if (i === len - 1) {
-                                    // subword is the last part
-                                    if (nohyph.length > 0) {
-                                        if (hyphline.length > 0) {
-                                            tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-" + subword);
-                                        } else {
-                                            console.log("should not be here 1");
-                                        }
-                                    } else {
-                                        if (hyphline.length > 0) {
-                                            tspan.text(hyphline.join("-") + "-" + subword);
-                                        } else {
-                                            tspan.text(subword);
-                                        }
-                                    }
-                                } else {
-                                    if (nohyph.length > 0) {
-                                        if (hyphline.length > 0) {
-                                            tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-" + subword + "-");
-                                        } else {
-                                            console.log("should not be here 2");
-                                        }
-    
-                                    } else {
-                                        if (hyphline.length > 0) {
-                                            tspan.text(hyphline.join("-") + "-" + subword + "-");
-                                        } else {
-                                            tspan.text(subword + "-");
-                                        }
-                                    }
-                                }
-    
-                                hyphline.push(subword);
-    
-                                if (tspan.node().getComputedTextLength() > width) {
-                                    // if adding the subword exceeds the width, remove the subword,
-                                    // add it to the next line, insert new line
-    
-                                    hyphline.pop();
-                                    if (nohyph.length > 0) {
-                                        // starting texts exist before the hyphen line
-                                        if (i === 0) {
-                                            tspan.text(nohyph.join(" "));
-                                            hyphline = [subword];
-                                            nohyph = [];
-                                        } else if (i === len - 1) {
-                                            if (hyphline.length > 0) {
-                                                tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-");
-                                            } else {
-                                                tspan.text(nohyph.join(" ") + " " + subword + "-");
-                                            }
-                                            nohyph = [subword];
-                                        } else {
-                                            if (hyphline.length > 0) {
-                                                tspan.text(nohyph.join(" ") + " " + hyphline.join("-") + "-");
-                                            } else {
-                                                tspan.text(nohyph.join(" ") + " " + subword + "-");
-                                            }
-                                            nohyph = [];
-                                        }
-    
-                                    } else {
-                                        if (i === 0) {
-                                            tspan.text(subword + "-");
-                                            hyphline = [];
-                                        } else if (i === len - 1) {
-                                            if (hyphline.length > 0) {
-                                                tspan.text(hyphline.join("-") + "-");
-                                                nohyph = [subword];
-                                            } else {
-                                                tspan.text(subword);
-                                                nohyph = [];
-                                            }
-                                        } else {
-                                            if (hyphline.length > 0) {
-                                                tspan.text(hyphline.join("-") + "-");
-                                                hyphline = [subword];
-                                            } else {
-                                                tspan.text(subword + "-");
-                                                hyphline = [];
-                                            }
-                                        }
-                                    }
-    
-                                    tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(subword);
-                                } else {
-                                    if (i === len - 1) {
-                                        nohyph = [hyphline.join("-")];
-                                    }
-                                }
-                                i++;
+                    // if no separator detected before c, wait until there is one
+                    // otherwise, wrap texts
+                    if (sep === undefined) {
+                        if (c in separators) {
+                            if (c === " ") {
+                                lineTemp.pop();
                             }
-    
-                        } else {
-                            // the word being checked doesn't contain hyphen, cannot be breaked,
-                            // but still > desired length
-                            if (nohyph.length > 1) {
-                                // send the word being checked to next line, if there exists words before it
-                                nohyph.pop();
-                                tspan.text(nohyph.join(" "));
-                                nohyph = [word];
-                                tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-                            }
+                            // make new line
+                            sep = undefined;
+                            tspan.text(lineTemp.join(""));
+                            tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text("");
+                            lineTemp = [];
+                            newline = [];
                         }
+
+                    } else {
+                        // pop out chars until reaching sep
+                        if (c in separators) {
+                            newline.push(lineTemp.pop());
+                        }
+                        nextchar = lineTemp.pop();
+                        while (nextchar !== sep && lineTemp.length > 0) {
+                            newline.push(nextchar);
+                            nextchar = lineTemp.pop();
+                        }
+                        newline.reverse();
+                        while (nextchar = newline.pop()) {
+                            chars.push(nextchar);
+                        }
+
+                        if (sep !== " ") {
+                            lineTemp.push(sep);
+                        }
+
+                        // make new line
+                        sep = undefined;
+                        tspan.text(lineTemp.join(""));
+                        tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text("");
+                        lineTemp = [];
+                        newline = [];
+                    }
+                } else {
+                    if (c in separators) {
+                        sep = c;
                     }
                 }
-                lineNumbers.push(lineNumber + 1);
-            });
-        }
+            }
+            lineNumbers.push(lineNumber + 1);
+        });
+    }
         /*
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
         function centerNode(source) {
