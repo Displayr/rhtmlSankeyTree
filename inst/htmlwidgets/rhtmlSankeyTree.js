@@ -1,5 +1,5 @@
 function Sankey() {
-    
+
     var data,
         opts,
         maxBarLength,
@@ -22,15 +22,15 @@ function Sankey() {
         height = 500,
         prevWidth,
         prevHeight;
-        
+
     var tooltip = {
-        
+
         createClTips: function(data, scale, maxL) {
-            
+
             if (data.nodeDistribution) {
                 data.tooltip = "";
                 nval = data.nodeDistribution.length;
-                
+
                 var t = "n: " + intFormatter(data.n) + "<br>";
                 t = t + "Description: ";
                 t = t + "<div class='tipTableContainer'><table class='tipTable'>";
@@ -43,18 +43,18 @@ function Sankey() {
                     t = t + "<div style='width:" + scale(data.nodeDistribution[i]) + "px;height:8px;background-color:steelblue'></div>" + "</td>";
                     t = t + "</tr>";
                 }
-                
+
                 t = t + "</table></div>";
                 data.tooltip = t;
             }
-            
+
             if (data[opts.childrenName]) {
                 tooltip.createClTips(data[opts.childrenName][0], scale, maxL);
                 tooltip.createClTips(data[opts.childrenName][1], scale, maxL);
             }
         },
-        
-        
+
+
         createRgTips: function(data, scale, maxL) {
             if (data.nodeDistribution !==  0) {
                 data.tooltip = "";
@@ -68,7 +68,7 @@ function Sankey() {
                     t = t + "<td class='tipD' style='height:" + maxL +"px'>";
                     solidDistH = Math.floor(scale(data.nodeDistribution[i]));
                     dashDistH = Math.floor(scale(data.overallDistribution[i]));
-                    
+
                     if (i === 0) {
                         nextDistH = Math.floor(scale(data.nodeDistribution[i+1]));
                         nextdashDistH = Math.floor(scale(data.overallDistribution[i+1]));
@@ -86,7 +86,7 @@ function Sankey() {
                                 t = t + "<div class='tipBlueLeftRightDash' style='height:" + (solidDistH - nextdashDistH) + "px'></div>";
                                 t = t + "<div class='tipBlueLeftDash' style='height:" + (nextdashDistH) + "px'></div>";
                             }
-                            
+
                         } else {
                             if (solidDistH < nextdashDistH) {
                                 t = t + "<div class='tipNocolRightDash' style='height:" + (nextdashDistH - solidDistH) + "px'></div>";
@@ -102,10 +102,10 @@ function Sankey() {
                                 t = t + "<div class='tipBlueLeftDash' style='height:" + (nextdashDistH) + "px'></div>";
                             }
                         }
-                    } else if (i === nval-1){ 
-                        
+                    } else if (i === nval-1){
+
                         if (solidDistH < dashDistH) {
-                            
+
                             if (dashDistH < prevdashDistH) {
                                 t = t + "<div class='tipNocolTopRightDash' style='height:" + (dashDistH - solidDistH) + "px'></div>";
                                 t = t + "<div class='tipBlueRightDash' style='height:" + (solidDistH) + "px'></div>";
@@ -118,9 +118,9 @@ function Sankey() {
                                 t = t + "<div class='tipBlueLeftRightDash' style='height:" + (solidDistH - prevdashDistH) + "px'></div>";
                                 t = t + "<div class='tipBlueRightDash' style='height:" + (prevdashDistH) + "px'></div>";
                             }
-                            
+
                         } else {
-                            
+
                             if (solidDistH < prevdashDistH) {
                                 t = t + "<div class='tipBlueLeftDash' style='height:" + (solidDistH - dashDistH) + "px'></div>";
                                 t = t + "<div class='tipBlueTopRightDash' style='height:" + (dashDistH) + "px'></div>";
@@ -133,11 +133,11 @@ function Sankey() {
                                 t = t + "<div class='tipBlueTopLeftRightDash' style='height:" + (dashDistH - prevdashDistH) + "px'></div>";
                                 t = t + "<div class='tipBlueRightDash' style='height:" + (prevdashDistH) + "px'></div>";
                             }
-                            
+
                         }
-                        
+
                     } else {
-                        
+
                         nextDistH = Math.floor(scale(data.nodeDistribution[i+1]));
                         nextdashDistH = Math.floor(scale(data.overallDistribution[i+1]));
                         if (solidDistH < dashDistH) {
@@ -192,16 +192,16 @@ function Sankey() {
                 tooltip.createRgTips(data[opts.childrenName][0], scale, maxL);
                 tooltip.createRgTips(data[opts.childrenName][1], scale, maxL);
             }
-            
+
         }
-        
+
     };
 
     // Define the zoom function for the zoomable tree
     function zoom() {
         svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     }
-    
+
     function resizeChart(el) {
         if (init) {
             return;
@@ -211,15 +211,15 @@ function Sankey() {
         newScale = scale;
         x = svgTrans.translate[0];
         y = svgTrans.translate[1];
-        
+
         var boxWidth = width - treeMargins.left - treeMargins.right - 20,
             boxHeight = height - treeMargins.top - treeMargins.bottom - 10,
             treeWidth = treeDim.width,
             treeHeight = treeDim.height;
-        
+
         xscale = (boxWidth)/(prevWidth - treeMargins.left - treeMargins.right - 20)*scale;
         yscale = (boxHeight)/(prevHeight - treeMargins.top - treeMargins.bottom - 10)*scale;
-        
+
         if (boxWidth >= treeWidth*xscale) {
             if (boxHeight >= treeHeight*yscale) {
                 newScale = Math.min(Math.max(xscale, yscale), 3);
@@ -238,19 +238,19 @@ function Sankey() {
         .each(function() {
             newTreeDim = this.getBoundingClientRect();
         });
-        
+
         svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
-        treeDim = newTreeDim;            
+        treeDim = newTreeDim;
         zoomListener.scale(newScale);
         zoomListener.translate([x, y]);
         prevWidth = width;
         prevHeight = height;
     }
-    
+
     function chart(selection) {
 
-        var treeData = data; 
-    
+        var treeData = data;
+
         // Calculate total nodes, max label length
         var totalNodes = 0;
         var maxLabelLength = 0;
@@ -272,23 +272,23 @@ function Sankey() {
         var heightScale;
         var nodeRectWidth = 5;
         var nodeTextDx = 10;
-        
-        
+
+
         // add treeColors if told yes
         if(opts.treeColors){
           var tc = TreeColors("add");
           tc.children(opts.childrenName);
           tc(treeData);
         }
-        
+
         // work on tooltip
         var tip = {};
-                    
+
         if(opts.tooltip){
           tip = d3.tip()
                   .attr('class', 'd3-tip')
                   .html(function(d) {return d[opts.tooltip]; });
-                  
+
             var tipTriangle = d3.select("body")
                             .append("div")
                             .attr("id", "littleTriangle")
@@ -317,20 +317,20 @@ function Sankey() {
           } else if(typeof(opts.tooltip) === "function"){
             tip.html(opts.tooltip);
           } else {
-            tip.html(function(d) { 
+            tip.html(function(d) {
               return d[opts.tooltip];
             });
           }*/
         }
-        
+
         // size of the diagram
         // define the baseSvg, attaching a class for styling and the zoomListener
         var baseSvg = selection.select("svg");
-    
+
         var tree = d3.layout.tree()
             .size([height, width])
             .children(function(d){return d[opts.childrenName]});
-    
+
         // define a d3 diagonal projection for use by the node paths later on.
         var diagonal = d3.svg.diagonal()
             .projection(function(d) {
@@ -340,26 +340,26 @@ function Sankey() {
               if(d.ystacky) return d;
               return d.source;
             });
-            
+
         var nodeHeightRatio = getNodeHeightRatio();
-        
+
         var nhScale = d3.scale.pow()
                       .exponent(2).domain([0.5,1]).range([1,2]);
         nodeHeightRatio = nhScale(nodeHeightRatio);
         //nodeHeightRatio = 1;
         /*function attachLegend(){
-          // assumes two sets of data, color and text of the legend, has been passed on 
+          // assumes two sets of data, color and text of the legend, has been passed on
           // as input from the R binding
           var legendColor = treeData.legendColor.reverse();
           var legendText = treeData.legendText.reverse();
-          
+
           // fixed dimensions
           // Y
           var leftY = height*0.35;
           var legendBoxHeight = height*0.3;
           var txtHeight = legendBoxHeight/legendText.length;
           var fontSize = txtHeight*0.7;
-          
+
           // X
           var rectWidth = width*0.025;
           var textLength = 3;
@@ -372,7 +372,7 @@ function Sankey() {
           var leftX = width*0.99-legendBoxWidth;
           var rectX = leftX + textLength*fontSize*0.1;
           var textX = leftX + rectWidth + textLength*fontSize*0.3;
-          
+
           // Y
           var rectHeight = (legendBoxHeight - fontSize)/legendColor.length;
           var rectY = d3.range(fontSize/2, legendColor.length*rectHeight + fontSize/2 - rectHeight/2, rectHeight);
@@ -391,19 +391,19 @@ function Sankey() {
                           .data(legendColor)
                           .enter()
                           .append("rect");
-                          
+
           var legendRecAttr = legendRec
                               .attr("x", rectX)
                               .attr("y", function(d,i) { return rectY[i]+leftY; })
                               .attr("width", rectWidth)
                               .attr("height", rectHeight)
                               .style("fill", function(d) { return d; });
-          
+
           var legendTxt = legendBox.selectAll("lg.text")
                           .data(legendText)
                           .enter()
-                          .append("text");                      
-                          
+                          .append("text");
+
           var legendTxtAttr = legendTxt
                               .attr("x", textX)
                               .attr("y", function(d,i) { return txtY[i]+leftY; })
@@ -414,48 +414,48 @@ function Sankey() {
                               .style("font-family", "sans-serif");
 
         }
-        
+
         function attachCategoryLegend(){
-          
+
           // independent
           var catLegend = treeData.categoryLegend;
           var rectX = Math.min(width*0.02, 5);
           var maxRectWidth = width*0.9;
           var maxRectHeight = height*0.15;
           var maxFontSize = 14;
-          
+
           // work out a proper font size
           var textLength = 0.0;
           for (i = 0; i < catLegend.length; i++) {
             textLength = Math.max(textLength, catLegend[i].length);
           }
-          
+
           // dependent
           var textSize = Math.min(maxRectWidth*1.8/textLength, maxFontSize);
           var deltaY = textSize*1.5;
           var rectHeight = deltaY*catLegend.length;
-          
+
           if (rectHeight > maxRectHeight) {
             rectHeight = maxRectHeight;
             deltaY = rectHeight/catLegend.length;
             textSize = deltaY/1.5;
           }
-          
+
           var rectY = height*0.99-rectHeight;
           var padding = textSize/2;
-          
+
           //var txtY = d3.range(0,(height+1)/3.0, txtHeight);
 
-          
+
           //var wdithScale = d3.scale.linear()
           //                .range([0,50])
           //                .domain([0,treeData[opts.value]]);
           var legendTxt = catLegendBox.selectAll("lg.text")
                           .data(catLegend)
                           .enter()
-                          .append("text");    
-          
-          
+                          .append("text");
+
+
           var legendTxtAttr = legendTxt
                               .attr("x", rectX + padding)
                               .attr("y", function(d,i) { return rectY + deltaY*i})
@@ -477,7 +477,7 @@ function Sankey() {
           catLegendBox.selectAll("text").each(function(d) {
             maxTextPx = Math.max(maxTextPx, this.getComputedTextLength());
           });
-          
+
           rectWidth = Math.min(maxRectWidth, maxTextPx+padding*2);
           var legendBorder = catLegendBox.append("rect")
                               .attr("x", rectX)
@@ -487,7 +487,7 @@ function Sankey() {
                               .style("stroke-width", Math.min(1, textSize/10))
                               .style("stroke","black")
                               .style("fill","transparent");
-                              
+
 
         }*/
 
@@ -505,13 +505,13 @@ function Sankey() {
           }
           return maxRatio;
         }
-        
+
         // A recursive helper function for performing some setup by walking through all nodes
         function visit(parent, visitFn, childrenFn) {
             if (!parent) return;
-    
+
             visitFn(parent);
-    
+
             var children = childrenFn(parent);
             if (children) {
                 var count = children.length;
@@ -521,7 +521,7 @@ function Sankey() {
             }
         }
 
-        
+
         // Call visit function to establish maxLabelLength
         var meanLabelLength = 0.0;
         visit(treeData, function(d) {
@@ -636,7 +636,7 @@ function Sankey() {
                     d3.select(this).transition()
                     .duration(400)
                     .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
-                    
+
                     zoomListener.scale(scale);
                     zoomListener.translate([x, y]);
                 });
@@ -697,9 +697,9 @@ function Sankey() {
             }
             return d;
         }
-    
+
         // Toggle children on click.
-    
+
         function click(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
             d = toggleChildren(d);
@@ -707,13 +707,13 @@ function Sankey() {
             //centerNode(d);
             centerNodeFit(d);
         }
-        
+
         function toggleText(selector_hide, selector_show) {
             if (d3.event.defaultPrevented) return; // click suppressed
             svgGroup.select(selector_hide).style("display", "none");
             svgGroup.select(selector_show).style("display", "inline");
         }
-        
+
         /*function clickText(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
             d.hidden = true;
@@ -723,7 +723,7 @@ function Sankey() {
             //svgGroup.select(selector).style("display", "inline");
             svgGroup.select("#ndTxtGp2_" + this.id.substring(1)).style("display", "inline");
         }
-        
+
         function clickHiddenText(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
             d.hidden = false;
@@ -733,17 +733,17 @@ function Sankey() {
             //svgGroup.select(selector).style("display", "inline");
             svgGroup.select("#ndTxtGp1_" + this.id.substring(1)).style("display", "inline");
         }*/
-        
+
         function mouseOverNode(d, el, sel) {
             var tipRect = sel.select("#nodeRect" + d[opts.id]);
             var tipNode = sel.select("#node" + d[opts.id]);
             var thisTip = tip.show(d, tipRect);
-            
+
             var x = Number(sel.select("#nodeRect" + d[opts.id]).attr("x")),
                 y = Number(sel.select("#nodeRect" + d[opts.id]).attr("y")),
                 w = Number(sel.select("#nodeRect" + d[opts.id]).attr("width")),
                 h = Number(sel.select("#nodeRect" + d[opts.id]).attr("height"));
-            
+
             // height of the tip
             var tipHeight = parseFloat(thisTip.style("height"));
             // width of the tip
@@ -754,7 +754,7 @@ function Sankey() {
             var tipNorth = clientRect.top - 5;
             var tipEast = clientRect.right + 5;
             var tipWest = clientRect.left - 5;
-            
+
             if (tipNorth - tipHeight >= 0) {
                 // northward tip
                 thisTip = thisTip.direction("n").offset([-10,0]).show(d, tipRect);
@@ -763,43 +763,43 @@ function Sankey() {
                 .style("visibility", "visible")
                 .style("top", (clientRect.top - 12.5) + "px")
                 .style("left", (clientRect.left + clientRect.width/2 - 5) + "px");
-                
+
                 if (parseFloat(thisTip.style("left")) < 0) {
                     thisTip.style("left", "5px");
                 } else if (parseFloat(thisTip.style("left")) + tipWidth > width) {
                     thisTip.style("left", (width - 5 - tipWidth) + "px");
                 }
-                
+
             } else if (height - tipSouth >= tipHeight) {
-                
+
                 thisTip = thisTip.direction("s").offset([10,0]).show(d, tipRect);
                 d3.select("#littleTriangle")
                 .attr("class", "southTip")
                 .style("visibility", "visible")
                 .style("top", (clientRect.bottom + 2.5) + "px")
                 .style("left", (clientRect.left + clientRect.width/2 - 5) + "px");
-                
+
                 if (parseFloat(thisTip.style("left")) < 0) {
                     thisTip.style("left", "5px");
                 } else if (parseFloat(thisTip.style("left")) + tipWidth > width) {
                     thisTip.style("left", (width - 5 - tipWidth) + "px");
                 }
-                
+
             } else if (tipEast >= width * 0.5) {
-                
+
                 thisTip = thisTip.direction("w").offset([0,-10]).show(d, tipRect);
                 d3.select("#littleTriangle")
                 .attr("class", "westTip")
                 .style("visibility", "visible")
                 .style("top", (clientRect.top + clientRect.height/2 - 5) + "px")
                 .style("left", (clientRect.left - 12.5) + "px");
-                
+
                 if (parseFloat(thisTip.style("top")) < 0) {
                     thisTip.style("top", "5px");
                 } else if (parseFloat(thisTip.style("top")) + tipHeight > height) {
                     thisTip.style("top", (height - tipHeight - 5) + "px");
                 }
-                
+
             } else {
                 thisTip = thisTip.direction("e").offset([0,10]).show(d, tipRect);
                 d3.select("#littleTriangle")
@@ -807,31 +807,31 @@ function Sankey() {
                 .style("visibility", "visible")
                 .style("top", (clientRect.top + clientRect.height/2 - 5) + "px")
                 .style("left", (clientRect.right + 2.5) + "px");
-                
+
                 if (parseFloat(thisTip.style("top")) < 0) {
                     thisTip.style("top", "5px");
                 } else if (parseFloat(thisTip.style("top")) + tipHeight > height) {
                     thisTip.style("top", (height - tipHeight - 5) + "px");
                 }
             }
-            
+
         }
-        
+
         function mouseOutNode(d) {
             d3.select("#littleTriangle").style("visibility", "hidden");
             tip.hide(d);
         }
-        
+
         function update(source) {
             // Compute the new height, function counts total children of root node and sets tree height accordingly.
             // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
             // This makes the layout more consistent.
             var levelWidth = [1];
             var childCount = function(level, n) {
-    
+
                 if (n[opts.childrenName] && n[opts.childrenName].length > 0) {
                     if (levelWidth.length <= level + 1) levelWidth.push(0);
-    
+
                     levelWidth[level + 1] += n[opts.childrenName].length;
                     n[opts.childrenName].forEach(function(d) {
                         childCount(level + 1, d);
@@ -840,35 +840,35 @@ function Sankey() {
             };
             childCount(0, root);
             newHeight = d3.max(levelWidth) * ( opts.nodeHeight || 25 ); // 25 pixels per line
-            
+
             //if (opts.maxLabelLength) {
-            newWidth = levelWidth.length * maxLabelLength * pxPerChar + 
-                        levelWidth.length * 10; // node link size + node rect size     
-                        
+            newWidth = levelWidth.length * maxLabelLength * pxPerChar +
+                        levelWidth.length * 10; // node link size + node rect size
+
             if (newHeight/newWidth < 0.5) {
                 newHeight = 0.5 * newWidth;
             }
             //} else {
-            //  newWidth = levelWidth.length * meanLabelLength * pxPerChar + 
+            //  newWidth = levelWidth.length * meanLabelLength * pxPerChar +
             //            levelWidth.length * 10; // node link size + node rect size
             //}
-            
+
             //dummyRect.attr("width", newWidth + meanLabelLength*pxPerChar).attr("height", newHeight);
-            
+
             // Size link width according to n based on total n
             var wscale = d3.scale.linear()
                 .range([0,opts.nodeHeight/nodeHeightRatio || 25])
                 //.range([0,opts.nodeHeight || 25])
                 .domain([0,treeData[opts.value]]);
-            
+
             tree = tree.size([newHeight, newWidth]);
-    
+
             // Compute the new tree layout.
             var nodes = tree.nodes(root),
                 links = tree.links(nodes);
-                
+
             //console.log(nodes);
-    
+
             // Set widths between levels based on maxLabelLength.
 
 
@@ -881,7 +881,7 @@ function Sankey() {
             //        d.y = (d.depth * (meanLabelLength * pxPerChar) + nodeTextDx); //meanLabelLength * 5px
             //    });
             //}
-            
+
             // flip the tree up and down to conform with R plot
             var initNodeX = nodes[nodes.length-1].x;
             nodes.forEach(function(d) {
@@ -893,7 +893,7 @@ function Sankey() {
                 .data(nodes, function(d) {
                     return d[opts.id] || (d[opts.id] = ++i);
                 });
-            
+
             // Enter any new nodes at the parent's previous position.
             var nodeEnter = node.enter().append("g")
                // .call(dragListener)
@@ -903,7 +903,7 @@ function Sankey() {
                 .attr("transform", function(d) {
                     return "translate(" + (source.y0) + "," + source.x0 + ")";
                 });
-                
+
             nodeEnter.append("rect")
                 .attr("class", "nodeRect")
                 .attr("id", function(d,i) { return "nodeRect" + d[opts.id];})
@@ -914,7 +914,7 @@ function Sankey() {
                 .on('click', click)
                 .on('mouseover', opts.tooltip ? function(d) { mouseOverNode(d,this,baseSvg);} : null)
                 .on('mouseout', opts.tooltip ? function(d) { mouseOutNode(d);} : null);
-                
+
             var nodeTextGroup1 = nodeEnter.append("g")
                                     .attr("class", "nodeTextGroup1")
                                     .attr("id", function(d) { return "ndTxtGp1_" + d[opts.id];})
@@ -928,7 +928,7 @@ function Sankey() {
                                         var selector_show = "#ndTxtGp2_" + d[opts.id];
                                         toggleText(selector_hide, selector_show);
                                     });
-                                    
+
             var nodeTextGroup2 = nodeEnter.append("g")
                                     .attr("class", "nodeTextGroup2")
                                     .attr("id", function(d) { return "ndTxtGp2_" + d[opts.id];})
@@ -942,20 +942,20 @@ function Sankey() {
                                         var selector_show = "#ndTxtGp1_" + d[opts.id];
                                         toggleText(selector_hide, selector_show);
                                     });
-                                    
+
             var nrect1 = nodeTextGroup1.append("rect")
                             .attr("class", "nodeTextBg1")
                             .attr("id", function(d) { return "bgt" + d[opts.id];});;
-                
+
             var nrect2 = nodeTextGroup2.append("rect")
                             .attr("class", "nodeTextBg2")
                             .attr("id", function(d) { return "bgc" + d[opts.id];});
-                            
+
             var ntxt1 = nodeTextGroup1.append("text")
                 .attr("id", function(d) { return "t" + d[opts.id];})
                 .attr("x", -nodeTextDx)
                 .attr("dy", ".35em")
-                .attr('class', 'nodeText1')                
+                .attr('class', 'nodeText1')
                 .attr("text-anchor", "end")
                 .text(function(d) {return d[opts.name]})
                 .style("fill-opacity", 0)
@@ -966,20 +966,20 @@ function Sankey() {
                     return d[opts.name];
                   }
                 });
-                
+
             svgGroup.selectAll(".nodeText1")
                 .each(function(d) {
                     d.shortNodeTextDim = { width: this.getBBox().width, height: this.getBBox().height};
-                    d.nodeTextPos = { 
-                        left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width, 
-                        top: d.x - this.getBBox().height/2, 
+                    d.nodeTextPos = {
+                        left: d.y - nodeRectWidth/2 - nodeTextDx - this.getBBox().width,
+                        top: d.x - this.getBBox().height/2,
                         bottom: d.x + this.getBBox().height/2,
                         rectLeft: d.y - nodeRectWidth/2,
                         rectTop: d.x - this.parentNode.getBBox().height/2,
                         rectBottom: d.x + this.parentNode.getBBox().height/2,
                     };
                 });
-            
+
             var ntxt2 = nodeTextGroup2.append("text")
                 .attr("id", function(d) { return "c" + d[opts.id];})
                 .attr("x", -nodeTextDx)
@@ -990,7 +990,7 @@ function Sankey() {
                 .text(function(d) {
                     return d[opts.name];
                 });
-                
+
             ntxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
             ntxt2.attr("y", function() { return -this.getBBox().height/2;});
             ntxt2.each(function(d) {
@@ -1000,21 +1000,21 @@ function Sankey() {
                         .attr("y", function() { return d3.select(self).attr("y");});
                     d.longNodeTextDim = { width: this.getBBox().width, height: this.getBBox().height};
                 });
-            
+
             nrect1.attr("x", function(d) { return -d.shortNodeTextDim.width - nodeTextDx;})
                   .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
                   .attr("width", function(d) { return d.shortNodeTextDim.width;})
                   .attr("height", function(d) { return d.shortNodeTextDim.height;});
-                  
+
             nrect2.attr("x", function(d) { return -d.longNodeTextDim.width - nodeTextDx;})
                   .attr("y", function(d) { return -d.longNodeTextDim.height/2;})
                   .attr("width", function(d) { return d.longNodeTextDim.width;})
                   .attr("height", function(d) { return d.longNodeTextDim.height;});
-                  
+
             node.each(function(d) {
                 d.hidden = false;
             });
-            
+
             nodeTextGroup1.style("display", function(d) {
                 if (d.hidden) {
                     return "none";
@@ -1022,7 +1022,7 @@ function Sankey() {
                     return "inline";
                 }
             });
-            
+
             nodeTextGroup2.style("display", function(d) {
                 if (d.hidden) {
                     return "inline";
@@ -1030,7 +1030,7 @@ function Sankey() {
                     return "none";
                 }
             });
-            
+
             if (opts.terminalDescription) {
                 nodeEnter.append("text")
                     .attr("id", function(d) { return "terminal" + d[opts.id];})
@@ -1055,7 +1055,7 @@ function Sankey() {
                         var selector_show = "#terminalLong" + d[opts.id];
                         toggleText(selector_hide, selector_show);
                     });
-                    
+
                 var terTxt2 = nodeEnter.append("text")
                     .attr("id", function(d) { return "terminalLong" + d[opts.id];})
                     .attr("x", nodeTextDx)
@@ -1074,7 +1074,7 @@ function Sankey() {
                         var selector_show = "#terminal" + d[opts.id];
                         toggleText(selector_hide, selector_show);
                     });
-                    
+
                 terTxt2.each(function(d) {
                     var self = this;
                     if (d.terminalWrapped) {
@@ -1087,16 +1087,16 @@ function Sankey() {
                     }
                 })
                 terTxt2.style("display", "none");
-                
+
                 svgGroup.selectAll(".nodeText")
                     .each(function(d) {
                         if (! (d[opts.childrenName] || d._children)) {
-                            d.termTextPos = { right: d.y + nodeRectWidth/2 + nodeTextDx + this.getBBox().width, 
-                                            top: d.x - this.getBBox().height/2, 
+                            d.termTextPos = { right: d.y + nodeRectWidth/2 + nodeTextDx + this.getBBox().width,
+                                            top: d.x - this.getBBox().height/2,
                                             bottom: d.x + this.getBBox().height/2};
                         }
                     });
-                    
+
                 var collided = {value: 0}, itr = 0;
                 do {
                     collided.value = 0;
@@ -1104,20 +1104,20 @@ function Sankey() {
                     resolveCollision(root, nodes, collided);
                     //console.log(collided.value + " " + itr);
                 } while (collided.value > 0 && itr < 7)
-                
+
                 if (itr >= 7) {
                     console.log("Node text collision failed to resolve. Try increasing maxLabelLength when calling SankeyTree")
                 }
-                
+
             }
-    
+
             // Change the circle fill depending on whether it has children and is collapsed
             node.select("circle.nodeCircle")
                 .attr("r", 4.5)
                 .style("fill", function(d) {
                     return d._children ? "lightsteelblue" : "#fff";
                 });
-    
+
             // Transition nodes to their new position.
             var nodeUpdate = node
                 .transition()
@@ -1126,11 +1126,11 @@ function Sankey() {
                 .attr("transform", function(d) {
                     return "translate(" + d.y + "," + d.x + ")";
                 });
-    
+
             // Fade the text in
             nodeUpdate.select("text")
                 .style("fill-opacity", 1);
-    
+
             // Transition exiting nodes to the parent's new position.
             var nodeExit = node.exit()
                 .transition()
@@ -1140,22 +1140,22 @@ function Sankey() {
                     return "translate(" + (source.y) + "," + source.x + ")";
                 })
                 .remove();
-    
+
             nodeExit.select("circle")
                 .attr("r", 0);
-    
+
             nodeExit.select("text")
                 .style("fill-opacity", 0);
-    
+
             // Update the links…
-            
-            
+
+
             // probably not the best way or place to do this
             //   but start here with adjusting paths higher
             //   or lower to do like a stacked bar
             //   since our stroke-width will reflect size
             //   similar to a Sankey
-            
+
             // 1. start by nesting our link paths by source
             var link_nested = d3.nest()
                                 .key(function(d){
@@ -1170,19 +1170,19 @@ function Sankey() {
                 var ywidth = wscale(dd.target[opts.value]);
                 var srcwidth = wscale(dd.source[opts.value]);
                 srcwidth = isNaN(srcwidth) ? wscale.range()[1]/2 : srcwidth;
-                ystacky = ystacky + ywidth;        
+                ystacky = ystacky + ywidth;
                 // dd.x = dd.source.x;
                 dd.x = dd.source.x + srcwidth/2 - ystacky + ywidth/2;
                 dd.y = dd.source.y;
                 dd.ystacky = ystacky;
               });
             });
-            
+
             var link = svgGroup.selectAll("path.link")
                 .data(links, function(d) {
                   return d.target[opts.id];
                 });
-    
+
             // Enter any new links at the parent's previous position.
             link.enter().insert("path", "g")
                 .attr("class", "link")
@@ -1200,7 +1200,7 @@ function Sankey() {
             link.style("stroke-width",function(d){
               return wscale( d.target[opts.value] );
             });
-            
+
             // Transition links to their new position.
             link.transition()
                 .duration(duration)
@@ -1220,7 +1220,7 @@ function Sankey() {
                     return "#ccc";
                   }
                 });
-                
+
             // Transition exiting nodes to the parent's new position.
             link.exit()
                 .transition()
@@ -1236,14 +1236,14 @@ function Sankey() {
                     });
                 })
                 .remove();
-    
+
             // Stash the old positions for transition.
             nodes.forEach(function(d) {
                 d.x0 = d.x;
                 d.y0 = d.y;
             });
         }
-        
+
         function updateNodePos (source, value) {
             source.x = source.x + value;
             source.nodeTextPos.bottom = source.nodeTextPos.bottom + value;
@@ -1255,24 +1255,24 @@ function Sankey() {
                 source.termTextPos.top = source.termTextPos.top + value;
             }
         }
-        
+
         function moveParents (source, value) {
             // TODO move the parent nodes of the colliding nodes
             // so far only child nodes are moved, which can potentially be a problem
         }
-        
+
         function moveChildren (source, value) {
-            
+
             updateNodePos(source, value);
-            
+
             if (source[opts.childrenName]) {
                 moveChildren(source[opts.childrenName][0], value);
                 moveChildren(source[opts.childrenName][1], value);
             }
         }
-        
+
         function moveNodes (source, target) {
-            
+
             var dx = (target.termTextPos.bottom - target.termTextPos.top)*0.7;
             if (source.parent.x < target.parent.x) {
                 // source is on the top branch, move source up
@@ -1296,27 +1296,27 @@ function Sankey() {
                 moveParents(target, -dx);
             }
         }
-        
-        // since the tree is drawn from left to right, the target is always on the left 
+
+        // since the tree is drawn from left to right, the target is always on the left
         // of the source
         function nodeCollide (source, target) {
             if ( (source.nodeTextPos.left - 5 < target.termTextPos.right &&
-                    ((source.nodeTextPos.bottom >= target.termTextPos.top && source.nodeTextPos.top <= target.termTextPos.top) || 
-                    (source.nodeTextPos.top <= target.termTextPos.bottom && source.nodeTextPos.bottom >= target.termTextPos.bottom))) || 
+                    ((source.nodeTextPos.bottom >= target.termTextPos.top && source.nodeTextPos.top <= target.termTextPos.top) ||
+                    (source.nodeTextPos.top <= target.termTextPos.bottom && source.nodeTextPos.bottom >= target.termTextPos.bottom))) ||
                 (source.nodeTextPos.rectLeft < target.termTextPos.right &&
-                    ((source.nodeTextPos.rectBottom >= target.termTextPos.top && source.nodeTextPos.rectTop <= target.termTextPos.top) || 
+                    ((source.nodeTextPos.rectBottom >= target.termTextPos.top && source.nodeTextPos.rectTop <= target.termTextPos.top) ||
                     (source.nodeTextPos.rectTop <= target.termTextPos.bottom && source.nodeTextPos.rectBottom >= target.termTextPos.bottom))) ) {
                 return true;
             } else {
                 return false;
             }
         }
-        
+
         function resolveCollision (thisNode, nodesArray, collided) {
             // resolve collision from root node to leaf node
             // larger branches are moved first
             // only check collision with lower level nodes
-            // empirically if root has depth 1, only nodes with depth 4 or above 
+            // empirically if root has depth 1, only nodes with depth 4 or above
             // will collide with previous nodes
             if (thisNode.depth >= 2) {
                 // collision is only possible with nodes having depth - 1 of current
@@ -1333,33 +1333,33 @@ function Sankey() {
                     }
                 }
             }
-            
+
             // only run the recursion when there is children
             if (thisNode[opts.childrenName]) {
                 resolveCollision(thisNode[opts.childrenName][0], nodesArray, collided);
                 resolveCollision(thisNode[opts.childrenName][1], nodesArray, collided);
             }
         }
-    
+
         // Append a group which holds all nodes and which the zoom Listener can act upon.
         svgGroup = baseSvg.call(zoomListener)
                     .on("dblclick.zoom", null)
                     .append("g")
                     .attr("class", "treeGroup");
-                  
+
         // if tooltip then set it up
         if(opts.tooltip){
             svgGroup.call(tip);
         }
-    
+
         // Define the root
         root = treeData;
         root.x0 = height / 2;
         root.y0 = 0;
-    
+
         // Layout the tree initially and center on the root node.
         update(root);
-        
+
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
         var treeSize = tree.size();
@@ -1381,19 +1381,19 @@ function Sankey() {
           var xscale = height/tree.size()[0]*0.85,
               yscale = width/tree.size()[1]*0.75;
           if (xscale < yscale) {
-            zoomListener.scale( xscale ); 
+            zoomListener.scale( xscale );
           } else {
-            zoomListener.scale( yscale ); 
+            zoomListener.scale( yscale );
           }
-          
+
         }*/
         centerNodeFit(root);
         prevWidth = width;
         prevHeight = height;
         setTimeout(function() {init = false;}, duration*3);
-        
-        
-        
+
+
+
         /*if (opts.colorLegend) {
           var legendBox = baseSvg.append("g")
                           .attr("id", "colorLegend")
@@ -1408,7 +1408,7 @@ function Sankey() {
                           .append("g");
           attachLegend();
         }*/
-        
+
         /*if (opts.categoryLegend && treeData.categoryLegend) {
           var catLegendBox = baseSvg.append("g")
                             .attr("id", "catLegend")
@@ -1421,12 +1421,12 @@ function Sankey() {
                             //.on("mousewheel.zoom", null)
                             .on("MozMousePixelScroll.zoom", null)
                             .append("g");
-          attachCategoryLegend();                 
+          attachCategoryLegend();
         }*/
-   
+
 
     }
-    
+
     // getter/setter
     chart.data = function(v) {
         if (!arguments.length) return data;
@@ -1439,7 +1439,7 @@ function Sankey() {
         opts = v;
         return chart;
     };
-    
+
     chart.resize = function(el) {
         resizeChart(el);
     };
@@ -1457,7 +1457,7 @@ function Sankey() {
         height = v;
         return chart;
     };
-    
+
     return chart;
 }
 
@@ -1469,10 +1469,10 @@ HTMLWidgets.widget({
   type: 'output',
 
   initialize: function(el, w, h) {
-    
+
         var width,
             height;
-            
+
         width = w < 200 ? 200 : w;
         height = h < 100 ? 100 : h;
 
@@ -1481,7 +1481,7 @@ HTMLWidgets.widget({
             .attr("class", "svg-content-responsive")
             .attr("width", width)
             .attr("height", height);
-            
+
         return Sankey().width(width).height(height);
 
   },
@@ -1493,12 +1493,13 @@ HTMLWidgets.widget({
         instance = instance.opts(x.opts);
         instance = instance.data(x.data);
 
+        d3.select(el).select('g').remove();
         d3.select(el).call(instance);
 
   },
 
   resize: function(el, width, height, instance) {
-      
+
         d3.select(el).select("svg")
             .attr("width", width)
             .attr("height", height);
