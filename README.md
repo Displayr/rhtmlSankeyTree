@@ -9,7 +9,7 @@ interactivity might help us analyze, instruct, and decide.
 Installation
 ------------
 
-    devtools::install_github("NumbersInternational/rhtmlSankeyTree")
+    devtools::install_github("Displayr/rhtmlSankeyTree")
 
 Usage
 -----

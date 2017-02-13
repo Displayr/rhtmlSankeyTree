@@ -17,7 +17,7 @@ Combining Sankey diagrams with collapsible trees and adding some new interactivi
 ## Installation
 
 ```{r eval = FALSE}
-devtools::install_github("NumbersInternational/rhtmlSankeyTree")
+devtools::install_github("Displayr/rhtmlSankeyTree")
 ```
 
 ## Usage
