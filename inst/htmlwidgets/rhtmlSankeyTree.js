@@ -935,31 +935,11 @@ function Sankey() {
             var nodeTextGroup1 = nodeEnter.append("g")
                                     .attr("class", "nodeTextGroup1")
                                     .attr("id", function(d) { return "ndTxtGp1_" + d[opts.id];});
-/*                                    .on("click", function(d) {
-                                        if (d.hidden) {
-                                            d.hidden = false;
-                                        } else {
-                                            d.hidden = true;
-                                        }
-                                        var selector_hide = "#ndTxtGp1_" + d[opts.id];
-                                        var selector_show = "#ndTxtGp2_" + d[opts.id];
-                                        toggleText(selector_hide, selector_show);
-                                    });*/
 
             var nodeTextGroup2 = nodeEnter.append("g")
                                     .attr("class", "nodeTextGroup2")
                                     .attr("id", function(d) { return "ndTxtGp2_" + d[opts.id];});
-/*                                    .on("click", function(d) {
-                                        if (d.hidden) {
-                                            d.hidden = false;
-                                        } else {
-                                            d.hidden = true;
-                                        }
-                                        var selector_hide = "#ndTxtGp2_" + d[opts.id];
-                                        var selector_show = "#ndTxtGp1_" + d[opts.id];
-                                        toggleText(selector_hide, selector_show);
-                                    });*/
-
+                                    
             var nrect1 = nodeTextGroup1.append("rect")
                             .attr("class", "nodeTextBg1")
                             .attr("id", function(d) { return "bgt" + d[opts.id];});
@@ -1099,63 +1079,7 @@ function Sankey() {
                         d.hidden = true;
                     }
                 });
-                
-/*            nodeTextGroup1.on("mouseenter", function(d) {
-                var self = this;
-                var lbTxt = d3.select(self).select("text");
-                var lbRect = d3.select(self).select("rect");
-                
-                lbTxt
-                .attr("y", 0)
-                .text(function(d) {
-                    return d[opts.name];
-                })
-                .call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, labLines, false)
-                .attr("y", function(d) { return -d.longNodeTextDim.height/2;})
-                .selectAll("tspan")
-                .attr("y", function() { return -d.longNodeTextDim.height/2;});
-            })
-            .on("mouseleave", function(d) {
-                var self = this;
-                var lbTxt = d3.select(self).select("text");
-                var lbRect = d3.select(self).select("rect");
-                var nLine = d.nlines;
-                
-                if (nLine > maxLines) {
-                    var counter = 0;
-                    var mid = (nLine + (nLine % 2))/2;
-                    lbTxt.selectAll("tspan")
-                        .each(function() {
-                            if (counter != 0 && counter != nLine-1) {
-                                if (counter == mid) {
-                                    d3.select(this).text("...");
-                                } else {
-                                    d3.select(this).remove();
-                                }
-                            }
-                            counter++;
-                        })
-                    lbTxt.selectAll("tspan")
-                        .attr("dy", function(d,i) {
-                            return (0.95 + 1.1*i) + "em";
-                        });
-                }
-                lbTxt
-                    .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
-                    .selectAll("tspan")
-                    .attr("y", function(d) { return -d.shortNodeTextDim.height/2;});
-            })
-            .on("click", function(d) {
-                if (d.hidden) {
-                    d.hidden = false;
-                } else {
-                    d.hidden = true;
-                }
-                var selector_hide = "#ndTxtGp1_" + d[opts.id];
-                var selector_show = "#ndTxtGp2_" + d[opts.id];
-                toggleText(selector_hide, selector_show);
-            });
-*/
+
             nrect1.attr("x", function(d) { return -d.shortNodeTextDim.width - nodeTextDx;})
                   .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
                   .attr("width", function(d) { return d.shortNodeTextDim.width;})
@@ -1173,22 +1097,6 @@ function Sankey() {
             nodeTextGroup1.style("opacity", 1);
             nodeTextGroup2.style("opacity", 0);
 
-/*            nodeTextGroup1.style("display", function(d) {
-                if (d.hidden) {
-                    return "none";
-                } else {
-                    return "inline";
-                }
-            });
-
-            nodeTextGroup2.style("display", function(d) {
-                if (d.hidden) {
-                    return "inline";
-                } else {
-                    return "none";
-                }
-            });
-*/
             if (opts.terminalDescription) {
                 
                 var terTxt2 = nodeEnter.append("text")
@@ -1204,11 +1112,6 @@ function Sankey() {
                     .attr("font-weight", function(d) {
                         return d[opts.childrenName] || d._children ? "normal" : "bold";
                     });
-                    /*.on("click", function(d) {
-                        var selector_hide = "#terminalLong" + d[opts.id];
-                        var selector_show = "#terminal" + d[opts.id];
-                        toggleText(selector_hide, selector_show);
-                    });*/
 
                 terTxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, termLines, initialization)
                 .attr("y", function() { return -this.getBBox().height/2;})
@@ -1265,11 +1168,6 @@ function Sankey() {
                             .attr("y", function() { return d3.select(self).attr("y");});
                         d.shortTermTextDim = { width: self.getBBox().width, height: self.getBBox().height};
                     });
-                    /*.on("click", function(d) {
-                        var selector_hide = "#terminal" + d[opts.id];
-                        var selector_show = "#terminalLong" + d[opts.id];
-                        toggleText(selector_hide, selector_show);
-                    });*/
 
                 svgGroup.selectAll(".nodeText")
                     .each(function(d) {
