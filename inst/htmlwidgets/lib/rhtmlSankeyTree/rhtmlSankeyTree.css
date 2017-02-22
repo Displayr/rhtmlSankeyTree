@@ -1,4 +1,4 @@
-.node {
+.node rect {
   cursor: pointer;
 }
 
@@ -15,6 +15,7 @@
 }
  
 .node text {
+  cursor:default;
   font-size:10px; 
   font-family:sans-serif;
 }

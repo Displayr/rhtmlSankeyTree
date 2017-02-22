@@ -23,6 +23,7 @@ function Sankey() {
         prevWidth,
         prevHeight;
 
+    var maxLines = 3;   // must be odd
     var tooltip = {
 
         createClTips: function(data, scale, maxL) {
@@ -541,10 +542,11 @@ function Sankey() {
             return b[opts.name].toLowerCase() < a[opts.name].toLowerCase() ? 1 : -1;
         });
         zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
+    
 
-    function wrap(text, width) {
+
+    function wrap(text, width, lineNumbers, initialization) {
         var separators = {"-": 1, " ": 1};
-        var lineNumbers = [];
         text.each(function() {
             var text = d3.select(this),
                 chars = text.text().split("").reverse(),
@@ -615,7 +617,9 @@ function Sankey() {
                     }
                 }
             }
-            lineNumbers.push(lineNumber + 1);
+            if (initialization) {
+                lineNumbers.push(lineNumber + 1);
+            }
         });
     }
         /*
@@ -703,15 +707,26 @@ function Sankey() {
         function click(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
             d = toggleChildren(d);
-            update(d);
+            update(d, false);
             //centerNode(d);
             centerNodeFit(d);
         }
 
-        function toggleText(selector_hide, selector_show) {
+        function toggleText(selector_hide, selector_show, animation) {
             if (d3.event.defaultPrevented) return; // click suppressed
-            svgGroup.select(selector_hide).style("display", "none");
-            svgGroup.select(selector_show).style("display", "inline");
+            if (animation) {
+                svgGroup.select(selector_hide)
+                    .transition("0")
+                    .duration(300)
+                    .style("opacity", 0);
+                svgGroup.select(selector_show)
+                    .transition("0")
+                    .duration(300)
+                    .style("opacity", 1);
+            } else {
+                svgGroup.select(selector_hide).style("display", "none");
+                svgGroup.select(selector_show).style("display", "inline");
+            }
         }
 
         /*function clickText(d) {
@@ -821,8 +836,10 @@ function Sankey() {
             d3.select("#littleTriangle").style("visibility", "hidden");
             tip.hide(d);
         }
-
-        function update(source) {
+        
+        var labLines = [];
+        var termLines = [];
+        function update(source, initialization) {
             // Compute the new height, function counts total children of root node and sets tree height accordingly.
             // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
             // This makes the layout more consistent.
@@ -917,8 +934,8 @@ function Sankey() {
 
             var nodeTextGroup1 = nodeEnter.append("g")
                                     .attr("class", "nodeTextGroup1")
-                                    .attr("id", function(d) { return "ndTxtGp1_" + d[opts.id];})
-                                    .on("click", function(d) {
+                                    .attr("id", function(d) { return "ndTxtGp1_" + d[opts.id];});
+/*                                    .on("click", function(d) {
                                         if (d.hidden) {
                                             d.hidden = false;
                                         } else {
@@ -927,12 +944,12 @@ function Sankey() {
                                         var selector_hide = "#ndTxtGp1_" + d[opts.id];
                                         var selector_show = "#ndTxtGp2_" + d[opts.id];
                                         toggleText(selector_hide, selector_show);
-                                    });
+                                    });*/
 
             var nodeTextGroup2 = nodeEnter.append("g")
                                     .attr("class", "nodeTextGroup2")
-                                    .attr("id", function(d) { return "ndTxtGp2_" + d[opts.id];})
-                                    .on("click", function(d) {
+                                    .attr("id", function(d) { return "ndTxtGp2_" + d[opts.id];});
+/*                                    .on("click", function(d) {
                                         if (d.hidden) {
                                             d.hidden = false;
                                         } else {
@@ -941,30 +958,80 @@ function Sankey() {
                                         var selector_hide = "#ndTxtGp2_" + d[opts.id];
                                         var selector_show = "#ndTxtGp1_" + d[opts.id];
                                         toggleText(selector_hide, selector_show);
-                                    });
+                                    });*/
 
             var nrect1 = nodeTextGroup1.append("rect")
                             .attr("class", "nodeTextBg1")
-                            .attr("id", function(d) { return "bgt" + d[opts.id];});;
+                            .attr("id", function(d) { return "bgt" + d[opts.id];});
 
             var nrect2 = nodeTextGroup2.append("rect")
                             .attr("class", "nodeTextBg2")
                             .attr("id", function(d) { return "bgc" + d[opts.id];});
 
+            var ntxt2 = nodeTextGroup2.append("text")
+                .attr("id", function(d) { return "c" + d[opts.id];})
+                .attr("x", -nodeTextDx)
+                .attr("y", 0)
+                .attr("dy", "0.95em")
+                .attr('class', 'nodeText2')
+                .attr("text-anchor", "end")
+                .text(function(d) {
+                    return d[opts.name];
+                });
+                
+
+            ntxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, labLines, initialization);
+            ntxt2.attr("y", function() { return -this.getBBox().height/2;});
+            ntxt2.each(function(d,i) {
+                    if (initialization) {
+                        d.nlines = labLines[i];
+                    }
+                    var self = this;
+                    d3.select(self)
+                        .selectAll("tspan")
+                        .attr("y", function() { return d3.select(self).attr("y");});
+                    d.longNodeTextDim = { width: self.getBBox().width, height: self.getBBox().height};
+                });
+                
             var ntxt1 = nodeTextGroup1.append("text")
                 .attr("id", function(d) { return "t" + d[opts.id];})
                 .attr("x", -nodeTextDx)
-                .attr("dy", ".35em")
+                .attr("y", 0)
+                .attr("dy", "0.95em")
                 .attr('class', 'nodeText1')
                 .attr("text-anchor", "end")
                 .text(function(d) {return d[opts.name]})
                 .style("fill-opacity", 0)
-                .text(function(d) {
-                  if (this.getComputedTextLength() > maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth) {
-                    return d[opts.name].substring(0, maxLabelLength-3) + "...";
-                  } else {
-                    return d[opts.name];
-                  }
+                .each(function(d,i) {
+                    var self = this;
+                    var nLine = d.nlines;
+                    d3.select(self)
+                        .call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, labLines, false);
+                    if (nLine > maxLines) {
+                        var counter = 0;
+                        var mid = (nLine + (nLine % 2))/2;
+                        d3.select(self)
+                            .selectAll("tspan")
+                            .each(function() {
+                                if (counter >= (maxLines-1)/2 && counter < nLine-(maxLines-1)/2) {
+                                    if (counter == mid) {
+                                        d3.select(this).text("...");
+                                    } else {
+                                        d3.select(this).remove();
+                                    }
+                                }
+                                counter++;
+                            })
+                        d3.select(self)
+                            .selectAll("tspan")
+                            .attr("dy", function(d,i) {
+                                return (0.95 + 1.1*i) + "em";
+                            });
+                    }
+                    d3.select(self)
+                        .attr("y", function() { return -self.getBBox().height/2;})
+                        .selectAll("tspan")
+                        .attr("y", function() { return d3.select(self).attr("y");});
                 });
 
             svgGroup.selectAll(".nodeText1")
@@ -980,27 +1047,115 @@ function Sankey() {
                     };
                 });
 
-            var ntxt2 = nodeTextGroup2.append("text")
-                .attr("id", function(d) { return "c" + d[opts.id];})
-                .attr("x", -nodeTextDx)
+            var dummyRects = nodeEnter.append("rect")
+                .attr("class", "dummyRect")
+                .attr("x", function(d) { return -d.shortNodeTextDim.width - nodeTextDx;})
+                .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
+                .attr("width", function(d) { return d.shortNodeTextDim.width;})
+                .attr("height", function(d) { return d.shortNodeTextDim.height;})
+                .style("fill", "transparent")
+                .style("stroke", "none")
+                .on("mouseenter", function(d,i) {
+                    if (d.nlines <= maxLines) {
+                        return;
+                    }
+                    if (!d.hidden) {
+                        var selector_hide = "#ndTxtGp1_" + d[opts.id];
+                        var selector_show = "#ndTxtGp2_" + d[opts.id];
+                        toggleText(selector_hide, selector_show, true);
+                        d3.select(this)
+                            .transition("0")
+                            .duration(300)
+                            .attr("x", function(d) { return -d.longNodeTextDim.width - nodeTextDx;})
+                            .attr("y", function(d) { return -d.longNodeTextDim.height/2;})
+                            .attr("width", function(d) { return d.longNodeTextDim.width;})
+                            .attr("height", function(d) { return d.longNodeTextDim.height;});
+                    }
+                })
+                .on("mouseleave", function(d,i) {
+                    if (d.nlines <= maxLines) {
+                        return;
+                    }
+                    if (!d.hidden) {
+                        var selector_hide = "#ndTxtGp2_" + d[opts.id];
+                        var selector_show = "#ndTxtGp1_" + d[opts.id];
+                        toggleText(selector_hide, selector_show, true);
+                        d3.select(this)
+                            .transition("0")
+                            .duration(300)
+                            .attr("x", function(d) { return -d.shortNodeTextDim.width - nodeTextDx;})
+                            .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
+                            .attr("width", function(d) { return d.shortNodeTextDim.width;})
+                            .attr("height", function(d) { return d.shortNodeTextDim.height;});
+                    }
+                })
+                .on("click", function(d,i) {
+                    if (d.nlines <= maxLines) {
+                        return;
+                    }
+                    if (d.hidden) {
+                        d.hidden = false;
+                    } else {
+                        d.hidden = true;
+                    }
+                });
+                
+/*            nodeTextGroup1.on("mouseenter", function(d) {
+                var self = this;
+                var lbTxt = d3.select(self).select("text");
+                var lbRect = d3.select(self).select("rect");
+                
+                lbTxt
                 .attr("y", 0)
-                .attr("dy", "0.95em")
-                .attr('class', 'nodeText2')
-                .attr("text-anchor", "end")
                 .text(function(d) {
                     return d[opts.name];
-                });
-
-            ntxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
-            ntxt2.attr("y", function() { return -this.getBBox().height/2;});
-            ntxt2.each(function(d) {
-                    var self = this;
-                    d3.select(this)
-                        .selectAll("tspan")
-                        .attr("y", function() { return d3.select(self).attr("y");});
-                    d.longNodeTextDim = { width: this.getBBox().width, height: this.getBBox().height};
-                });
-
+                })
+                .call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, labLines, false)
+                .attr("y", function(d) { return -d.longNodeTextDim.height/2;})
+                .selectAll("tspan")
+                .attr("y", function() { return -d.longNodeTextDim.height/2;});
+            })
+            .on("mouseleave", function(d) {
+                var self = this;
+                var lbTxt = d3.select(self).select("text");
+                var lbRect = d3.select(self).select("rect");
+                var nLine = d.nlines;
+                
+                if (nLine > maxLines) {
+                    var counter = 0;
+                    var mid = (nLine + (nLine % 2))/2;
+                    lbTxt.selectAll("tspan")
+                        .each(function() {
+                            if (counter != 0 && counter != nLine-1) {
+                                if (counter == mid) {
+                                    d3.select(this).text("...");
+                                } else {
+                                    d3.select(this).remove();
+                                }
+                            }
+                            counter++;
+                        })
+                    lbTxt.selectAll("tspan")
+                        .attr("dy", function(d,i) {
+                            return (0.95 + 1.1*i) + "em";
+                        });
+                }
+                lbTxt
+                    .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
+                    .selectAll("tspan")
+                    .attr("y", function(d) { return -d.shortNodeTextDim.height/2;});
+            })
+            .on("click", function(d) {
+                if (d.hidden) {
+                    d.hidden = false;
+                } else {
+                    d.hidden = true;
+                }
+                var selector_hide = "#ndTxtGp1_" + d[opts.id];
+                var selector_show = "#ndTxtGp2_" + d[opts.id];
+                toggleText(selector_hide, selector_show);
+            });
+*/
             nrect1.attr("x", function(d) { return -d.shortNodeTextDim.width - nodeTextDx;})
                   .attr("y", function(d) { return -d.shortNodeTextDim.height/2;})
                   .attr("width", function(d) { return d.shortNodeTextDim.width;})
@@ -1014,8 +1169,11 @@ function Sankey() {
             node.each(function(d) {
                 d.hidden = false;
             });
+            
+            nodeTextGroup1.style("opacity", 1);
+            nodeTextGroup2.style("opacity", 0);
 
-            nodeTextGroup1.style("display", function(d) {
+/*            nodeTextGroup1.style("display", function(d) {
                 if (d.hidden) {
                     return "none";
                 } else {
@@ -1030,37 +1188,14 @@ function Sankey() {
                     return "none";
                 }
             });
-
+*/
             if (opts.terminalDescription) {
-                nodeEnter.append("text")
-                    .attr("id", function(d) { return "terminal" + d[opts.id];})
-                    .attr("x", nodeTextDx)
-                    .attr("dy", ".35em")
-                    .attr('class', 'nodeText')
-                    .attr("text-anchor", "start")
-                    .attr("font-weight", function(d) {
-                        return d[opts.childrenName] || d._children ? "normal" : "bold";
-                    })
-                    .text(function(d) {
-                      if (d.terminalDescription.length > opts.maxLabelLength) {
-                        d.terminalWrapped = true;
-                        return d.terminalDescription.substring(0, maxLabelLength-3) + "...";
-                      } else {
-                        d.terminalWrapped = false;
-                        return d.terminalDescription;
-                      }
-                    })
-                    .on("click", function(d) {
-                        var selector_hide = "#terminal" + d[opts.id];
-                        var selector_show = "#terminalLong" + d[opts.id];
-                        toggleText(selector_hide, selector_show);
-                    });
-
+                
                 var terTxt2 = nodeEnter.append("text")
                     .attr("id", function(d) { return "terminalLong" + d[opts.id];})
                     .attr("x", nodeTextDx)
                     .attr("y", 0)
-                    .attr("dy", ".35em")
+                    .attr("dy", ".95em")
                     .attr('class', 'nodeTextLong')
                     .attr("text-anchor", "start")
                     .text(function(d) {
@@ -1068,28 +1203,77 @@ function Sankey() {
                     })
                     .attr("font-weight", function(d) {
                         return d[opts.childrenName] || d._children ? "normal" : "bold";
-                    })
-                    .on("click", function(d) {
+                    });
+                    /*.on("click", function(d) {
                         var selector_hide = "#terminalLong" + d[opts.id];
                         var selector_show = "#terminal" + d[opts.id];
                         toggleText(selector_hide, selector_show);
-                    });
+                    });*/
 
-                terTxt2.each(function(d) {
+                terTxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, termLines, initialization)
+                .attr("y", function() { return -this.getBBox().height/2;})
+                .each(function(d) {
+                    if (initialization) {
+                        d.termLines = termLines[i];
+                    }
                     var self = this;
-                    if (d.terminalWrapped) {
-                        d3.select(self).attr("dy", ".95em");
-                        wrap(d3.select(self), maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
+                    d3.select(self)
+                        .selectAll("tspan")
+                        .attr("y", function() { return d3.select(self).attr("y");});
+                    d.longTermTextDim = { width: self.getBBox().width, height: self.getBBox().height};
+                });
+                
+                var terTxt1 = nodeEnter.append("text")
+                    .attr("id", function(d) { return "terminal" + d[opts.id];})
+                    .attr("x", nodeTextDx)
+                    .attr("y", 0)
+                    .attr("dy", ".95em")
+                    .attr('class', 'nodeText')
+                    .attr("text-anchor", "start")
+                    .text(function(d) {
+                        return d.terminalDescription;
+                    })
+                    .attr("font-weight", function(d) {
+                        return d[opts.childrenName] || d._children ? "normal" : "bold";
+                    })
+                    .each(function(d) {
+                        var self = this;
+                        var termLine = d.termLines, tempList = [];
+                        d3.select(self).call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, tempList, false);
+                        if (termLine > maxLines) {
+                            var counter = 0;
+                            var mid = (termLine + (termLine % 2))/2;
+                            d3.select(self).selectAll("tspan")
+                            .each(function() {
+                                if (counter >= (maxLines-1)/2 && counter < nLine-(maxLines-1)/2) {
+                                    if (counter == mid) {
+                                        d3.select(this).text("...");
+                                    } else {
+                                        d3.select(this).remove();
+                                    }
+                                }
+                                counter++;
+                            });
+                            d3.select(self).selectAll("tspan")
+                            .attr("dy", function(d,i) {
+                                return (0.95 + 1.1*i) + "em";
+                            });
+                        }
                         d3.select(self)
                             .attr("y", function() { return -self.getBBox().height/2;})
                             .selectAll("tspan")
                             .attr("y", function() { return d3.select(self).attr("y");});
-                    }
-                })
-                terTxt2.style("display", "none");
+                        d.shortTermTextDim = { width: self.getBBox().width, height: self.getBBox().height};
+                    });
+                    /*.on("click", function(d) {
+                        var selector_hide = "#terminal" + d[opts.id];
+                        var selector_show = "#terminalLong" + d[opts.id];
+                        toggleText(selector_hide, selector_show);
+                    });*/
 
                 svgGroup.selectAll(".nodeText")
                     .each(function(d) {
+                        d.termHidden = false;
                         if (! (d[opts.childrenName] || d._children)) {
                             d.termTextPos = { right: d.y + nodeRectWidth/2 + nodeTextDx + this.getBBox().width,
                                             top: d.x - this.getBBox().height/2,
@@ -1097,6 +1281,62 @@ function Sankey() {
                         }
                     });
 
+                
+                var dummyTermRects = nodeEnter.append("rect")
+                    .attr("class", "dummyRectTerm")
+                    .attr("x", function(d) { return nodeTextDx;})
+                    .attr("y", function(d) { return -d.shortTermTextDim.height/2;})
+                    .attr("width", function(d) { return d.shortTermTextDim.width;})
+                    .attr("height", function(d) { return d.shortTermTextDim.height;})
+                    .style("fill", "transparent")
+                    .style("stroke", "none")
+                    .on("mouseenter", function(d,i) {
+                        if (d.termLines <= maxLines) {
+                            return;
+                        }
+                        if (!d.termHidden) {
+                            var selector_hide = "#terminal" + d[opts.id];
+                            var selector_show = "#terminalLong" + d[opts.id];
+                            toggleText(selector_hide, selector_show, true);
+                            d3.select(this)
+                                .transition("0")
+                                .duration(300)
+                                .attr("x", function(d) { return nodeTextDx;})
+                                .attr("y", function(d) { return -d.longTermTextDim.height/2;})
+                                .attr("width", function(d) { return d.longTermTextDim.width;})
+                                .attr("height", function(d) { return d.longTermTextDim.height;});
+                        }
+                    })
+                    .on("mouseleave", function(d,i) {
+                        if (d.termLines <= maxLines) {
+                            return;
+                        }
+                        if (!d.termHidden) {
+                            var selector_hide = "#terminalLong" + d[opts.id];
+                            var selector_show = "#terminal" + d[opts.id];
+                            toggleText(selector_hide, selector_show, true);
+                            d3.select(this)
+                                .transition("0")
+                                .duration(300)
+                                .attr("x", function(d) { return nodeTextDx;})
+                                .attr("y", function(d) { return -d.shortTermTextDim.height/2;})
+                                .attr("width", function(d) { return d.shortTermTextDim.width;})
+                                .attr("height", function(d) { return d.shortTermTextDim.height;});
+                        }
+                    })
+                    .on("click", function(d,i) {
+                        if (d.termLines <= maxLines) {
+                            return;
+                        }
+                        if (d.termHidden) {
+                            d.termHidden = false;
+                        } else {
+                            d.termHidden = true;
+                        }
+                    });
+                    
+                terTxt1.style("opacity", 1);
+                terTxt2.style("opacity", 0);
                 var collided = {value: 0}, itr = 0;
                 do {
                     collided.value = 0;
@@ -1358,7 +1598,7 @@ function Sankey() {
         root.y0 = 0;
 
         // Layout the tree initially and center on the root node.
-        update(root);
+        update(root, true);
 
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
