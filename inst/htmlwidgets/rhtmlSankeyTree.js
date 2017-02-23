@@ -23,7 +23,7 @@ function Sankey() {
         prevWidth,
         prevHeight;
 
-    var maxLines = 3;   // must be odd
+    var maxLines = 5;   // must be odd
     var tooltip = {
 
         createClTips: function(data, scale, maxL) {
