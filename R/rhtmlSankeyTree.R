@@ -26,7 +26,7 @@ SankeyTree <- function(
   value = "size",
   childrenName = "children",
   treeColors = TRUE,
-  maxLabelLength = 20,
+  maxLabelLength = 25,
   nodeHeight = 100,
   tooltip = NULL,
   categoryLegend = FALSE,
