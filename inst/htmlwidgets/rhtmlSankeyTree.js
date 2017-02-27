@@ -546,7 +546,8 @@ function Sankey() {
 
 
     function wrap(text, width, lineNumbers, initialization) {
-        var separators = {"-": 1, " ": 1};
+        // values are irrelavant
+        var separators = {" ": 1, "-": 1, ".": 1, ",": 1, ";": 1, ":":1,  "/":1, "&":1, "+":1, "_": 1};
         text.each(function() {
             var text = d3.select(this),
                 chars = text.text().split("").reverse(),
@@ -575,6 +576,7 @@ function Sankey() {
                     if (sep === undefined) {
                         if (c in separators) {
                             if (c === " ") {
+                                // when space is the separator, delete it from the current line
                                 lineTemp.pop();
                             }
                             // make new line
