@@ -1,35 +1,10 @@
 Package: rhtmlSankeyTree
 Title: Sankey Diagrams as Collapsible Trees
 Version: 0.0.1
-Date: 2015-10-06
-Authors@R: c(
-      person(
-        "Mike", "Bostock"
-        , role = c("aut", "cph")
-        , comment = "d3.js library in htmlwidgets/lib, http://d3js.org"
-      ),
-      person(
-        "Rob", "Schmuecker"
-        , role = c("aut", "cph")
-        , comment = "JavaScript code for drawing sankeytree,
-                    http://bl.ocks.org/robschmuecker/0f29a2c867dcb1b44d18"
-      ),
-      person(
-        "Justin", "Palmer"
-        , role = c("aut", "cph")
-        , comment = "d3-tip library in htmlwidgets/lib,
-                    https://github.com/Caged/d3-tip"
-      ),
-      person(
-        "Kent", "Russell"
-        , role = c("aut", "cre")
-        , comment = "R interface"
-        , email = "kent.russell@timelyportfolio.com"
-      )
-    )
-Maintainer: Xiaoting Wang <xtmwang@gmail.com>
+Author: Displayr <opensource@displayr.com>
+Maintainer: Displayr <opensource@displayr.com>
 Description: Combining Sankey diagrams with collapsible trees and adding some new interactivity might help us analyze, instruct, and decide.
-License: MIT + file LICENSE
+License: GPL-3 + file LICENSE
 LazyData: true
 URL: https://github.com/timelyportfolio/sankeytree
 BugReports: https://github.com/timelyportfolio/sankeytree/issues
