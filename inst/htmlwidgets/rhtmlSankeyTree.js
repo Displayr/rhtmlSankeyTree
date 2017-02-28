@@ -554,7 +554,7 @@ function Sankey() {
                 c,
                 nextchar,
                 sep,
-                newline = [];
+                newline = [],
                 lineTemp = [],
                 lineNumber = 0,
                 lineHeight = 1.1, // ems
