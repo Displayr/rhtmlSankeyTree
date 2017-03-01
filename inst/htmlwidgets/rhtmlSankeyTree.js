@@ -22,6 +22,8 @@ function Sankey() {
         height = 500,
         prevWidth,
         prevHeight;
+        
+    var saveStates;
 
     var maxLines = 5;   // must be odd
     var tooltip = {
@@ -52,6 +54,9 @@ function Sankey() {
             if (data[opts.childrenName]) {
                 tooltip.createClTips(data[opts.childrenName][0], scale, maxL);
                 tooltip.createClTips(data[opts.childrenName][1], scale, maxL);
+            } else if (data._children) {
+                tooltip.createClTips(data._children[0], scale, maxL);
+                tooltip.createClTips(data._children[1], scale, maxL);
             }
         },
 
@@ -192,6 +197,9 @@ function Sankey() {
             if (data[opts.childrenName]) {
                 tooltip.createRgTips(data[opts.childrenName][0], scale, maxL);
                 tooltip.createRgTips(data[opts.childrenName][1], scale, maxL);
+            } else if (data._children) {
+                tooltip.createRgTips(data._children[0], scale, maxL);
+                tooltip.createRgTips(data._children[1], scale, maxL);
             }
 
         }
@@ -247,7 +255,22 @@ function Sankey() {
         prevWidth = width;
         prevHeight = height;
     }
+    
+    // A recursive helper function for performing some setup by walking through all nodes
+    function visit(parent, visitFn, childrenFn) {
+        if (!parent) return;
 
+        visitFn(parent);
+
+        var children = childrenFn(parent);
+        if (children) {
+            var count = children.length;
+            for (var i = 0; i < count; i++) {
+                visit(children[i], visitFn, childrenFn);
+            }
+        }
+    }
+    
     function chart(selection) {
 
         var treeData = data;
@@ -495,10 +518,11 @@ function Sankey() {
         function getNodeHeightRatio() {
           var nRatio = 0.0;
           var maxRatio = 0.0;
-          if (treeData[opts.childrenName]) {
-            var count = treeData[opts.childrenName].length;
+          var nodeChildren = treeData[opts.childrenName] ? treeData[opts.childrenName] : treeData._children;
+          if (nodeChildren) {
+            var count = nodeChildren.length;
             for (var i = 0; i < count; i++) {
-              nRatio = treeData[opts.childrenName][i][opts.value]/treeData[opts.value];
+              nRatio = nodeChildren[i][opts.value]/treeData[opts.value];
               if (nRatio > maxRatio) {
                 maxRatio = nRatio;
               }
@@ -507,25 +531,10 @@ function Sankey() {
           return maxRatio;
         }
 
-        // A recursive helper function for performing some setup by walking through all nodes
-        function visit(parent, visitFn, childrenFn) {
-            if (!parent) return;
-
-            visitFn(parent);
-
-            var children = childrenFn(parent);
-            if (children) {
-                var count = children.length;
-                for (var i = 0; i < count; i++) {
-                    visit(children[i], visitFn, childrenFn);
-                }
-            }
-        }
-
-
         // Call visit function to establish maxLabelLength
         var meanLabelLength = 0.0;
         visit(treeData, function(d) {
+            //d.childrenHidden = false;
             totalNodes++;
             maxLabelLength = opts.maxLabelLength || Math.max(d[opts.name].length, 0);
             meanLabelLength = meanLabelLength + d[opts.name].length;
@@ -545,11 +554,11 @@ function Sankey() {
     
 
 
-    function wrap(text, width, lineNumbers, initialization) {
+    function wrap(textEL, width) {
         // values are irrelavant
         var separators = {" ": 1, "-": 1, ".": 1, ",": 1, ";": 1, ":":1,  "/":1, "&":1, "+":1, "_": 1};
-        text.each(function() {
-            var text = d3.select(this),
+        
+            var text = d3.select(textEL),
                 chars = text.text().split("").reverse(),
                 c,
                 nextchar,
@@ -645,10 +654,7 @@ function Sankey() {
                     }
                 }
             }
-            if (initialization) {
-                lineNumbers.push(lineNumber + 1);
-            }
-        });
+        return lineNumber+1;
     }
         /*
         // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
@@ -723,10 +729,13 @@ function Sankey() {
             if (d[opts.childrenName]) {
                 d._children = d[opts.childrenName];
                 d[opts.childrenName] = null;
+                d.childrenHidden = true;
             } else if (d._children) {
                 d[opts.childrenName] = d._children;
                 d._children = null;
+                d.childrenHidden = false;
             }
+            save_states();
             return d;
         }
 
@@ -865,9 +874,7 @@ function Sankey() {
             tip.hide(d);
         }
         
-        var labLines = [];
-        var termLines = [];
-        function update(source, initialization) {
+        function update(source) {
             // Compute the new height, function counts total children of root node and sets tree height accordingly.
             // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
             // This makes the layout more consistent.
@@ -988,12 +995,11 @@ function Sankey() {
                 });
                 
 
-            ntxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, labLines, initialization);
+            ntxt2.each(function(d) {
+                d.nlines = wrap(this, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
+            });
             ntxt2.attr("y", function() { return -this.getBBox().height/2;});
             ntxt2.each(function(d,i) {
-                    if (initialization) {
-                        d.nlines = labLines[i];
-                    }
                     var self = this;
                     d3.select(self)
                         .selectAll("tspan")
@@ -1013,8 +1019,7 @@ function Sankey() {
                 .each(function(d,i) {
                     var self = this;
                     var nLine = d.nlines;
-                    d3.select(self)
-                        .call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, labLines, false);
+                    wrap(self, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
                     if (nLine > maxLines) {
                         var counter = 0;
                         var mid = (nLine + (nLine % 2))/2;
@@ -1098,14 +1103,12 @@ function Sankey() {
                     }
                 })
                 .on("click", function(d,i) {
-                    if (d.nlines <= maxLines) {
-                        return;
-                    }
                     if (d.hidden) {
                         d.hidden = false;
                     } else {
                         d.hidden = true;
                     }
+                    save_states();
                 });
 
             nrect1.attr("x", function(d) { return -d.shortNodeTextDim.width - nodeTextDx;})
@@ -1118,12 +1121,16 @@ function Sankey() {
                   .attr("width", function(d) { return d.longNodeTextDim.width;})
                   .attr("height", function(d) { return d.longNodeTextDim.height;});
 
-            node.each(function(d) {
+/*            node.each(function(d) {
                 d.hidden = false;
             });
-            
-            nodeTextGroup1.style("opacity", 1);
-            nodeTextGroup2.style("opacity", 0);
+*/            
+            nodeTextGroup1.style("opacity", function(d) {
+                return d.hidden ? 0 : 1;
+            });
+            nodeTextGroup2.style("opacity", function(d) {
+                return d.hidden ? 1 : 0;
+            });
 
             if (opts.terminalDescription) {
                 
@@ -1141,12 +1148,11 @@ function Sankey() {
                         return d[opts.childrenName] || d._children ? "normal" : "bold";
                     });
 
-                terTxt2.call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, termLines, initialization)
+                terTxt2.each(function(d) {
+                    d.termLines = wrap(this, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
+                })
                 .attr("y", function() { return -this.getBBox().height/2;})
                 .each(function(d) {
-                    if (initialization) {
-                        d.termLines = termLines[i];
-                    }
                     var self = this;
                     d3.select(self)
                         .selectAll("tspan")
@@ -1170,7 +1176,7 @@ function Sankey() {
                     .each(function(d) {
                         var self = this;
                         var termLine = d.termLines, tempList = [];
-                        d3.select(self).call(wrap, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth, tempList, false);
+                        wrap(self, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
                         if (termLine > maxLines) {
                             var counter = 0;
                             var mid = (termLine + (termLine % 2))/2;
@@ -1199,7 +1205,7 @@ function Sankey() {
 
                 svgGroup.selectAll(".nodeText")
                     .each(function(d) {
-                        d.termHidden = false;
+                        //d.termHidden = false;
                         if (! (d[opts.childrenName] || d._children)) {
                             d.termTextPos = { right: d.y + nodeRectWidth/2 + nodeTextDx + this.getBBox().width,
                                             top: d.x - this.getBBox().height/2,
@@ -1251,18 +1257,21 @@ function Sankey() {
                         }
                     })
                     .on("click", function(d,i) {
-                        if (d.termLines <= maxLines) {
-                            return;
-                        }
                         if (d.termHidden) {
                             d.termHidden = false;
                         } else {
                             d.termHidden = true;
                         }
+                        save_states();
                     });
                     
-                terTxt1.style("opacity", 1);
-                terTxt2.style("opacity", 0);
+                terTxt1.style("opacity", function(d) {
+                    return d.termHidden ? 0 : 1;
+                });
+                terTxt2.style("opacity", function(d) {
+                    return d.termHidden ? 1 : 0;
+                });
+                
                 var collided = {value: 0}, itr = 0;
                 do {
                     collided.value = 0;
@@ -1524,7 +1533,7 @@ function Sankey() {
         root.y0 = 0;
 
         // Layout the tree initially and center on the root node.
-        update(root, true);
+        update(root);
 
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
@@ -1592,6 +1601,96 @@ function Sankey() {
 
 
     }
+    
+    restore_states = function(state) {
+        
+        var savedTree = state.data;
+        
+        function restoreTree(currTree, savedTree) {
+            if (!savedTree) return;
+            
+            currTree.nlines = savedTree.nlines;
+            currTree.hidden = savedTree.hidden;
+            if (opts.terminalDescription) {
+                currTree.termHidden = savedTree.termHidden;
+            }
+            currTree.childrenHidden = savedTree.childrenHidden;
+            
+            // when the recorded state is different from the current state, recover to the previous state
+            if (currTree.childrenHidden) {
+                currTree._children = currTree.children;
+                currTree.children = null;
+            }
+            
+            if (currTree.children && currTree.children.length > 1) {
+                if (currTree.children[0].id === savedTree.children[0].id) {
+                    restoreTree(currTree.children[0], savedTree.children[0]);
+                    restoreTree(currTree.children[1], savedTree.children[1]);
+                } else {
+                    restoreTree(currTree.children[0], savedTree.children[1]);
+                    restoreTree(currTree.children[1], savedTree.children[0]);
+                }
+            } else if (currTree._children && currTree._children.length > 1) {
+                if (currTree._children[0].id === savedTree.children[0].id) {
+                    restoreTree(currTree._children[0], savedTree.children[0]);
+                    restoreTree(currTree._children[1], savedTree.children[1]);
+                } else {
+                    restoreTree(currTree._children[0], savedTree.children[1]);
+                    restoreTree(currTree._children[1], savedTree.children[0]);
+                }
+
+            } else {
+                return;
+            }
+            
+        }
+        
+        restoreTree(data, savedTree);
+    }
+    
+    save_states = function() {
+        var savedTree = {};
+        
+        // A recursive helper function for performing some setup by walking through all nodes
+        function createTree(parent1, parent2) {
+            if (!parent2) return;
+    
+            parent1.hidden = parent2.hidden;
+            if (opts.terminalDescription) {
+                parent1.termHidden = parent2.termHidden;
+            }
+            parent1.childrenHidden = parent2.childrenHidden;
+            parent1.nlines = parent2.nlines;
+            parent1.id = parent2.id;
+            
+            if (parent2._children && parent2._children.length > 1) {
+                parent1.children = [{}, {}];
+                createTree(parent1.children[0], parent2._children[0]);
+                createTree(parent1.children[1], parent2._children[1]);
+            } else if (parent2.children && parent2.children.length > 1) {
+                parent1.children = [{}, {}];
+                createTree(parent1.children[0], parent2.children[0]);
+                createTree(parent1.children[1], parent2.children[1]);
+            } else {
+                return;
+            }
+        }
+        createTree(savedTree, data);
+        saveStates({data: savedTree});
+    }
+    
+    // loads the state of the widget if it is saved
+    chart.restore = function(v) {
+        restore_states(v);
+        return chart;
+    };
+
+    // set the state saver function
+    chart.stateSaver = function(v) {
+        if (!arguments.length) return v;
+        saveStates = v;
+        return chart;
+    };
 
     // getter/setter
     chart.data = function(v) {
@@ -1634,7 +1733,7 @@ HTMLWidgets.widget({
 
   type: 'output',
 
-  initialize: function(el, w, h) {
+  initialize: function(el, w, h, stateChanged) {
 
         var width,
             height;
@@ -1648,17 +1747,19 @@ HTMLWidgets.widget({
             .attr("width", width)
             .attr("height", height);
 
-        return Sankey().width(width).height(height);
+        return Sankey().width(width).height(height).stateSaver(stateChanged);
 
   },
 
-  renderValue: function(el, x, instance) {
+  renderValue: function(el, x, instance, state) {
     // ATTRIBUTION:  much of this JavaScript code
     //  came from http://bl.ocks.org/robschmuecker/0f29a2c867dcb1b44d18
 
         instance = instance.opts(x.opts);
         instance = instance.data(x.data);
-
+        if (state) {
+            instance.restore(state);
+        }
         d3.select(el).select('g').remove();
         d3.select(el).call(instance);
 
