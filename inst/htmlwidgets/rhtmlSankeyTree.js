@@ -1614,12 +1614,13 @@ function Sankey() {
             if (opts.terminalDescription) {
                 currTree.termHidden = savedTree.termHidden;
             }
-            currTree.childrenHidden = savedTree.childrenHidden;
             
-            // when the recorded state is different from the current state, recover to the previous state
-            if (currTree.childrenHidden) {
+            // as the widget initialize with currTree.childrenHidden = undefined
+            // only have to check whether it is set to true
+            if (savedTree.childrenHidden) {
                 currTree._children = currTree.children;
                 currTree.children = null;
+                currTree.childrenHidden = savedTree.childrenHidden;
             }
             
             if (currTree.children && currTree.children.length > 1) {
@@ -1638,7 +1639,6 @@ function Sankey() {
                     restoreTree(currTree._children[0], savedTree.children[1]);
                     restoreTree(currTree._children[1], savedTree.children[0]);
                 }
-
             } else {
                 return;
             }
@@ -1662,6 +1662,7 @@ function Sankey() {
             parent1.childrenHidden = parent2.childrenHidden;
             parent1.nlines = parent2.nlines;
             parent1.id = parent2.id;
+            parent1.name = parent2.name;
             
             if (parent2._children && parent2._children.length > 1) {
                 parent1.children = [{}, {}];
@@ -1679,8 +1680,53 @@ function Sankey() {
         saveStates({data: savedTree});
     }
     
+    check_state = function(state) {
+        var savedTree = state.data;
+        
+        // check if the saved tree has the same data as the current tree
+        function check(currTree, savedTree) {
+            if (currTree.id !== savedTree.id || currTree.name !== savedTree.name) {
+                return false;
+            } else {
+                if (currTree.children) {
+                    if (!savedTree.children || currTree.children.length !== savedTree.children.length) {
+                        return false;
+                    } else {
+                        // check if children have the same data
+                        if (currTree.children[0].id === savedTree.children[0].id) {
+                            return check(currTree.children[0], savedTree.children[0]) &&
+                                    check(currTree.children[1], savedTree.children[1]);
+                        } else if (currTree.children[0].id === savedTree.children[1].id) {
+                            return check(currTree.children[0], savedTree.children[1]) &&
+                                    check(currTree.children[1], savedTree.children[0]);
+                        } else {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (savedTree.children){
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return check(data, savedTree);
+    }
+    
+    chart.checkState = function(v) {
+        return check_state(v);
+    };
+    
+    chart.resetState = function() {
+        saveStates(null);
+        return chart;
+    };
+    
     // loads the state of the widget if it is saved
-    chart.restore = function(v) {
+    chart.restoreState = function(v) {
         restore_states(v);
         return chart;
     };
@@ -1758,7 +1804,11 @@ HTMLWidgets.widget({
         instance = instance.opts(x.opts);
         instance = instance.data(x.data);
         if (state) {
-            instance.restore(state);
+            if (instance.checkState(state)) {
+                instance.restoreState(state);
+            } else {
+                instance.resetState();
+            }
         }
         d3.select(el).select('g').remove();
         d3.select(el).call(instance);
