@@ -1602,7 +1602,7 @@ function Sankey() {
 
     }
     
-    restore_states = function(state) {
+    function restore_states(state) {
         
         var savedTree = state.data;
         
@@ -1648,7 +1648,7 @@ function Sankey() {
         restoreTree(data, savedTree);
     }
     
-    save_states = function() {
+    function save_states() {
         var savedTree = {};
         
         // A recursive helper function for performing some setup by walking through all nodes
@@ -1680,7 +1680,7 @@ function Sankey() {
         saveStates({data: savedTree});
     }
     
-    check_state = function(state) {
+    function check_state(state) {
         var savedTree = state.data;
         
         // check if the saved tree has the same data as the current tree
