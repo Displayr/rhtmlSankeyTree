@@ -1,5 +1,4 @@
 function Sankey() {
-
     var data,
         opts,
         maxBarLength,
@@ -32,7 +31,7 @@ function Sankey() {
 
             if (data.nodeDistribution) {
                 data.tooltip = "";
-                nval = data.nodeDistribution.length;
+                var nval = data.nodeDistribution.length;
 
                 var t = "n: " + intFormatter(data.n) + "<br>";
                 t = t + "Description: ";
@@ -64,7 +63,7 @@ function Sankey() {
         createRgTips: function(data, scale, maxL) {
             if (data.nodeDistribution !==  0) {
                 data.tooltip = "";
-                nval = data.overallDistribution.length;
+                var nval = data.overallDistribution.length;
                 var maxDomain = Math.max(d3.max(data.overallDistribution), d3.max(data.nodeDistribution));
                 scale.domain([0, maxDomain]);
                 var t = "<div class='tipTableContainer'><table class='tipTable'>";
@@ -182,16 +181,16 @@ function Sankey() {
                 }
                 t = t + "</tr>";
                 t = t + "</table></div>";
-                t = t + "<div class='tipTextAfterTable'>"
-                        + "Node Mean = " + realFormatter(data.y)
-                        + ", Global Mean = " + realFormatter(data.y0)
-                        + ", n = " + realFormatter(data.n) + "</div>";
+                t = t + "<div class='tipTextAfterTable'>" + 
+                    "Node Mean = " + realFormatter(data.y) + 
+                    ", Global Mean = " + realFormatter(data.y0) + 
+                    ", n = " + realFormatter(data.n) + "</div>";
                 data.tooltip = t;
             } else {
-                data.tooltip = "<div class='tipTableContainer'>"
-                        + "Node Mean = " + realFormatter(data.y)
-                        + ", Global Mean = " + realFormatter(data.y0)
-                        + ", n = " + realFormatter(data.n) + "</div>";
+                data.tooltip = "<div class='tipTableContainer'>" + 
+                    "Node Mean = " + realFormatter(data.y) + 
+                    ", Global Mean = " + realFormatter(data.y0) + 
+                    ", n = " + realFormatter(data.n) + "</div>";
             }
 
             if (data[opts.childrenName]) {
@@ -297,224 +296,6 @@ function Sankey() {
         var nodeRectWidth = 5;
         var nodeTextDx = 10;
 
-
-        // add treeColors if told yes
-        if(opts.treeColors){
-          var tc = TreeColors("add");
-          tc.children(opts.childrenName);
-          tc(treeData);
-        }
-
-        // work on tooltip
-        var tip = {};
-
-        if(opts.tooltip){
-          tip = d3.tip()
-                  .attr('class', 'd3-tip')
-                  .html(function(d) {return d[opts.tooltip]; });
-
-            var tipTriangle = d3.select("body")
-                            .append("div")
-                            .attr("id", "littleTriangle")
-                            .style("visibility", "hidden");
-            if (opts.numericDistribution) {
-                var tipBarScale;
-                if (treeData.treeType === "Classification") {
-                    maxBarLength = 40;
-                    tipBarScale = d3.scale.linear().domain([0, 1]).range([0, maxBarLength]);
-                    tooltip.createClTips(treeData, tipBarScale, maxBarLength);
-                } else if (treeData.treeType === "Regression") {
-                    maxBarLength = 50;
-                    tipBarScale = d3.scale.linear().domain([0, 1]).range([0, maxBarLength]);
-                    tooltip.createRgTips(treeData, tipBarScale, maxBarLength);
-                }
-            }
-
-          /*if(Array.isArray(opts.tooltip)){
-            tip.html(function(d){
-              var htmltip = [];
-              opts.tooltip.forEach(function(ky){
-                htmltip.push( ky + ": " + d[ky] );
-              });
-              return htmltip.join("<br/>");
-            });
-          } else if(typeof(opts.tooltip) === "function"){
-            tip.html(opts.tooltip);
-          } else {
-            tip.html(function(d) {
-              return d[opts.tooltip];
-            });
-          }*/
-        }
-
-        // size of the diagram
-        // define the baseSvg, attaching a class for styling and the zoomListener
-        var baseSvg = selection.select("svg");
-
-        var tree = d3.layout.tree()
-            .size([height, width])
-            .children(function(d){return d[opts.childrenName]});
-
-        // define a d3 diagonal projection for use by the node paths later on.
-        var diagonal = d3.svg.diagonal()
-            .projection(function(d) {
-                return [d.y, d.x];
-            })
-            .source(function(d){
-              if(d.ystacky) return d;
-              return d.source;
-            });
-
-        var nodeHeightRatio = getNodeHeightRatio();
-
-        var nhScale = d3.scale.pow()
-                      .exponent(2).domain([0.5,1]).range([1,2]);
-        nodeHeightRatio = nhScale(nodeHeightRatio);
-        //nodeHeightRatio = 1;
-        /*function attachLegend(){
-          // assumes two sets of data, color and text of the legend, has been passed on
-          // as input from the R binding
-          var legendColor = treeData.legendColor.reverse();
-          var legendText = treeData.legendText.reverse();
-
-          // fixed dimensions
-          // Y
-          var leftY = height*0.35;
-          var legendBoxHeight = height*0.3;
-          var txtHeight = legendBoxHeight/legendText.length;
-          var fontSize = txtHeight*0.7;
-
-          // X
-          var rectWidth = width*0.025;
-          var textLength = 3;
-          legendText.forEach(function(d){
-            if (d.length > textLength) {
-              textLength = d.length;
-            }
-          });
-          var legendBoxWidth = rectWidth + textLength*fontSize;
-          var leftX = width*0.99-legendBoxWidth;
-          var rectX = leftX + textLength*fontSize*0.1;
-          var textX = leftX + rectWidth + textLength*fontSize*0.3;
-
-          // Y
-          var rectHeight = (legendBoxHeight - fontSize)/legendColor.length;
-          var rectY = d3.range(fontSize/2, legendColor.length*rectHeight + fontSize/2 - rectHeight/2, rectHeight);
-          var txtY = d3.range(txtHeight/2, legendText.length*txtHeight, txtHeight);
-
-          var legendBorder = legendBox.append("rect")
-                              .attr("x", leftX)
-                              .attr("y", leftY)
-                              .attr("width", legendBoxWidth)
-                              .attr("height", legendBoxHeight)
-                              .style("stroke-width", Math.min(1, fontSize/12))
-                              .style("stroke","black")
-                              .style("fill","transparent");
-
-          var legendRec = legendBox.selectAll("g.rec")
-                          .data(legendColor)
-                          .enter()
-                          .append("rect");
-
-          var legendRecAttr = legendRec
-                              .attr("x", rectX)
-                              .attr("y", function(d,i) { return rectY[i]+leftY; })
-                              .attr("width", rectWidth)
-                              .attr("height", rectHeight)
-                              .style("fill", function(d) { return d; });
-
-          var legendTxt = legendBox.selectAll("lg.text")
-                          .data(legendText)
-                          .enter()
-                          .append("text");
-
-          var legendTxtAttr = legendTxt
-                              .attr("x", textX)
-                              .attr("y", function(d,i) { return txtY[i]+leftY; })
-                              .attr("dy", "0.35em")
-                              .text(function(d) { return d; })
-                              .style("font-size",fontSize)
-                              .style("text-align", "center")
-                              .style("font-family", "sans-serif");
-
-        }
-
-        function attachCategoryLegend(){
-
-          // independent
-          var catLegend = treeData.categoryLegend;
-          var rectX = Math.min(width*0.02, 5);
-          var maxRectWidth = width*0.9;
-          var maxRectHeight = height*0.15;
-          var maxFontSize = 14;
-
-          // work out a proper font size
-          var textLength = 0.0;
-          for (i = 0; i < catLegend.length; i++) {
-            textLength = Math.max(textLength, catLegend[i].length);
-          }
-
-          // dependent
-          var textSize = Math.min(maxRectWidth*1.8/textLength, maxFontSize);
-          var deltaY = textSize*1.5;
-          var rectHeight = deltaY*catLegend.length;
-
-          if (rectHeight > maxRectHeight) {
-            rectHeight = maxRectHeight;
-            deltaY = rectHeight/catLegend.length;
-            textSize = deltaY/1.5;
-          }
-
-          var rectY = height*0.99-rectHeight;
-          var padding = textSize/2;
-
-          //var txtY = d3.range(0,(height+1)/3.0, txtHeight);
-
-
-          //var wdithScale = d3.scale.linear()
-          //                .range([0,50])
-          //                .domain([0,treeData[opts.value]]);
-          var legendTxt = catLegendBox.selectAll("lg.text")
-                          .data(catLegend)
-                          .enter()
-                          .append("text");
-
-
-          var legendTxtAttr = legendTxt
-                              .attr("x", rectX + padding)
-                              .attr("y", function(d,i) { return rectY + deltaY*i})
-                              .append("tspan")
-                              .attr("dy", "1em")
-                              .text(function(d) {return d.split(" ")[0];})
-                              .style("font-size", textSize +"px")
-                              .style("font-family", "sans-serif")
-                              .style("font-weight", "bold")
-                              .append("tspan")
-                              .text(function(d) {
-                                var idx = d.search(" ");
-                                return d.slice(idx,d.length);
-                              })
-                              .style("font-size", textSize +"px")
-                              .style("font-family", "sans-serif")
-                              .style("font-weight", "normal");
-          var maxTextPx = 0;
-          catLegendBox.selectAll("text").each(function(d) {
-            maxTextPx = Math.max(maxTextPx, this.getComputedTextLength());
-          });
-
-          rectWidth = Math.min(maxRectWidth, maxTextPx+padding*2);
-          var legendBorder = catLegendBox.append("rect")
-                              .attr("x", rectX)
-                              .attr("y", rectY)
-                              .attr("width", rectWidth)
-                              .attr("height", rectHeight)
-                              .style("stroke-width", Math.min(1, textSize/10))
-                              .style("stroke","black")
-                              .style("fill","transparent");
-
-
-        }*/
-
         function getNodeHeightRatio() {
           var nRatio = 0.0;
           var maxRatio = 0.0;
@@ -530,161 +311,121 @@ function Sankey() {
           }
           return maxRatio;
         }
-
-        // Call visit function to establish maxLabelLength
-        var meanLabelLength = 0.0;
-        visit(treeData, function(d) {
-            //d.childrenHidden = false;
-            totalNodes++;
-            maxLabelLength = opts.maxLabelLength || Math.max(d[opts.name].length, 0);
-            meanLabelLength = meanLabelLength + d[opts.name].length;
-        }, function(d) {
-            return d[opts.childrenName] && d[opts.childrenName].length > 0 ? d[opts.childrenName] : null;
-        });
-        meanLabelLength = (meanLabelLength/totalNodes) | 0 + 1;
-        meanLabelLength = meanLabelLength > 12 ? meanLabelLength : 12;
-        if (meanLabelLength < maxLabelLength) {
-            maxLabelLength = meanLabelLength;
-        }
-        // sort the tree according to the node names
-        tree.sort(function(a, b) {
-            return b[opts.name].toLowerCase() < a[opts.name].toLowerCase() ? 1 : -1;
-        });
-        zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
-    
-
-
-    function wrap(textEL, width) {
-        // values are irrelavant
-        var separators = {" ": 1, "-": 1, ".": 1, ",": 1, ";": 1, ":":1,  "/":1, "&":1, "+":1, "_": 1};
         
-            var text = d3.select(textEL),
-                chars = text.text().split("").reverse(),
-                c,
-                nextchar,
-                sep,
-                newline = [],
-                lineTemp = [],
-                lineNumber = 0,
-                lineHeight = 1.1, // ems
-                x = text.attr("x"),
-                y = text.attr("y"),
-                dy = parseFloat(text.attr("dy")),
-                tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
-            while (c = chars.pop()) {
-                // remove leading space
-                if (lineTemp.length === 0 && c === " ") {
-                    continue;
-                }
-                lineTemp.push(c);
-                tspan.text(lineTemp.join(""));
-                if (tspan.node().getComputedTextLength() > width) {
-
-                    // if no separator detected before c, wait until there is one
-                    // otherwise, wrap texts
-                    // The or case handles situations when the negative sign is the first char
-                    if (sep === undefined || lineTemp[0] == '-') {
-                        if (c in separators) {
-                            if (c === " ") {
-                                lineTemp.pop();
-                            } else if (c === "-") {
-                                // check negation or hyphen
-                                c1 = chars.pop();
-                                if (c1) {
-                                    if (isnum.test(c1)) {
-                                        chars.push(c1);
-                                        chars.push(lineTemp.pop());
-                                    } else {
-                                        chars.push(c1);
+        function wrap(textEL, width) {
+            // values are irrelavant
+            var separators = {" ": 1, "-": 1, ".": 1, ",": 1, ";": 1, ":":1,  "/":1, "&":1, "+":1, "_": 1};
+            
+                var text = d3.select(textEL),
+                    chars = text.text().split("").reverse(),
+                    c,
+                    c1,
+                    nextchar,
+                    sep,
+                    newline = [],
+                    lineTemp = [],
+                    lineNumber = 0,
+                    lineHeight = 1.1, // ems
+                    x = text.attr("x"),
+                    y = text.attr("y"),
+                    dy = parseFloat(text.attr("dy")),
+                    tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+                while (c = chars.pop()) {
+                    // remove leading space
+                    if (lineTemp.length === 0 && c === " ") {
+                        continue;
+                    }
+                    lineTemp.push(c);
+                    tspan.text(lineTemp.join(""));
+                    if (tspan.node().getComputedTextLength() > width) {
+    
+                        // if no separator detected before c, wait until there is one
+                        // otherwise, wrap texts
+                        // The or case handles situations when the negative sign is the first char
+                        if (sep === undefined || lineTemp[0] == '-') {
+                            if (c in separators) {
+                                if (c === " ") {
+                                    lineTemp.pop();
+                                } else if (c === "-") {
+                                    // check negation or hyphen
+                                    c1 = chars.pop();
+                                    if (c1) {
+                                        if (isnum.test(c1)) {
+                                            chars.push(c1);
+                                            chars.push(lineTemp.pop());
+                                        } else {
+                                            chars.push(c1);
+                                        }
                                     }
                                 }
+                                // make new line
+                                sep = undefined;
+                                tspan.text(lineTemp.join(""));
+                                tspan = text.append("tspan")
+                                            .attr("x", x)
+                                            .attr("y", y)
+                                            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                            .text("");
+                                lineTemp = [];
+                                newline = [];
                             }
-                            // make new line
-                            sep = undefined;
-                            tspan.text(lineTemp.join(""));
-                            tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text("");
-                            lineTemp = [];
-                            newline = [];
-                        }
-
-                    } else {
-                        // handles the case when the last char is a separator and c === sep
-                        if (c in separators) {
-                            newline.push(lineTemp.pop());
-                        }
-                        // pop chars until it reaches the previous separator recorded
-                        nextchar = lineTemp.pop();
-                        while (nextchar !== sep && lineTemp.length > 0) {
-                            newline.push(nextchar);
+    
+                        } else {
+                            // handles the case when the last char is a separator and c === sep
+                            if (c in separators) {
+                                newline.push(lineTemp.pop());
+                            }
+                            // pop chars until it reaches the previous separator recorded
                             nextchar = lineTemp.pop();
-                        }
-                        // handles negative sign and space
-                        if (sep === "-") {
-                            c1 = newline.pop();
-                            if (c1) {
-                                if (isnum.test(c1)) {
-                                    newline.push(c1);
-                                    newline.push(sep);
+                            while (nextchar !== sep && lineTemp.length > 0) {
+                                newline.push(nextchar);
+                                nextchar = lineTemp.pop();
+                            }
+                            // handles negative sign and space
+                            if (sep === "-") {
+                                c1 = newline.pop();
+                                if (c1) {
+                                    if (isnum.test(c1)) {
+                                        newline.push(c1);
+                                        newline.push(sep);
+                                    } else {
+                                        lineTemp.push(sep);
+                                        newline.push(c1);
+                                    }
                                 } else {
                                     lineTemp.push(sep);
                                     newline.push(c1);
                                 }
-                            } else {
+                            } else if (sep !== " ") {
                                 lineTemp.push(sep);
-                                newline.push(c1);
                             }
-                        } else if (sep !== " ") {
-                            lineTemp.push(sep);
+                            // put chars back into the string that needs to be wrapped
+                            newline.reverse();
+                            while (nextchar = newline.pop()) {
+                                chars.push(nextchar);
+                            }
+                            // make new line
+                            sep = undefined;
+                            tspan.text(lineTemp.join(""));
+                            tspan = text.append("tspan")
+                                    .attr("x", x)
+                                    .attr("y", y)
+                                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                                    .text("");
+                            lineTemp = [];
+                            newline = [];
                         }
-                        // put chars back into the string that needs to be wrapped
-                        newline.reverse();
-                        while (nextchar = newline.pop()) {
-                            chars.push(nextchar);
+                    } else {
+                        if (c in separators) {
+                            sep = c;
                         }
-                        // make new line
-                        sep = undefined;
-                        tspan.text(lineTemp.join(""));
-                        tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text("");
-                        lineTemp = [];
-                        newline = [];
-                    }
-                } else {
-                    if (c in separators) {
-                        sep = c;
                     }
                 }
-            }
-        return lineNumber+1;
-    }
-        /*
-        // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
-        function centerNode(source) {
-            var scale = zoomListener.scale();
-            var trans = zoomListener.translate();
-            var t = d3.transform(svgGroup.attr("transform")),
-                x = t.translate[0],
-                y = t.translate[1];
-            var centering = svgGroup.transition()
-                .duration(duration)
-                .attr("transform", "translate(" + (x) + "," + (y) + ")scale(" + scale + ")")
-                .each("end", function(d) {
-                    treeDim = this.getBoundingClientRect();
-                    x = (width/2 - treeDim.width/2) - treeDim.left + x;
-                    y = (height/2 - treeDim.height/2) - treeDim.top + y;
-                    d3.select(this).transition()
-                    .duration(400)
-                    .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
-
-                    zoomListener.scale(scale);
-                    zoomListener.translate([x, y]);
-                });
-            //x = -source.y0;
-            //y = -source.x0;
-            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  width / 2 : width / 4 );
-            //centering.transition().duration(200).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
-        }*/
-
-        // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
+            return lineNumber+1;
+        }
+        
+        // Function to center node when clicked/dropped so node doesn't get lost when 
+        // collapsing/moving with large amount of children.
         function centerNodeFit(source) {
 
             if (init) {
@@ -699,8 +440,7 @@ function Sankey() {
                 x = svgTrans.translate[0];
                 y = svgTrans.translate[1];
             }
-            var centering = svgGroup
-                .transition()
+            svgGroup.transition()
                 .duration(duration)
                 .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
                 //.each(function(d) {
@@ -766,35 +506,9 @@ function Sankey() {
             }
         }
 
-        /*function clickText(d) {
-            if (d3.event.defaultPrevented) return; // click suppressed
-            d.hidden = true;
-            //d3.select(this).style("display", "none");
-            svgGroup.select("#ndTxtGp1_" + this.id.substring(1)).style("display", "none");
-            //var selector = "#c" + this.id.substring(1);
-            //svgGroup.select(selector).style("display", "inline");
-            svgGroup.select("#ndTxtGp2_" + this.id.substring(1)).style("display", "inline");
-        }
-
-        function clickHiddenText(d) {
-            if (d3.event.defaultPrevented) return; // click suppressed
-            d.hidden = false;
-            //d3.select(this).style("display", "none");
-            svgGroup.select("#ndTxtGp2_" + this.id.substring(1)).style("display", "none");
-            //var selector = "#t" + this.id.substring(1);
-            //svgGroup.select(selector).style("display", "inline");
-            svgGroup.select("#ndTxtGp1_" + this.id.substring(1)).style("display", "inline");
-        }*/
-
         function mouseOverNode(d, el, sel) {
             var tipRect = sel.select("#nodeRect" + d[opts.id]);
-            var tipNode = sel.select("#node" + d[opts.id]);
             var thisTip = tip.show(d, tipRect);
-
-            var x = Number(sel.select("#nodeRect" + d[opts.id]).attr("x")),
-                y = Number(sel.select("#nodeRect" + d[opts.id]).attr("y")),
-                w = Number(sel.select("#nodeRect" + d[opts.id]).attr("width")),
-                h = Number(sel.select("#nodeRect" + d[opts.id]).attr("height"));
 
             // height of the tip
             var tipHeight = parseFloat(thisTip.style("height"));
@@ -805,7 +519,6 @@ function Sankey() {
             var tipSouth = clientRect.bottom + 5;
             var tipNorth = clientRect.top - 5;
             var tipEast = clientRect.right + 5;
-            var tipWest = clientRect.left - 5;
 
             if (tipNorth - tipHeight >= 0) {
                 // northward tip
@@ -873,8 +586,105 @@ function Sankey() {
             d3.select("#littleTriangle").style("visibility", "hidden");
             tip.hide(d);
         }
+
+        function updateNodePos (source, value) {
+            source.x = source.x + value;
+            source.nodeTextPos.bottom = source.nodeTextPos.bottom + value;
+            source.nodeTextPos.rectBottom = source.nodeTextPos.rectBottom + value;
+            source.nodeTextPos.top = source.nodeTextPos.top + value;
+            source.nodeTextPos.rectTop = source.nodeTextPos.rectTop + value;
+            if (! (source[opts.childrenName] || source._children)) {
+                source.termTextPos.bottom = source.termTextPos.bottom + value;
+                source.termTextPos.top = source.termTextPos.top + value;
+            }
+        }
+
+        function moveParents (source, value) {
+            // TODO move the parent nodes of the colliding nodes
+            // so far only child nodes are moved, which can potentially be a problem
+        }
+
+        function moveChildren (source, value) {
+
+            updateNodePos(source, value);
+
+            if (source[opts.childrenName]) {
+                moveChildren(source[opts.childrenName][0], value);
+                moveChildren(source[opts.childrenName][1], value);
+            }
+        }
+
+        function moveNodes (source, target) {
+
+            var dx = (target.termTextPos.bottom - target.termTextPos.top)*0.7;
+            if (source.parent.x < target.parent.x) {
+                // source is on the top branch, move source up
+                updateNodePos(source, -dx);
+                updateNodePos(target, dx);
+                if (source[opts.childrenName]) {
+                    moveChildren(source[opts.childrenName][0], -dx);
+                    moveChildren(source[opts.childrenName][1], -dx);
+                }
+                moveParents(source, -dx);
+                moveParents(target, dx);
+            } else {
+                // source is on the bottom branch, move it down
+                updateNodePos(source, dx);
+                updateNodePos(target, -dx);
+                if (source[opts.childrenName]) {
+                    moveChildren(source[opts.childrenName][0], dx);
+                    moveChildren(source[opts.childrenName][1], dx);
+                }
+                moveParents(source, dx);
+                moveParents(target, -dx);
+            }
+        }
+
+        // since the tree is drawn from left to right, the target is always on the left
+        // of the source
+        function nodeCollide (source, target) {
+            if ( (source.nodeTextPos.left - 5 < target.termTextPos.right &&
+                    ((source.nodeTextPos.bottom >= target.termTextPos.top && source.nodeTextPos.top <= target.termTextPos.top) ||
+                    (source.nodeTextPos.top <= target.termTextPos.bottom && source.nodeTextPos.bottom >= target.termTextPos.bottom))) ||
+                (source.nodeTextPos.rectLeft < target.termTextPos.right &&
+                    ((source.nodeTextPos.rectBottom >= target.termTextPos.top && source.nodeTextPos.rectTop <= target.termTextPos.top) ||
+                    (source.nodeTextPos.rectTop <= target.termTextPos.bottom && source.nodeTextPos.rectBottom >= target.termTextPos.bottom))) ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function resolveCollision (thisNode, nodesArray, collided) {
+            // resolve collision from root node to leaf node
+            // larger branches are moved first
+            // only check collision with lower level nodes
+            // empirically if root has depth 1, only nodes with depth 4 or above
+            // will collide with previous nodes
+            if (thisNode.depth >= 2) {
+                // collision is only possible with nodes having depth - 1 of current
+                // and that node must be a terminal node
+                for (var i = 0; i < nodesArray.length; i++) {
+                    var targetNode = nodesArray[i];
+                    if (targetNode.id !== thisNode.id && targetNode.depth < thisNode.depth &&
+                        !(targetNode[opts.childrenName] || targetNode._children)) {
+                        if (nodeCollide(thisNode, targetNode)) {
+                            // move nodes to the side
+                            collided.value += 1;
+                            moveNodes(thisNode, targetNode);
+                        }
+                    }
+                }
+            }
+
+            // only run the recursion when there is children
+            if (thisNode[opts.childrenName]) {
+                resolveCollision(thisNode[opts.childrenName][0], nodesArray, collided);
+                resolveCollision(thisNode[opts.childrenName][1], nodesArray, collided);
+            }
+        }
         
-        function update(source) {
+        function update(source, initialization) {
             // Compute the new height, function counts total children of root node and sets tree height accordingly.
             // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
             // This makes the layout more consistent.
@@ -960,8 +770,8 @@ function Sankey() {
                 .attr("class", "nodeRect")
                 .attr("id", function(d,i) { return "nodeRect" + d[opts.id];})
                 .attr("x", -nodeRectWidth/2)
-                .attr("y", function(d){return -wscale(d[opts.value])/2})
-                .attr("height", function(d){return wscale(d[opts.value])})
+                .attr("y", function(d){return -wscale(d[opts.value])/2;})
+                .attr("height", function(d){return wscale(d[opts.value]);})
                 .attr("width", nodeRectWidth)
                 .on('click', click)
                 .on('mouseover', opts.tooltip ? function(d) { mouseOverNode(d,this,baseSvg);} : null)
@@ -1014,7 +824,7 @@ function Sankey() {
                 .attr("dy", "0.95em")
                 .attr('class', 'nodeText1')
                 .attr("text-anchor", "end")
-                .text(function(d) {return d[opts.name]})
+                .text(function(d) {return d[opts.name];})
                 .style("fill-opacity", 0)
                 .each(function(d,i) {
                     var self = this;
@@ -1034,7 +844,7 @@ function Sankey() {
                                     }
                                 }
                                 counter++;
-                            })
+                            });
                         d3.select(self)
                             .selectAll("tspan")
                             .attr("dy", function(d,i) {
@@ -1175,14 +985,14 @@ function Sankey() {
                     })
                     .each(function(d) {
                         var self = this;
-                        var termLine = d.termLines, tempList = [];
+                        var termLine = d.termLines;
                         wrap(self, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
                         if (termLine > maxLines) {
                             var counter = 0;
                             var mid = (termLine + (termLine % 2))/2;
                             d3.select(self).selectAll("tspan")
                             .each(function() {
-                                if (counter >= (maxLines-1)/2 && counter < nLine-(maxLines-1)/2) {
+                                if (counter >= (maxLines-1)/2 && counter < termLine-(maxLines-1)/2) {
                                     if (counter == mid) {
                                         d3.select(this).text("...");
                                     } else {
@@ -1278,10 +1088,10 @@ function Sankey() {
                     itr++;
                     resolveCollision(root, nodes, collided);
                     //console.log(collided.value + " " + itr);
-                } while (collided.value > 0 && itr < 7)
+                } while (collided.value > 0 && itr < 7);
 
                 if (itr >= 7) {
-                    console.log("Node text collision failed to resolve. Try increasing maxLabelLength when calling SankeyTree")
+                    console.log("Node text collision failed to resolve. Try increasing maxLabelLength when calling SankeyTree");
                 }
 
             }
@@ -1419,103 +1229,86 @@ function Sankey() {
             });
         }
 
-        function updateNodePos (source, value) {
-            source.x = source.x + value;
-            source.nodeTextPos.bottom = source.nodeTextPos.bottom + value;
-            source.nodeTextPos.rectBottom = source.nodeTextPos.rectBottom + value;
-            source.nodeTextPos.top = source.nodeTextPos.top + value;
-            source.nodeTextPos.rectTop = source.nodeTextPos.rectTop + value;
-            if (! (source[opts.childrenName] || source._children)) {
-                source.termTextPos.bottom = source.termTextPos.bottom + value;
-                source.termTextPos.top = source.termTextPos.top + value;
-            }
+        // Setting things up
+        // add treeColors if told yes
+        if(opts.treeColors){
+          var tc = TreeColors("add");
+          tc.children(opts.childrenName);
+          tc(treeData);
         }
 
-        function moveParents (source, value) {
-            // TODO move the parent nodes of the colliding nodes
-            // so far only child nodes are moved, which can potentially be a problem
-        }
+        // work on tooltip
+        var tip = {};
 
-        function moveChildren (source, value) {
+        if(opts.tooltip){
+          tip = d3.tip()
+                  .attr('class', 'd3-tip')
+                  .html(function(d) {return d[opts.tooltip]; });
 
-            updateNodePos(source, value);
-
-            if (source[opts.childrenName]) {
-                moveChildren(source[opts.childrenName][0], value);
-                moveChildren(source[opts.childrenName][1], value);
-            }
-        }
-
-        function moveNodes (source, target) {
-
-            var dx = (target.termTextPos.bottom - target.termTextPos.top)*0.7;
-            if (source.parent.x < target.parent.x) {
-                // source is on the top branch, move source up
-                updateNodePos(source, -dx);
-                updateNodePos(target, dx);
-                if (source[opts.childrenName]) {
-                    moveChildren(source[opts.childrenName][0], -dx);
-                    moveChildren(source[opts.childrenName][1], -dx);
-                }
-                moveParents(source, -dx);
-                moveParents(target, dx);
-            } else {
-                // source is on the bottom branch, move it down
-                updateNodePos(source, dx);
-                updateNodePos(target, -dx);
-                if (source[opts.childrenName]) {
-                    moveChildren(source[opts.childrenName][0], dx);
-                    moveChildren(source[opts.childrenName][1], dx);
-                }
-                moveParents(source, dx);
-                moveParents(target, -dx);
-            }
-        }
-
-        // since the tree is drawn from left to right, the target is always on the left
-        // of the source
-        function nodeCollide (source, target) {
-            if ( (source.nodeTextPos.left - 5 < target.termTextPos.right &&
-                    ((source.nodeTextPos.bottom >= target.termTextPos.top && source.nodeTextPos.top <= target.termTextPos.top) ||
-                    (source.nodeTextPos.top <= target.termTextPos.bottom && source.nodeTextPos.bottom >= target.termTextPos.bottom))) ||
-                (source.nodeTextPos.rectLeft < target.termTextPos.right &&
-                    ((source.nodeTextPos.rectBottom >= target.termTextPos.top && source.nodeTextPos.rectTop <= target.termTextPos.top) ||
-                    (source.nodeTextPos.rectTop <= target.termTextPos.bottom && source.nodeTextPos.rectBottom >= target.termTextPos.bottom))) ) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        function resolveCollision (thisNode, nodesArray, collided) {
-            // resolve collision from root node to leaf node
-            // larger branches are moved first
-            // only check collision with lower level nodes
-            // empirically if root has depth 1, only nodes with depth 4 or above
-            // will collide with previous nodes
-            if (thisNode.depth >= 2) {
-                // collision is only possible with nodes having depth - 1 of current
-                // and that node must be a terminal node
-                for (var i = 0; i < nodesArray.length; i++) {
-                    var targetNode = nodesArray[i];
-                    if (targetNode.id !== thisNode.id && targetNode.depth < thisNode.depth &&
-                        !(targetNode[opts.childrenName] || targetNode._children)) {
-                        if (nodeCollide(thisNode, targetNode)) {
-                            // move nodes to the side
-                            collided.value += 1;
-                            moveNodes(thisNode, targetNode);
-                        }
-                    }
+            var tipTriangle = d3.select("body")
+                            .append("div")
+                            .attr("id", "littleTriangle")
+                            .style("visibility", "hidden");
+            if (opts.numericDistribution) {
+                var tipBarScale;
+                if (treeData.treeType === "Classification") {
+                    maxBarLength = 40;
+                    tipBarScale = d3.scale.linear().domain([0, 1]).range([0, maxBarLength]);
+                    tooltip.createClTips(treeData, tipBarScale, maxBarLength);
+                } else if (treeData.treeType === "Regression") {
+                    maxBarLength = 50;
+                    tipBarScale = d3.scale.linear().domain([0, 1]).range([0, maxBarLength]);
+                    tooltip.createRgTips(treeData, tipBarScale, maxBarLength);
                 }
             }
-
-            // only run the recursion when there is children
-            if (thisNode[opts.childrenName]) {
-                resolveCollision(thisNode[opts.childrenName][0], nodesArray, collided);
-                resolveCollision(thisNode[opts.childrenName][1], nodesArray, collided);
-            }
         }
 
+        // size of the diagram
+        // define the baseSvg, attaching a class for styling and the zoomListener
+        var baseSvg = selection.select("svg");
+
+        var tree = d3.layout.tree()
+            .size([height, width])
+            .children(function(d){return d[opts.childrenName];});
+
+        // define a d3 diagonal projection for use by the node paths later on.
+        var diagonal = d3.svg.diagonal()
+            .projection(function(d) {
+                return [d.y, d.x];
+            })
+            .source(function(d){
+              if(d.ystacky) return d;
+              return d.source;
+            });
+
+        var nodeHeightRatio = getNodeHeightRatio();
+
+        var nhScale = d3.scale.pow()
+                      .exponent(2).domain([0.5,1]).range([1,2]);
+        nodeHeightRatio = nhScale(nodeHeightRatio);
+
+        // Call visit function to establish maxLabelLength
+        var meanLabelLength = 0.0;
+        visit(treeData, function(d) {
+            //d.childrenHidden = false;
+            totalNodes++;
+            maxLabelLength = opts.maxLabelLength || Math.max(d[opts.name].length, 0);
+            meanLabelLength = meanLabelLength + d[opts.name].length;
+        }, function(d) {
+            return d[opts.childrenName] && d[opts.childrenName].length > 0 ? d[opts.childrenName] : null;
+        });
+        meanLabelLength = (meanLabelLength/totalNodes) | 0 + 1;
+        meanLabelLength = meanLabelLength > 12 ? meanLabelLength : 12;
+        if (meanLabelLength < maxLabelLength) {
+            maxLabelLength = meanLabelLength;
+        }
+        // sort the tree according to the node names
+        tree.sort(function(a, b) {
+            return b[opts.name].toLowerCase() < a[opts.name].toLowerCase() ? 1 : -1;
+        });
+        zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
+
+        // initialize plot
         // Append a group which holds all nodes and which the zoom Listener can act upon.
         svgGroup = baseSvg.call(zoomListener)
                     .on("dblclick.zoom", null)
@@ -1533,7 +1326,7 @@ function Sankey() {
         root.y0 = 0;
 
         // Layout the tree initially and center on the root node.
-        update(root);
+        update(root, true);
 
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
@@ -1552,53 +1345,63 @@ function Sankey() {
             zoomListener.scale(scale);
         }
 
-        /*if (zoomListener.scale() == 1) {
-          var xscale = height/tree.size()[0]*0.85,
-              yscale = width/tree.size()[1]*0.75;
-          if (xscale < yscale) {
-            zoomListener.scale( xscale );
-          } else {
-            zoomListener.scale( yscale );
-          }
-
-        }*/
         centerNodeFit(root);
         prevWidth = width;
         prevHeight = height;
         setTimeout(function() {init = false;}, duration*3);
 
+        
+        /*
+        // Function to center node when clicked/dropped so node doesn't get lost when collapsing/moving with large amount of children.
+        function centerNode(source) {
+            var scale = zoomListener.scale();
+            var trans = zoomListener.translate();
+            var t = d3.transform(svgGroup.attr("transform")),
+                x = t.translate[0],
+                y = t.translate[1];
+            var centering = svgGroup.transition()
+                .duration(duration)
+                .attr("transform", "translate(" + (x) + "," + (y) + ")scale(" + scale + ")")
+                .each("end", function(d) {
+                    treeDim = this.getBoundingClientRect();
+                    x = (width/2 - treeDim.width/2) - treeDim.left + x;
+                    y = (height/2 - treeDim.height/2) - treeDim.top + y;
+                    d3.select(this).transition()
+                    .duration(400)
+                    .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
 
-
-        /*if (opts.colorLegend) {
-          var legendBox = baseSvg.append("g")
-                          .attr("id", "colorLegend")
-                          .style("cursor", "move")
-                          .call(zoomListenerLegend)
-                          .on("dblclick.zoom", null)
-                          //.on("wheel.zoom", null)
-                          .on("mousemove.zoom", null)
-                          .on("touchstart.zoom", null)
-                          //.on("mousewheel.zoom", null)
-                          .on("MozMousePixelScroll.zoom", null)
-                          .append("g");
-          attachLegend();
+                    zoomListener.scale(scale);
+                    zoomListener.translate([x, y]);
+                });
+            //x = -source.y0;
+            //y = -source.x0;
+            //x = x * scale + ( source[opts.name] !== root[opts.name] ?  width / 2 : width / 4 );
+            //centering.transition().duration(200).attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
         }*/
 
-        /*if (opts.categoryLegend && treeData.categoryLegend) {
-          var catLegendBox = baseSvg.append("g")
-                            .attr("id", "catLegend")
-                             .style("cursor", "move")
-                            .call(zoomListenerCatLegend)
-                            .on("dblclick.zoom", null)
-                            //.on("wheel.zoom", null)
-                            .on("mousemove.zoom", null)
-                            .on("touchstart.zoom", null)
-                            //.on("mousewheel.zoom", null)
-                            .on("MozMousePixelScroll.zoom", null)
-                            .append("g");
-          attachCategoryLegend();
+
+
+        /*function clickText(d) {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            d.hidden = true;
+            //d3.select(this).style("display", "none");
+            svgGroup.select("#ndTxtGp1_" + this.id.substring(1)).style("display", "none");
+            //var selector = "#c" + this.id.substring(1);
+            //svgGroup.select(selector).style("display", "inline");
+            svgGroup.select("#ndTxtGp2_" + this.id.substring(1)).style("display", "inline");
+        }
+
+        function clickHiddenText(d) {
+            if (d3.event.defaultPrevented) return; // click suppressed
+            d.hidden = false;
+            //d3.select(this).style("display", "none");
+            svgGroup.select("#ndTxtGp2_" + this.id.substring(1)).style("display", "none");
+            //var selector = "#t" + this.id.substring(1);
+            //svgGroup.select(selector).style("display", "inline");
+            svgGroup.select("#ndTxtGp1_" + this.id.substring(1)).style("display", "inline");
         }*/
 
+        
 
     }
     
