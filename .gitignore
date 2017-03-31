@@ -1,4 +1,5 @@
 .RData
+man/.Rapp.history
 .DS_Store
 .Rbuildignore
 .Rhistory
