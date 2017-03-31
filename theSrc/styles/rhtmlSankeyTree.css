@@ -1,3 +1,21 @@
+.d3-tip {
+  background-color: #333;
+  border: none;
+  pointer-events: none;
+  border-radius: 2px;
+  color: #efefef;
+  font-size: 12px;
+  padding: 4px;
+  font-family: sans-serif;
+  /*line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  
+  pointer-events: none;*/
+}
+
 .node rect {
   cursor: pointer;
 }

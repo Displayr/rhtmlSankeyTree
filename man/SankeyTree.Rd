@@ -5,7 +5,7 @@
 \title{Interactive d3.js Sankey Tree Visualization}
 \usage{
 SankeyTree(data = NULL, name = "name", id = "id", value = "size",
-  childrenName = "children", treeColors = TRUE, maxLabelLength = 20,
+  childrenName = "children", treeColors = TRUE, maxLabelLength = 25,
   nodeHeight = 100, tooltip = NULL, categoryLegend = FALSE,
   terminalDescription = FALSE, numeric.distribution = TRUE, width = NULL,
   height = NULL)

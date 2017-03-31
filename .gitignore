@@ -1,4 +1,9 @@
-.Rproj.user
-.Rhistory
 .RData
 .DS_Store
+.Rbuildignore
+.Rhistory
+.Rproj.user
+node_modules
+browser
+.idea
+.keys
