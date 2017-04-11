@@ -1,48 +1,187 @@
 
-// const widgetName = require('../../build/config/widget.config.json').widgetName;
+const _ = require('lodash');
+const widgetName = require('../../build/config/widget.config.json').widgetName;
+const contentManifest = require('../../browser/contentManifest.json');
 
-// // NB global.visualDiffConfig is set globally in protractor.conf.js
-// const eyes = require('../../build/scripts/initializeApplitools').getEyes(global.visualDiffConfig)
+// NB global.visualDiffConfig is set globally in protractor.conf.js
+const eyes = require('../../build/scripts/initializeApplitools').getEyes(global.visualDiffConfig)
+let contentFiles = _.flattenDeep(_.values(contentManifest));
 
-// describe('Demonstrate interaction with widget before taking snapshot', function () {
+describe('Check mouseover behavior', function () {
 
-//   beforeEach(function () {
-//     browser.ignoreSynchronization = true;
-//   });
+  beforeEach(function () {
+    browser.ignoreSynchronization = true;
+  });
 
-//   it('red is selected', function() {
+  let snapshotsCount = 0;
 
-//     eyes.open(
-//       browser,
-//       `${widgetName} ${global.visualDiffConfig.testLabel}`,
-//       'red is selected',
-//       { width: global.visualDiffConfig.browserWidth, height: global.visualDiffConfig.browserHeight }
-//     );
+  _.forEach(contentFiles, (contentPath) => {
 
-//     return browser.get(`/content/examples/default.html`)
-//       .then( () => {
-//         console.log(`Page examples/default.html is loaded`);
-//         // TODO this wait is not working !
-//         // return browser.wait(browser.isElementPresent(by.css('svg.rhtmlwidget-0')));
-//         return new Promise( (resolve, reject) => {
-//           setTimeout( () => {
-//             return resolve()
-//           }, 3000)
-//         })
-//       })
-//       .then( () => {
-//         console.log(`widget is loaded`);
-//         element(by.css('.text.red')).click()
-//         eyes.checkRegionBy(by.css(`svg.rhtmlwidget-0`), 'redSelected');
-//         return Promise.resolve();
-//       }).then( () => {
-//         console.log("test complete");
-//         eyes.close(false);
-//       }).catch( (error) => {
-//         console.log("test error:");
-//         console.log(error)
-//         eyes.close(false);
-//       })
-//   })
-// });
+  	it('Sankeytree: when the mouse is over a node, tooltips will show', function(done) {
+
+  		let openedEyes = false;
+
+      loadPage()
+      .then(conditionallyOpenEyesAndWaitForSnapshotsToLoad)
+      .then(mouseOverNodeTest)
+      .catch(catchAll)
+      .finally(conditionallyCloseEyesAndEndTest);
+
+			function loadPage() {
+			  return browser.get(contentPath).then(() => {
+			    console.log(`Page ${contentPath} is loaded`);
+			  });
+			}
+
+		  function conditionallyOpenEyesAndWaitForSnapshotsToLoad() {
+		    return element.all(by.css('[snapshot-name]')).count().then((count) => {
+		      if (count > 0) {
+		        const eyesParams = {
+		          width: global.visualDiffConfig.browserWidth,
+		          height: global.visualDiffConfig.browserHeight,
+		        };
+		        eyes.open(browser, 
+		        	`${widgetName} ${global.visualDiffConfig.testLabel}`, 
+		        	'Sankeytree: when the mouse is over a node, tooltips will show', 
+		        	eyesParams);
+		        openedEyes = true;
+
+		        console.log(`Waiting ${global.visualDiffConfig.pageLoadWaitSeconds * 1000} seconds for widgetsPage`);
+		        return new Promise((resolve) => {
+		          setTimeout(() => {
+		            return resolve();
+		          }, global.visualDiffConfig.pageLoadWaitSeconds * 0);
+		        });
+		      } else {
+		        console.log(`No elements containing attribute [snapshot-name] found on page ${contentPath}. Skipping`);
+		        return Promise.resolve();
+		      }
+		    });
+		  }
+
+			function takeSnapshots() {
+			  const donePromises = element.all(by.css('[snapshot-name]')).each(function (element) {
+			    return element.getAttribute('snapshot-name').then((snapshotName) => {
+			      if (snapshotName) {
+			        console.log(`take snapshot ${contentPath} ${snapshotName}`);
+			        snapshotsCount++;
+			        eyes.checkRegionBy(by.css(`[snapshot-name="${snapshotName}"]`), snapshotName);
+			      } else {
+			        console.error(`snapshot on page ${contentPath} missing snapshot name`);
+			      }
+			    });
+			  });
+			  return donePromises.then(() => {
+			    console.log(`done taking snapshots on ${contentPath}. Running snapshot count: ${snapshotsCount}`);
+			  });
+			}
+
+			function catchAll(error) {
+			  console.log('test error:');
+			  console.log(error);
+			}
+
+			function conditionallyCloseEyesAndEndTest() {
+			  if (openedEyes) { eyes.close(false); }
+			  done();
+			}
+
+      function mouseOverNodeTest() {
+      	let nodeCountYes = 0, nodeCountNo = 0;
+      	element.all(by.css('.nodeRect')).each((element) => {
+      		// warning: attributes must be lower cases, otherwise it will not be recognised
+      		element.getAttribute('terminal').then((id) => {
+      			if (id == '1' && nodeCountYes == 0) {
+      				// move mouse over node rect
+      				nodeCountYes++;
+      				browser.actions().mouseMove(element).perform().then(takeSnapshots);
+
+      			} else if (id == '2' && nodeCountNo == 0) {
+      				nodeCountNo++;
+      				browser.actions().mouseMove(element).perform().then(takeSnapshots);
+      			}
+      		})
+      	})
+      }
+
+  	});
+
+		it('Sankeytree: when a node is clicked, its child nodes will be collapsed', function(done) {
+
+  		let openedEyes = false;
+
+      loadPage()
+      .then(conditionallyOpenEyesAndWaitForSnapshotsToLoad)
+      .then(clickTest)
+      .catch(catchAll)
+      .finally(conditionallyCloseEyesAndEndTest);
+
+			function loadPage() {
+			  return browser.get(contentPath).then(() => {
+			    console.log(`Page ${contentPath} is loaded`);
+			  });
+			}
+
+		  function conditionallyOpenEyesAndWaitForSnapshotsToLoad() {
+		    return element.all(by.css('[snapshot-name]')).count().then((count) => {
+		      if (count > 0) {
+		        const eyesParams = {
+		          width: global.visualDiffConfig.browserWidth,
+		          height: global.visualDiffConfig.browserHeight,
+		        };
+		        eyes.open(browser, 
+		        	`${widgetName} ${global.visualDiffConfig.testLabel}`, 
+		        	'Sankeytree: when a node is clicked, its child nodes will be collapsed', 
+		        	eyesParams);
+		        openedEyes = true;
+
+		        console.log(`Waiting ${global.visualDiffConfig.pageLoadWaitSeconds * 1000} seconds for widgetsPage`);
+		        return new Promise((resolve) => {
+		          setTimeout(() => {
+		            return resolve();
+		          }, global.visualDiffConfig.pageLoadWaitSeconds * 0);
+		        });
+		      } else {
+		        console.log(`No elements containing attribute [snapshot-name] found on page ${contentPath}. Skipping`);
+		        return Promise.resolve();
+		      }
+		    });
+		  }
+
+			function takeSnapshots() {
+			  const donePromises = element.all(by.css('[snapshot-name]')).each(function (element) {
+			    return element.getAttribute('snapshot-name').then((snapshotName) => {
+			      if (snapshotName) {
+			        console.log(`take snapshot ${contentPath} ${snapshotName}`);
+			        snapshotsCount++;
+			        eyes.checkRegionBy(by.css(`[snapshot-name="${snapshotName}"]`), snapshotName);
+			      } else {
+			        console.error(`snapshot on page ${contentPath} missing snapshot name`);
+			      }
+			    });
+			  });
+			  return donePromises.then(() => {
+			    console.log(`done taking snapshots on ${contentPath}. Running snapshot count: ${snapshotsCount}`);
+			  });
+			}
+
+			function catchAll(error) {
+			  console.log('test error:');
+			  console.log(error);
+			}
+
+			function conditionallyCloseEyesAndEndTest() {
+			  if (openedEyes) { eyes.close(false); }
+			  done();
+			}
+
+      function clickTest() {
+      	return browser.actions().click(element(by.css('.nodeRect'))).perform().then(takeSnapshots);
+      	//browser.actions().click(element(by.css('.nodeRect'))).perform();
+      }
+
+		});
+
+  });
+});
 

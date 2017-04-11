@@ -769,6 +769,7 @@ function Sankey() {
             nodeEnter.append("rect")
                 .attr("class", "nodeRect")
                 .attr("id", function(d,i) { return "nodeRect" + d[opts.id];})
+                .attr("terminal", 0)
                 .attr("x", -nodeRectWidth/2)
                 .attr("y", function(d){return -wscale(d[opts.value])/2;})
                 .attr("height", function(d){return wscale(d[opts.value]);})
@@ -943,6 +944,14 @@ function Sankey() {
             });
 
             if (opts.terminalDescription) {
+
+                node.selectAll('.nodeRect').attr('terminal', function(d) {
+                    if (d.terminalDescription) {
+                        return 1;
+                    } else {
+                        return 2;
+                    }
+                });
                 
                 var terTxt2 = nodeEnter.append("text")
                     .attr("id", function(d) { return "terminalLong" + d[opts.id];})

@@ -19,8 +19,7 @@ function runProtractor(done) {
     args.push(`--params.specFilter=${cliArgs.specFilter}`);
   }
 
-  //gulp.src(['build/scripts/testVisual.js', 'theSrc/visualRegression/*.js'])
-  gulp.src(['build/scripts/testVisual.js'])
+  gulp.src(['build/scripts/testVisual.js', 'theSrc/visualRegression/*.js'])
     .pipe($.protractor.protractor({
       configFile: path.join(__dirname, '../config/protractor.conf.js'),
       args,

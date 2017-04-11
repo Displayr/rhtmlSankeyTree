@@ -16,7 +16,7 @@ if (_.has(global.visualDiffConfig, 'specFilter')) {
   });
 }
 
-describe('Take visual regression snapshots', function () {
+describe('Check initialization', function () {
   beforeEach(function () {
     browser.ignoreSynchronization = true;
   });
@@ -45,7 +45,7 @@ describe('Take visual regression snapshots', function () {
               width: global.visualDiffConfig.browserWidth,
               height: global.visualDiffConfig.browserHeight,
             };
-            eyes.open(browser, `${widgetName} ${global.visualDiffConfig.testLabel}`, contentPath, eyesParams);
+            eyes.open(browser, `${widgetName} ${global.visualDiffConfig.testLabel}`, 'Check initialization', eyesParams);
             openedEyes = true;
 
             console.log(`Waiting ${global.visualDiffConfig.pageLoadWaitSeconds * 1000} seconds for widgetsPage`);
