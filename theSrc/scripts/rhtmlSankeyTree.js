@@ -36,6 +36,8 @@ HTMLWidgets.widget({
             }
         }
         d3.select(el).select('g').remove();
+        d3.select(document).selectAll('.d3-tip').remove();
+        d3.select(document).selectAll('#littleTriangle').remove();
         d3.select(el).call(instance);
 
   },
