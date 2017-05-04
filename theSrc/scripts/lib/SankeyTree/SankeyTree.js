@@ -295,6 +295,9 @@ function Sankey() {
         var heightScale;
         var nodeRectWidth = 5;
         var nodeTextDx = 10;
+        var totalTreeWidth;
+        var totalTreeHeight;
+        var initialScale = 1;
 
         function getNodeHeightRatio() {
           var nRatio = 0.0;
@@ -445,7 +448,11 @@ function Sankey() {
                 .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")")
                 .each(function(d) {
                 //.each("end", function(d) {
-                    treeDim = this.getBoundingClientRect();
+                    //treeDim = this.getBoundingClientRect();
+                    treeDim = {
+                        width: totalTreeWidth,
+                        height: totalTreeHeight
+                    };
                     xscale = (width - treeMargins.left - treeMargins.right - 20)/(treeDim.width/scale);
                     yscale = (height - treeMargins.top - treeMargins.bottom - 10)/(treeDim.height/scale);
                     newScale = Math.min(xscale, yscale, 3);
@@ -464,6 +471,100 @@ function Sankey() {
                 });
         }
 
+        function calculateCenteringParam() {
+            if (init) {
+                scale = 1;
+                x = 0;
+                y = 0;
+                svgTrans = {
+                    scale: [scale],
+                    translate: [x, y]
+                };
+            } else {
+                svgTrans = d3.transform(svgGroup.attr("transform"));
+                scale = 1;
+                x = svgTrans.translate[0];
+                y = svgTrans.translate[1];
+            }
+            // reset scale
+            svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+            svgGroup.each(function(d) {
+                treeDim = this.getBoundingClientRect();
+            });
+            var i = 0;
+            var availWidth = width - treeMargins.left - treeMargins.right;
+            var availHeight = height - treeMargins.top - treeMargins.bottom;
+            xscale = availWidth/treeDim.width;
+            yscale = availHeight/treeDim.height;
+            newScale = Math.min(xscale, yscale, 3);
+            svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
+
+            // adjust translation
+            svgGroup.each(function(d) {
+                newTreeDim = this.getBoundingClientRect();
+                x = (width/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
+                y = (height/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
+            });
+            // x, y is the new transition location
+            // now recover to the previous location
+            svgGroup.attr("transform", "translate(" + svgTrans.translate[0] + "," + svgTrans.translate[1] + ")scale(" + svgTrans.scale[0] + ")");
+
+            return {scale: [newScale], translate: [x, y]};
+        }
+
+        function centerNodeFitNew(source) {
+            if (init) {
+                scale = 1;
+                x = 0;
+                y = 0;
+                svgTrans = {
+                    scale: [scale],
+                    translate: [x, y]
+                };
+            } else {
+                svgTrans = d3.transform(svgGroup.attr("transform"));
+                scale = 1;
+                x = svgTrans.translate[0];
+                y = svgTrans.translate[1];
+            }
+            // reset scale
+            svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
+            svgGroup.each(function(d) {
+                treeDim = this.getBoundingClientRect();
+            });
+
+            // if (opts.terminalDescription) {
+            //     totalTreeWidth = newWidth + 2 * (maxLabelLength*pxPerChar);
+            // } else {
+            //     totalTreeWidth = newWidth + (maxLabelLength*pxPerChar);
+            // }
+            // totalTreeHeight = newHeight;
+
+            // adjust scale
+            var i = 0;
+            var availWidth = width - treeMargins.left - treeMargins.right;
+            var availHeight = height - treeMargins.top - treeMargins.bottom;
+            xscale = availWidth/treeDim.width;
+            yscale = availHeight/treeDim.height;
+            newScale = Math.min(xscale, yscale, 3);
+            svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
+
+            // adjust translation
+            svgGroup.each(function(d) {
+                newTreeDim = this.getBoundingClientRect();
+                x = (width/2 - newTreeDim.width/2 ) - newTreeDim.left + x;
+                y = (height/2 - newTreeDim.height/2 ) - newTreeDim.top + y;
+            });
+            // x, y is the new transition location
+            // now recover to the previous location and initiate a transition
+            svgGroup.attr("transform", "translate(" + svgTrans.translate[0] + "," + svgTrans.translate[1] + ")scale(" + svgTrans.scale[0] + ")");
+            svgGroup.attr("transform", "translate(" + x + "," + y + ")scale(" + newScale + ")");
+            svgTrans = d3.transform(svgGroup.attr("transform"));
+            
+            zoomListener.scale(newScale);
+            zoomListener.translate([x, y]);
+        }
+
         // Toggle children function
         function toggleChildren(d) {
             if (d[opts.childrenName]) {
@@ -475,7 +576,7 @@ function Sankey() {
                 d._children = null;
                 d.childrenHidden = false;
             }
-            save_states();
+            
             return d;
         }
 
@@ -484,9 +585,21 @@ function Sankey() {
         function click(d) {
             if (d3.event.defaultPrevented) return; // click suppressed
             d = toggleChildren(d);
-            update(d, false);
+            update(d, false, false);
+            var svgTrans = calculateCenteringParam();
+            d = toggleChildren(d);
+            update(d, false, false);
+            d = toggleChildren(d);
+            update(d, false, true);
             //centerNode(d);
-            centerNodeFit(d);
+            svgGroup.transition("fit")
+                .duration(duration)
+                .attr("transform", "translate(" + svgTrans.translate[0] + "," + svgTrans.translate[1] + ")scale(" + svgTrans.scale[0] + ")");
+            
+            zoomListener.scale(svgTrans.scale[0]);
+            zoomListener.translate([svgTrans.translate[0], svgTrans.translate[1]]);
+
+            save_states();
         }
 
         function toggleText(selector_hide, selector_show, animation) {
@@ -683,11 +796,8 @@ function Sankey() {
                 resolveCollision(thisNode[opts.childrenName][1], nodesArray, collided);
             }
         }
-        
-        function update(source, initialization) {
-            // Compute the new height, function counts total children of root node and sets tree height accordingly.
-            // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
-            // This makes the layout more consistent.
+
+        function calculateUpdateParam() {
             var levelWidth = [1];
             var childCount = function(level, n) {
 
@@ -710,18 +820,223 @@ function Sankey() {
             if (newHeight/newWidth < 0.5) {
                 newHeight = 0.5 * newWidth;
             }
-            //} else {
-            //  newWidth = levelWidth.length * meanLabelLength * pxPerChar +
-            //            levelWidth.length * 10; // node link size + node rect size
-            //}
 
-            //dummyRect.attr("width", newWidth + meanLabelLength*pxPerChar).attr("height", newHeight);
+        }
 
-            // Size link width according to n based on total n
-            var wscale = d3.scale.linear()
-                .range([0,opts.nodeHeight/nodeHeightRatio || 25])
-                //.range([0,opts.nodeHeight || 25])
-                .domain([0,treeData[opts.value]]);
+        function updateNodesAndLinksNoTransition(node, link, links, source, wscale) {
+
+            // Transition nodes to their new position.
+            var nodeUpdate = node
+                .style("opacity", 1)
+                .attr("transform", function(d) {
+                    return "translate(" + d.y + "," + d.x + ")";
+                });
+
+            // Fade the text in
+            nodeUpdate.select("text")
+                .style("fill-opacity", 1);
+
+            // Transition exiting nodes to the parent's new position.
+            var nodeExit = node.exit()
+                .style("opacity", 0)
+                .attr("transform", function(d) {
+                    return "translate(" + (source.y) + "," + source.x + ")";
+                })
+                .remove();
+
+            nodeExit.select("circle")
+                .attr("r", 0);
+
+            nodeExit.select("text")
+                .style("fill-opacity", 0);
+
+            // 1. start by nesting our link paths by source
+            var link_nested = d3.nest()
+                                .key(function(d){
+                                  return d.source[opts.id];
+                                })
+                                .entries(links);
+            // 2. manual method for stacking since d3.layout.stack
+            //      did not work
+            link_nested.forEach(function(d){
+              var ystacky = 0;
+              d.values.forEach(function(dd){
+                var ywidth = wscale(dd.target[opts.value]);
+                var srcwidth = wscale(dd.source[opts.value]);
+                srcwidth = isNaN(srcwidth) ? wscale.range()[1]/2 : srcwidth;
+                ystacky = ystacky + ywidth;
+                // dd.x = dd.source.x;
+                dd.x = dd.source.x + srcwidth/2 - ystacky + ywidth/2;
+                dd.y = dd.source.y;
+                dd.ystacky = ystacky;
+              });
+            });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("d", function(d) {
+                    var o = {
+                        x: source.x0,
+                        y: source.y0
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
+                });
+
+            link.style("stroke-width",function(d){
+              return wscale( d.target[opts.value] );
+            });
+
+            // Transition links to their new position.
+            link.attr("d", diagonal)
+                .style("stroke",function(d){
+                  if(d.target.color){
+                    if (typeof d.target.color === 'string'){
+                      return d3.lab(d.target.color);
+                    } else {
+                      return d3.hcl(
+                        d.target.color.h,
+                        d.target.color.c,
+                        d.target.color.l
+                      );
+                    }
+                  } else {
+                    return "#ccc";
+                  }
+                });
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit()
+                .attr("d", function(d) {
+                    var o = {
+                        x: source.x,
+                        y: source.y
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
+                })
+                .remove();
+        }
+
+        function updateNodesAndLinksTransition(node, link, links, source, wscale) {
+
+            // Transition nodes to their new position.
+            var nodeUpdate = node
+                .transition("2")
+                .duration(duration)
+                .style("opacity", 1)
+                .attr("transform", function(d) {
+                    return "translate(" + d.y + "," + d.x + ")";
+                });
+
+            // Fade the text in
+            nodeUpdate.select("text")
+                .style("fill-opacity", 1);
+
+            // Transition exiting nodes to the parent's new position.
+            var nodeExit = node.exit()
+                .transition("2")
+                .duration(duration)
+                .style("opacity", 0)
+                .attr("transform", function(d) {
+                    return "translate(" + (source.y) + "," + source.x + ")";
+                })
+                .remove();
+
+            nodeExit.select("circle")
+                .attr("r", 0);
+
+            nodeExit.select("text")
+                .style("fill-opacity", 0);
+
+            // 1. start by nesting our link paths by source
+            var link_nested = d3.nest()
+                                .key(function(d){
+                                  return d.source[opts.id];
+                                })
+                                .entries(links);
+            // 2. manual method for stacking since d3.layout.stack
+            //      did not work
+            link_nested.forEach(function(d){
+              var ystacky = 0;
+              d.values.forEach(function(dd){
+                var ywidth = wscale(dd.target[opts.value]);
+                var srcwidth = wscale(dd.source[opts.value]);
+                srcwidth = isNaN(srcwidth) ? wscale.range()[1]/2 : srcwidth;
+                ystacky = ystacky + ywidth;
+                // dd.x = dd.source.x;
+                dd.x = dd.source.x + srcwidth/2 - ystacky + ywidth/2;
+                dd.y = dd.source.y;
+                dd.ystacky = ystacky;
+              });
+            });
+
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("d", function(d) {
+                    var o = {
+                        x: source.x0,
+                        y: source.y0
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
+                });
+
+            link.style("stroke-width",function(d){
+              return wscale( d.target[opts.value] );
+            });
+
+            // Transition links to their new position.
+            link.transition("2")
+                .duration(duration)
+                .attr("d", diagonal)
+                .style("stroke",function(d){
+                  if(d.target.color){
+                    if (typeof d.target.color === 'string'){
+                      return d3.lab(d.target.color);
+                    } else {
+                      return d3.hcl(
+                        d.target.color.h,
+                        d.target.color.c,
+                        d.target.color.l
+                      );
+                    }
+                  } else {
+                    return "#ccc";
+                  }
+                });
+
+            // Transition exiting nodes to the parent's new position.
+            link.exit()
+                .transition("2")
+                .duration(duration)
+                .attr("d", function(d) {
+                    var o = {
+                        x: source.x,
+                        y: source.y
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
+                })
+                .remove();
+        }
+        
+        function update(source, initialization, showTransition) {
+
+            calculateUpdateParam();
+            // Compute the new height, function counts total children of root node and sets tree height accordingly.
+            // This prevents the layout looking squashed when new nodes are made visible or looking sparse when nodes are removed
+            // This makes the layout more consistent.
 
             tree = tree.size([newHeight, newWidth]);
 
@@ -729,23 +1044,12 @@ function Sankey() {
             var nodes = tree.nodes(root),
                 links = tree.links(nodes);
 
-            //console.log(nodes);
+            nodes.forEach(function(d) {
+                d.y = (d.depth * (maxLabelLength * pxPerChar) + nodeTextDx);  //maxLabelLength * 10px
+            });
 
-            // Set widths between levels based on maxLabelLength.
-
-
-            //if (opts.maxLabelLength) {
-                nodes.forEach(function(d) {
-                    d.y = (d.depth * (maxLabelLength * pxPerChar) + nodeTextDx);  //maxLabelLength * 10px
-                });
-            //} else {
-            //    nodes.forEach(function(d) {
-            //        d.y = (d.depth * (meanLabelLength * pxPerChar) + nodeTextDx); //meanLabelLength * 5px
-            //    });
-            //}
-
-            // flip the tree up and down to conform with R plot
-            var initNodeX = nodes[nodes.length-1].x;
+            // flip the tree up and down about the root to conform with R plot
+            var initNodeX = nodes[0].x;
             nodes.forEach(function(d) {
                 d.x = initNodeX + initNodeX - d.x;
             });
@@ -805,7 +1109,6 @@ function Sankey() {
                     return d[opts.name];
                 });
                 
-
             ntxt2.each(function(d) {
                 d.nlines = wrap(this, maxLabelLength*pxPerChar - nodeTextDx - nodeRectWidth);
             });
@@ -1112,34 +1415,69 @@ function Sankey() {
                     return d._children ? "lightsteelblue" : "#fff";
                 });
 
-            // Transition nodes to their new position.
-            var nodeUpdate = node
-                //.transition()
-                //.duration(duration)
-                .style("opacity", 1)
-                .attr("transform", function(d) {
-                    return "translate(" + d.y + "," + d.x + ")";
+            var link = svgGroup.selectAll("path.link")
+                .data(links, function(d) {
+                  return d.target[opts.id];
                 });
 
-            // Fade the text in
-            nodeUpdate.select("text")
-                .style("fill-opacity", 1);
+            
+            if (showTransition) {
+                updateNodesAndLinksTransition(node, link, links, source, wscale);
+                for (var i = 0; i < nodes.length; i++) {
+                    nodes[i].x0 = nodes[i].x;
+                    nodes[i].y0 = nodes[i].y;
+                }
+            } else {
+                updateNodesAndLinksNoTransition(node, link, links, source, wscale);
+            }
 
-            // Transition exiting nodes to the parent's new position.
-            var nodeExit = node.exit()
-                //.transition()
-                //.duration(duration)
-                .style("opacity", 0)
-                .attr("transform", function(d) {
-                    return "translate(" + (source.y) + "," + source.x + ")";
-                })
-                .remove();
+            if (init) {
+                for (var i = 0; i < nodes.length; i++) {
+                    nodes[i].x0 = nodes[i].x;
+                    nodes[i].y0 = nodes[i].y;
+                }
+            }
+            
 
-            nodeExit.select("circle")
-                .attr("r", 0);
 
-            nodeExit.select("text")
-                .style("fill-opacity", 0);
+            // calculate translation and scaling parameters
+            // updateNodesAndLinksNoTransition(node, link, links, source, wscale);
+            // var svgTrans = calculateCenteringParam();
+
+
+            // updateNodesAndLinksTransition(node, link, links, source, wscale);
+            // svgGroup.attr("transform", "translate(" + svgTrans.translate[0] + "," + svgTrans.translate[1] + ")scale(" + svgTrans.scale[0] + ")");
+            
+            // zoomListener.scale(newScale);
+            // zoomListener.translate([x, y]);
+            // Transition nodes to their new position.
+            // var nodeUpdate = node
+            //     //.transition()
+            //     //.duration(duration)
+            //     .style("opacity", 1)
+            //     .attr("transform", function(d) {
+            //         return "translate(" + d.y + "," + d.x + ")";
+            //     });
+
+            // // Fade the text in
+            // nodeUpdate.select("text")
+            //     .style("fill-opacity", 1);
+
+            // // Transition exiting nodes to the parent's new position.
+            // var nodeExit = node.exit()
+            //     //.transition()
+            //     //.duration(duration)
+            //     .style("opacity", 0)
+            //     .attr("transform", function(d) {
+            //         return "translate(" + (source.y) + "," + source.x + ")";
+            //     })
+            //     .remove();
+
+            // nodeExit.select("circle")
+            //     .attr("r", 0);
+
+            // nodeExit.select("text")
+            //     .style("fill-opacity", 0);
 
             // Update the links…
 
@@ -1150,92 +1488,60 @@ function Sankey() {
             //   since our stroke-width will reflect size
             //   similar to a Sankey
 
-            // 1. start by nesting our link paths by source
-            var link_nested = d3.nest()
-                                .key(function(d){
-                                  return d.source[opts.id];
-                                })
-                                .entries(links);
-            // 2. manual method for stacking since d3.layout.stack
-            //      did not work
-            link_nested.forEach(function(d){
-              var ystacky = 0;
-              d.values.forEach(function(dd){
-                var ywidth = wscale(dd.target[opts.value]);
-                var srcwidth = wscale(dd.source[opts.value]);
-                srcwidth = isNaN(srcwidth) ? wscale.range()[1]/2 : srcwidth;
-                ystacky = ystacky + ywidth;
-                // dd.x = dd.source.x;
-                dd.x = dd.source.x + srcwidth/2 - ystacky + ywidth/2;
-                dd.y = dd.source.y;
-                dd.ystacky = ystacky;
-              });
-            });
-
-            var link = svgGroup.selectAll("path.link")
-                .data(links, function(d) {
-                  return d.target[opts.id];
-                });
-
             // Enter any new links at the parent's previous position.
-            link.enter().insert("path", "g")
-                .attr("class", "link")
-                .attr("d", function(d) {
-                    var o = {
-                        x: source.x0,
-                        y: source.y0
-                    };
-                    return diagonal({
-                        source: o,
-                        target: o
-                    });
-                });
+            // link.enter().insert("path", "g")
+            //     .attr("class", "link")
+            //     .attr("d", function(d) {
+            //         var o = {
+            //             x: source.x0,
+            //             y: source.y0
+            //         };
+            //         return diagonal({
+            //             source: o,
+            //             target: o
+            //         });
+            //     });
 
-            link.style("stroke-width",function(d){
-              return wscale( d.target[opts.value] );
-            });
+            // link.style("stroke-width",function(d){
+            //   return wscale( d.target[opts.value] );
+            // });
 
-            // Transition links to their new position.
-            link//.transition()
-                //.duration(duration)
-                .attr("d", diagonal)
-                .style("stroke",function(d){
-                  if(d.target.color){
-                    if (typeof d.target.color === 'string'){
-                      return d3.lab(d.target.color);
-                    } else {
-                      return d3.hcl(
-                        d.target.color.h,
-                        d.target.color.c,
-                        d.target.color.l
-                      );
-                    }
-                  } else {
-                    return "#ccc";
-                  }
-                });
+            // // Transition links to their new position.
+            // link//.transition()
+            //     //.duration(duration)
+            //     .attr("d", diagonal)
+            //     .style("stroke",function(d){
+            //       if(d.target.color){
+            //         if (typeof d.target.color === 'string'){
+            //           return d3.lab(d.target.color);
+            //         } else {
+            //           return d3.hcl(
+            //             d.target.color.h,
+            //             d.target.color.c,
+            //             d.target.color.l
+            //           );
+            //         }
+            //       } else {
+            //         return "#ccc";
+            //       }
+            //     });
 
-            // Transition exiting nodes to the parent's new position.
-            link.exit()
-                //.transition()
-                //.duration(duration)
-                .attr("d", function(d) {
-                    var o = {
-                        x: source.x,
-                        y: source.y
-                    };
-                    return diagonal({
-                        source: o,
-                        target: o
-                    });
-                })
-                .remove();
+            // // Transition exiting nodes to the parent's new position.
+            // link.exit()
+            //     //.transition()
+            //     //.duration(duration)
+            //     .attr("d", function(d) {
+            //         var o = {
+            //             x: source.x,
+            //             y: source.y
+            //         };
+            //         return diagonal({
+            //             source: o,
+            //             target: o
+            //         });
+            //     })
+            //     .remove();
 
-            // Stash the old positions for transition.
-            nodes.forEach(function(d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
         }
 
         // Setting things up
@@ -1334,30 +1640,38 @@ function Sankey() {
         root.x0 = height / 2;
         root.y0 = 0;
 
+            // Size link width according to n based on total n
+        var wscale = d3.scale.linear()
+                .range([0,opts.nodeHeight/nodeHeightRatio || 25])
+                //.range([0,opts.nodeHeight || 25])
+                .domain([0,treeData[opts.value]]);
+
         // Layout the tree initially and center on the root node.
-        update(root, true);
+        update(root, true, false);
 
         // since we can override node height and label length (width)
         // if zoom scale == 1 then auto scale to fit tree in container
-        var treeSize = tree.size();
-        var headLength = svgGroup.select("#t1").node().getComputedTextLength();
-        headLength = headLength ? headLength : 0;
-        var tailLength = 0;
-        svgGroup.selectAll(".nodeText").each(function(d) {
-            tailLength = Math.max(tailLength, this.getComputedTextLength());
-        });
 
-        if (zoomListener.scale() == 1) {
-            xscale = (width - treeMargins.left - treeMargins.right - headLength - tailLength)/treeSize[1];
-            yscale = (height - treeMargins.top - treeMargins.bottom)/treeSize[0];
-            scale = xscale > yscale ? yscale : xscale;
-            zoomListener.scale(scale);
-        }
+        // var treeSize = tree.size();
+        // var headLength = svgGroup.select("#t1").node().getComputedTextLength();
+        // headLength = headLength ? headLength : 0;
+        // var tailLength = 0;
+        // svgGroup.selectAll(".nodeText").each(function(d) {
+        //     tailLength = Math.max(tailLength, this.getComputedTextLength());
+        // });
 
-        centerNodeFit(root);
+        // if (zoomListener.scale() == 1) {
+        //     xscale = (width - treeMargins.left - treeMargins.right - headLength - tailLength)/treeSize[1];
+        //     yscale = (height - treeMargins.top - treeMargins.bottom)/treeSize[0];
+        //     scale = xscale > yscale ? yscale : xscale;
+        //     zoomListener.scale(scale);
+        // }
+
+        //centerNodeFit(root);
+        centerNodeFitNew(root);
         prevWidth = width;
         prevHeight = height;
-        setTimeout(function() {init = false;}, duration*3);
+        setTimeout(function() {init = false;}, 1200);
 
         
         /*

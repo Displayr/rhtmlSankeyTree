@@ -45,12 +45,15 @@ gulp.task('default', function () {
 // gulp.task('core', ['compileES6ToInst', 'less', 'copy', 'buildContentManifest']);
 
 gulp.task('build', function(done) {
-  runSequence('clean', 'copy', 'buildContentManifest', ['makeDocs'], done);
+  runSequence('clean', 'less', 'copy', 'buildContentManifest', ['makeDocs'], done);
 });
-
 // Live reload is disabled by default as the author of this package saves changes frequently,
 // and therefore prefers manual reload. 
-gulp.task('serve', ['build', 'connect'], function () {
+gulp.task('serve', ['build', 'connect', 'watch'], function () {
+  opn('http://localhost:9000');
+});
+
+gulp.task('serve_s', ['build', 'connect_s'], function () {
   opn('http://localhost:9000');
 });
 
