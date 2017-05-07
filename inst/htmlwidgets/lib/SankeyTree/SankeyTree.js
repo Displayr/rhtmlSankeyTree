@@ -14,7 +14,6 @@ function Sankey() {
         svgTrans,
         svgGroup,
         zoomListener,
-        init = true,
         realFormatter = d3.format(",.1f"),
         intFormatter = d3.format(",d"),
         width = 500,
@@ -211,7 +210,7 @@ function Sankey() {
     }
 
     function resizeChart(el) {
-        if (init) {
+        if (opts.init) {
             return;
         }
         svgTrans = d3.transform(svgGroup.attr("transform"));
@@ -431,7 +430,7 @@ function Sankey() {
         // collapsing/moving with large amount of children.
         function centerNodeFit(source) {
 
-            if (init) {
+            if (opts.init) {
                 scale = zoomListener.scale();
                 newScale = scale;
                 x = -source.y0 * scale + width / 4;
@@ -472,7 +471,7 @@ function Sankey() {
         }
 
         function calculateCenteringParam() {
-            if (init) {
+            if (opts.init) {
                 scale = 1;
                 x = 0;
                 y = 0;
@@ -513,7 +512,7 @@ function Sankey() {
         }
 
         function centerNodeFitNew(source) {
-            if (init) {
+            if (opts.init) {
                 scale = 1;
                 x = 0;
                 y = 0;
@@ -1431,7 +1430,7 @@ function Sankey() {
                 updateNodesAndLinksNoTransition(node, link, links, source, wscale);
             }
 
-            if (init) {
+            if (opts.init) {
                 for (var i = 0; i < nodes.length; i++) {
                     nodes[i].x0 = nodes[i].x;
                     nodes[i].y0 = nodes[i].y;
@@ -1671,7 +1670,6 @@ function Sankey() {
         centerNodeFitNew(root);
         prevWidth = width;
         prevHeight = height;
-        setTimeout(function() {init = false;}, 1200);
 
         
         /*

@@ -25,7 +25,7 @@ HTMLWidgets.widget({
   renderValue: function(el, x, instance, state) {
     // ATTRIBUTION:  much of this JavaScript code
     //  came from http://bl.ocks.org/robschmuecker/0f29a2c867dcb1b44d18
-
+        x.opts.init = true;
         instance = instance.opts(x.opts);
         instance = instance.data(x.data);
         if (state) {
@@ -39,7 +39,7 @@ HTMLWidgets.widget({
         d3.select(document).selectAll('.d3-tip').remove();
         d3.select(document).selectAll('#littleTriangle').remove();
         d3.select(el).call(instance);
-
+        x.opts.init = false;
   },
 
   resize: function(el, width, height, instance) {
