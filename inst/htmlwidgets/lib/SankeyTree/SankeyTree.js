@@ -38,9 +38,9 @@ function Sankey() {
                 // main tip table
                 for (var i = 0; i < nval; i++) {
                     t = t + "<tr>";
-                    t = t + "<td class='tipDClassificationNum'>" + intFormatter(Math.round(data.nodeDistribution[i]*100)) + "%</td>";
-                    t = t + "<td class='tipDClassification'>" + data.nodeVariables[i] + "</td>";
-                    t = t + "<td class='tipDClassification'>";
+                    t = t + "<td class='tipDClassificationNum' style='white-space:nowrap;'>" + intFormatter(Math.round(data.nodeDistribution[i]*100)) + "%</td>";
+                    t = t + "<td class='tipDClassification' style='white-space:nowrap;'>" + data.nodeVariables[i] + "</td>";
+                    t = t + "<td class='tipDClassification' style='white-space:nowrap;'>";
                     t = t + "<div style='width:" + scale(data.nodeDistribution[i]) + "px;height:8px;background-color:steelblue'></div>" + "</td>";
                     t = t + "</tr>";
                 }
