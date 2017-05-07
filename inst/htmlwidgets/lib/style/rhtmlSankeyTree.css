@@ -1,4 +1,5 @@
 .d3-tip {
+  display: inline-block;
   background-color: #333;
   border: none;
   pointer-events: none;
