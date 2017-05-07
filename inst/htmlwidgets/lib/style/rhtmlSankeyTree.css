@@ -1,5 +1,4 @@
 .d3-tip {
-  display: inline-block;
   background-color: #333;
   border: none;
   pointer-events: none;
@@ -91,12 +90,13 @@
 }
 
 .tipTableContainer {
+    display: block;
     background-color: #333;
     font-family: sans-serif;
     color: #efefef;
     font-size: 12px;
     margin: 2px;
-    white-space: pre;
+    white-space: nowrap;
 }
 
 
@@ -104,7 +104,7 @@
     text-align: center;
     font-family: sans-serif;
     margin-top: 4px;
-    white-space: pre;
+    white-space: nowrap;
 }
 
 .tipTable {

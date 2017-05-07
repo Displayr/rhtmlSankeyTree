@@ -34,7 +34,7 @@ function Sankey() {
 
                 var t = "n: " + intFormatter(data.n) + "<br>";
                 t = t + "Description: ";
-                t = t + "<div class='tipTableContainer' style='white-space:pre;'><table class='tipTable'>";
+                t = t + "<div class='tipTableContainer' style='white-space:nowrap;'><table class='tipTable'>";
                 // main tip table
                 for (var i = 0; i < nval; i++) {
                     t = t + "<tr>";
@@ -65,7 +65,7 @@ function Sankey() {
                 var nval = data.overallDistribution.length;
                 var maxDomain = Math.max(d3.max(data.overallDistribution), d3.max(data.nodeDistribution));
                 scale.domain([0, maxDomain]);
-                var t = "<div class='tipTableContainer' style='white-space:pre;'><table class='tipTable'>";
+                var t = "<div class='tipTableContainer' style='white-space:nowrap;'><table class='tipTable'>";
                 t = t + "<tr>";
                 var prevDistH, prevdashDistH, solidDistH, dashDistH, nextDistH, nextdashDistH;
                 for (var i = 0; i < nval; i++) {
