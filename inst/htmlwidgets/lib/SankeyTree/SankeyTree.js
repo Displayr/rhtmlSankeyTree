@@ -322,6 +322,7 @@ function Sankey() {
                     chars = text.text().split("").reverse(),
                     c,
                     c1,
+                    isnum = /[0-9]/,
                     nextchar,
                     sep,
                     newline = [],
