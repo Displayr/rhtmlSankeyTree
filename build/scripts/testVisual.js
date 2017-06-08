@@ -45,7 +45,7 @@ describe('Check initialization', function () {
               width: global.visualDiffConfig.browserWidth,
               height: global.visualDiffConfig.browserHeight,
             };
-            eyes.open(browser, `${widgetName} ${global.visualDiffConfig.testLabel}`, 'Check initialization', eyesParams);
+            eyes.open(browser, `${widgetName} ${global.visualDiffConfig.testLabel}`, `Check initialization for ${contentPath}`, eyesParams);
             openedEyes = true;
 
             console.log(`Waiting ${global.visualDiffConfig.pageLoadWaitSeconds * 1000} seconds for widgetsPage`);

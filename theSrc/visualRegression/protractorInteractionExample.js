@@ -42,7 +42,7 @@ describe('Check mouseover behavior', function () {
 		        };
 		        eyes.open(browser, 
 		        	`${widgetName} ${global.visualDiffConfig.testLabel}`, 
-		        	'Sankeytree: when the mouse is over a node, tooltips will show', 
+		        	`${contentPath} Sankeytree: when the mouse is over a node, tooltips will show`, 
 		        	eyesParams);
 		        openedEyes = true;
 
@@ -131,7 +131,7 @@ describe('Check mouseover behavior', function () {
 		        };
 		        eyes.open(browser, 
 		        	`${widgetName} ${global.visualDiffConfig.testLabel}`, 
-		        	'Sankeytree: when a node is clicked, its child nodes will be collapsed', 
+		        	`${contentPath} Sankeytree: when a node is clicked, its child nodes will be collapsed`, 
 		        	eyesParams);
 		        openedEyes = true;
 
