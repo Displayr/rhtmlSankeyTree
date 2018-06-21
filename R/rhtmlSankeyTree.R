@@ -34,15 +34,7 @@ SankeyTree <- function(
   numeric.distribution = TRUE,
   width = NULL, 
   height = NULL) {
-  
-  # convert rpart data
-  if(inherits(data,"rpart")){
-    data <- convert_rpart(data)
-    name <- "description"
-    value <- "n"
-    childrenName = "kids"
-  }
-  
+
   # if color is already specified by RGB format, not re-computing again
   if (!is.null(data$color) && 
       is.character(data$color) && 
