@@ -1,21 +1,3 @@
-.d3-tip {
-  background-color: #333;
-  border: none;
-  pointer-events: none;
-  border-radius: 2px;
-  color: #efefef;
-  font-size: 12px;
-  padding: 4px;
-  font-family: sans-serif;
-  /*line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  
-  pointer-events: none;*/
-}
-
 .node rect {
   cursor: pointer;
 }
@@ -25,27 +7,18 @@
   stroke: #ddd;
   pointer-events: all;
 }
- 
-.node circle {
-  fill: #eee;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
- 
+
 .node text {
   cursor:default;
   font-size:10px; 
   font-family:sans-serif;
 }
 
-.nodeTextBg1 {
+.nodeTextBackgroundRect {
   fill: white;
   opacity: 0.5;
 }
-.nodeTextBg2 {
-  fill: white;
-  opacity: 0.5;
-} 
+
 .link {
   fill: none;
   stroke: #ccc;
@@ -70,7 +43,6 @@
 
 .svg-content-responsive {
     display: inline-block;
-    position: absolute;
     top: 0;
     left: 0;
     -webkit-touch-callout: none;
@@ -81,12 +53,25 @@
     user-select: none;
 }
 
-.ghostCircle.show{
-    display:block;
+.d3-tip {
+    background-color: #333;
+    border: none;
+    pointer-events: none;
+    border-radius: 2px;
+    color: #efefef;
+    font-size: 12px;
+    padding: 4px;
+    font-family: sans-serif;
 }
 
-.ghostCircle, .activeDrag .ghostCircle{
-     display: none;
+.tipTruncatedTextContainer {
+    width: 200px;
+    display: block;
+    background-color: #333;
+    font-family: sans-serif;
+    color: #efefef;
+    font-size: 12px;
+    margin: 2px;
 }
 
 .tipTableContainer {
@@ -96,14 +81,6 @@
     color: #efefef;
     font-size: 12px;
     margin: 2px;
-    white-space: nowrap;
-}
-
-
-.tipTextAfterTable {
-    text-align: center;
-    font-family: sans-serif;
-    margin-top: 4px;
     white-space: nowrap;
 }
 
@@ -118,6 +95,14 @@
     font-size: 12px;
 }
 
+.tipTextAfterTable {
+    text-align: center;
+    font-family: sans-serif;
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+
 .tipDClassification {
     margin: 0;
     border-collapse: collapse;
@@ -128,17 +113,11 @@
     font-family: sans-serif;
 }
 
-.tipDClassificationNum {
-    margin: 0;
-    border-collapse: collapse;
-    border: 0;
-    vertical-align:middle;
+.tipDClassification.num {
     text-align:right;
-    font-family: sans-serif;
-    padding: 0 2px 0 2px;
 }
 
-.tipD {
+td.tipColumn {
     margin: 0;
     border-collapse: collapse;
     border: 0;
@@ -149,195 +128,39 @@
     font-size: 12px;
 }
 
-.tipBlueNoDash {
+.regressionTipSection {
     width:10px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.regressionTipSection.blue {
     background-color: steelblue;
 }
 
-
-.tipBlueLeftDash {
-    width:10px;
-    background-color: steelblue;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-left: 1px dashed #efefef;
-}
-
-.tipBlueRightDash {
-    width:10px;
-    background-color: steelblue;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-right: 1px dashed #efefef;
-}
-
-.tipBlueLeftRightDash {
-    width:10px;
-    background-color: steelblue;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-left: 1px dashed #efefef;
-    border-right: 1px dashed #efefef;
-}
-
-
-.tipBlueTopDash {
-    width:10px;
-    background-color: steelblue;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-top: 1px dashed #efefef;
-}
-
-.tipBlueTopLeftDash {
-    width:10px;
-    background-color: steelblue;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-top: 1px dashed #efefef;
-    border-left: 1px dashed #efefef;
-}
-
-.tipBlueTopRightDash {
-    width:10px;
-    background-color: steelblue;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-top: 1px dashed #efefef;
-    border-right: 1px dashed #efefef;
-}
-
-.tipBlueTopLeftRightDash {
-    width:10px;
-    background-color: steelblue;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-top: 1px dashed #efefef;
-    border-left: 1px dashed #efefef;
-    border-right: 1px dashed #efefef;
-}
-
-.tipNocolNoDash {
-    width:10px;
+.regressionTipSection.transparent {
     background-color: transparent;
 }
 
-.tipNocolLeftDash {
-    width:10px;
-    background-color: transparent;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+.regressionTipSection.leftDash {
     border-left: 1px dashed #efefef;
 }
 
-.tipNocolRightDash {
-    width:10px;
-    background-color: transparent;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+.regressionTipSection.rightDash {
     border-right: 1px dashed #efefef;
 }
 
-.tipNocolLeftRightDash {
-    width:10px;
-    background-color: transparent;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-left: 1px dashed #efefef;
-    border-right: 1px dashed #efefef;
-}
-
-.tipNocolTopDash {
-    width:10px;
-    background-color: transparent;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+.regressionTipSection.topDash {
     border-top: 1px dashed #efefef;
 }
 
-.tipNocolTopLeftDash {
-    width:10px;
-    background-color: transparent;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-top: 1px dashed #efefef;
-    border-left: 1px dashed #efefef;
-}
-
-.tipNocolTopRightDash {
-    width:10px;
-    background-color: transparent;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-top: 1px dashed #efefef;
-    border-right: 1px dashed #efefef;
-}
-
-.tipNocolTopLeftRightDash {
-    width:10px;
-    background-color: transparent;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-top: 1px dashed #efefef;
-    border-left: 1px dashed #efefef;
-    border-right: 1px dashed #efefef;
-}
-
-
-
-.northTip {
+.tipTriangle {
 	width: 0;
 	height: 0;
 	border-left: 5px solid transparent;
 	border-right: 5px solid transparent;
 	border-top: 10px solid #333;
-	font-size: 0;
-	line-height: 0;
-	position: absolute;
-}
-
-.southTip {
-	width: 0;
-	height: 0;
-	border-left: 5px solid transparent;  /* left arrow slant */
-	border-right: 5px solid transparent; /* right arrow slant */
-	border-bottom: 10px solid #333; /* bottom, add background color here */
-	font-size: 0;
-	line-height: 0;
-	position: absolute;
-}
-
-.eastTip {
-	width: 0;
-	height: 0;
-	border-top: 5px solid transparent;
-	border-bottom: 5px solid transparent;
-	border-right: 10px solid #333;
-	font-size: 0;
-	line-height: 0;
-	position: absolute;
-}
-
-.westTip {
-	width: 0;
-	height: 0;
-	border-top: 5px solid transparent;
-	border-bottom: 5px solid transparent;
-	border-left: 10px solid #333;
 	font-size: 0;
 	line-height: 0;
 	position: absolute;

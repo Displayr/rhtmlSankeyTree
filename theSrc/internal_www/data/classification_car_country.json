@@ -1,0 +1,598 @@
+{
+  "data": {
+    "treeType": "Classification",
+    "name": "Country",
+    "n": 49,
+    "Percentage": "100%",
+    "id": 1,
+    "color": "#93A8CC",
+    "nodeDistribution": [
+      0,
+      0,
+      0,
+      0.0204081632653061,
+      0.285714285714286,
+      0.142857142857143,
+      0.0408163265306122,
+      0.0204081632653061,
+      0.0204081632653061,
+      0.469387755102041
+    ],
+    "overallDistribution": [
+      0,
+      0,
+      0,
+      0.0204081632653061,
+      0.285714285714286,
+      0.142857142857143,
+      0.0408163265306122,
+      0.0204081632653061,
+      0.0204081632653061,
+      0.469387755102041
+    ],
+    "nodeVariables": [
+      "Brazil",
+      "England",
+      "France",
+      "Germany",
+      "Japan",
+      "Japan/USA",
+      "Korea",
+      "Mexico",
+      "Sweden",
+      "USA"
+    ],
+    "terminalDescription": "",
+    "children": [
+      {
+        "name": "Reliability: Much worse, worse, average, better",
+        "n": 32,
+        "Percentage": "65%",
+        "id": 2,
+        "color": "#6C8FCC",
+        "nodeDistribution": [
+          0,
+          0,
+          0,
+          0.03125,
+          0.09375,
+          0.03125,
+          0.0625,
+          0.03125,
+          0.03125,
+          0.71875
+        ],
+        "overallDistribution": [
+          0,
+          0,
+          0,
+          0.0204081632653061,
+          0.285714285714286,
+          0.142857142857143,
+          0.0408163265306122,
+          0.0204081632653061,
+          0.0204081632653061,
+          0.469387755102041
+        ],
+        "nodeVariables": [
+          "Brazil",
+          "England",
+          "France",
+          "Germany",
+          "Japan",
+          "Japan/USA",
+          "Korea",
+          "Mexico",
+          "Sweden",
+          "USA"
+        ],
+        "terminalDescription": "",
+        "children": [
+          {
+            "name": "Type: Compact, Large, Medium, Sporty, Van",
+            "n": 26,
+            "Percentage": "53%",
+            "id": 4,
+            "color": "#5E86CC",
+            "nodeDistribution": [
+              0,
+              0,
+              0,
+              0,
+              0.115384615384615,
+              0.0384615384615385,
+              0,
+              0,
+              0.0384615384615385,
+              0.807692307692308
+            ],
+            "overallDistribution": [
+              0,
+              0,
+              0,
+              0.0204081632653061,
+              0.285714285714286,
+              0.142857142857143,
+              0.0408163265306122,
+              0.0204081632653061,
+              0.0204081632653061,
+              0.469387755102041
+            ],
+            "nodeVariables": [
+              "Brazil",
+              "England",
+              "France",
+              "Germany",
+              "Japan",
+              "Japan/USA",
+              "Korea",
+              "Mexico",
+              "Sweden",
+              "USA"
+            ],
+            "terminalDescription": "",
+            "children": [
+              {
+                "name": "Price <13222",
+                "n": 15,
+                "Percentage": "31%",
+                "id": 8,
+                "color": "#4B7ACC",
+                "nodeDistribution": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0.0666666666666667,
+                  0,
+                  0,
+                  0,
+                  0.933333333333333
+                ],
+                "overallDistribution": [
+                  0,
+                  0,
+                  0,
+                  0.0204081632653061,
+                  0.285714285714286,
+                  0.142857142857143,
+                  0.0408163265306122,
+                  0.0204081632653061,
+                  0.0204081632653061,
+                  0.469387755102041
+                ],
+                "nodeVariables": [
+                  "Brazil",
+                  "England",
+                  "France",
+                  "Germany",
+                  "Japan",
+                  "Japan/USA",
+                  "Korea",
+                  "Mexico",
+                  "Sweden",
+                  "USA"
+                ],
+                "terminalDescription": "",
+                "children": [
+                  {
+                    "name": "Price <12363",
+                    "n": 10,
+                    "Percentage": "20%",
+                    "id": 16,
+                    "color": "#4174CC",
+                    "nodeDistribution": [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      1
+                    ],
+                    "overallDistribution": [
+                      0,
+                      0,
+                      0,
+                      0.0204081632653061,
+                      0.285714285714286,
+                      0.142857142857143,
+                      0.0408163265306122,
+                      0.0204081632653061,
+                      0.0204081632653061,
+                      0.469387755102041
+                    ],
+                    "nodeVariables": [
+                      "Brazil",
+                      "England",
+                      "France",
+                      "Germany",
+                      "Japan",
+                      "Japan/USA",
+                      "Korea",
+                      "Mexico",
+                      "Sweden",
+                      "USA"
+                    ],
+                    "terminalDescription": "Highest = USA"
+                  },
+                  {
+                    "name": "Price >12363",
+                    "n": 5,
+                    "Percentage": "10%",
+                    "id": 17,
+                    "color": "#6087CC",
+                    "nodeDistribution": [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0.2,
+                      0,
+                      0,
+                      0,
+                      0.8
+                    ],
+                    "overallDistribution": [
+                      0,
+                      0,
+                      0,
+                      0.0204081632653061,
+                      0.285714285714286,
+                      0.142857142857143,
+                      0.0408163265306122,
+                      0.0204081632653061,
+                      0.0204081632653061,
+                      0.469387755102041
+                    ],
+                    "nodeVariables": [
+                      "Brazil",
+                      "England",
+                      "France",
+                      "Germany",
+                      "Japan",
+                      "Japan/USA",
+                      "Korea",
+                      "Mexico",
+                      "Sweden",
+                      "USA"
+                    ],
+                    "terminalDescription": "Highest = USA"
+                  }
+                ]
+              },
+              {
+                "name": "Price >13222",
+                "n": 11,
+                "Percentage": "22%",
+                "id": 9,
+                "color": "#7997CC",
+                "nodeDistribution": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0.272727272727273,
+                  0,
+                  0,
+                  0,
+                  0.0909090909090909,
+                  0.636363636363636
+                ],
+                "overallDistribution": [
+                  0,
+                  0,
+                  0,
+                  0.0204081632653061,
+                  0.285714285714286,
+                  0.142857142857143,
+                  0.0408163265306122,
+                  0.0204081632653061,
+                  0.0204081632653061,
+                  0.469387755102041
+                ],
+                "nodeVariables": [
+                  "Brazil",
+                  "England",
+                  "France",
+                  "Germany",
+                  "Japan",
+                  "Japan/USA",
+                  "Korea",
+                  "Mexico",
+                  "Sweden",
+                  "USA"
+                ],
+                "terminalDescription": "",
+                "children": [
+                  {
+                    "name": "Price <16243.5",
+                    "n": 6,
+                    "Percentage": "12%",
+                    "id": 18,
+                    "color": "#5A84CC",
+                    "nodeDistribution": [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0.166666666666667,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0.833333333333333
+                    ],
+                    "overallDistribution": [
+                      0,
+                      0,
+                      0,
+                      0.0204081632653061,
+                      0.285714285714286,
+                      0.142857142857143,
+                      0.0408163265306122,
+                      0.0204081632653061,
+                      0.0204081632653061,
+                      0.469387755102041
+                    ],
+                    "nodeVariables": [
+                      "Brazil",
+                      "England",
+                      "France",
+                      "Germany",
+                      "Japan",
+                      "Japan/USA",
+                      "Korea",
+                      "Mexico",
+                      "Sweden",
+                      "USA"
+                    ],
+                    "terminalDescription": "Highest = USA"
+                  },
+                  {
+                    "name": "Price >16243.5",
+                    "n": 5,
+                    "Percentage": "10%",
+                    "id": 19,
+                    "color": "#A0B0CC",
+                    "nodeDistribution": [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0.4,
+                      0,
+                      0,
+                      0,
+                      0.2,
+                      0.4
+                    ],
+                    "overallDistribution": [
+                      0,
+                      0,
+                      0,
+                      0.0204081632653061,
+                      0.285714285714286,
+                      0.142857142857143,
+                      0.0408163265306122,
+                      0.0204081632653061,
+                      0.0204081632653061,
+                      0.469387755102041
+                    ],
+                    "nodeVariables": [
+                      "Brazil",
+                      "England",
+                      "France",
+                      "Germany",
+                      "Japan",
+                      "Japan/USA",
+                      "Korea",
+                      "Mexico",
+                      "Sweden",
+                      "USA"
+                    ],
+                    "terminalDescription": "Highest = Japan"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Type: Small",
+            "n": 6,
+            "Percentage": "12%",
+            "id": 5,
+            "color": "#A5B9CC",
+            "nodeDistribution": [
+              0,
+              0,
+              0,
+              0.166666666666667,
+              0,
+              0,
+              0.333333333333333,
+              0.166666666666667,
+              0,
+              0.333333333333333
+            ],
+            "overallDistribution": [
+              0,
+              0,
+              0,
+              0.0204081632653061,
+              0.285714285714286,
+              0.142857142857143,
+              0.0408163265306122,
+              0.0204081632653061,
+              0.0204081632653061,
+              0.469387755102041
+            ],
+            "nodeVariables": [
+              "Brazil",
+              "England",
+              "France",
+              "Germany",
+              "Japan",
+              "Japan/USA",
+              "Korea",
+              "Mexico",
+              "Sweden",
+              "USA"
+            ],
+            "terminalDescription": "Highest = USA"
+          }
+        ]
+      },
+      {
+        "name": "Reliability: Much better",
+        "n": 17,
+        "Percentage": "35%",
+        "id": 3,
+        "color": "#7B98CC",
+        "nodeDistribution": [
+          0,
+          0,
+          0,
+          0,
+          0.647058823529412,
+          0.352941176470588,
+          0,
+          0,
+          0,
+          0
+        ],
+        "overallDistribution": [
+          0,
+          0,
+          0,
+          0.0204081632653061,
+          0.285714285714286,
+          0.142857142857143,
+          0.0408163265306122,
+          0.0204081632653061,
+          0.0204081632653061,
+          0.469387755102041
+        ],
+        "nodeVariables": [
+          "Brazil",
+          "England",
+          "France",
+          "Germany",
+          "Japan",
+          "Japan/USA",
+          "Korea",
+          "Mexico",
+          "Sweden",
+          "USA"
+        ],
+        "terminalDescription": "",
+        "children": [
+          {
+            "name": "Type: Compact, Small",
+            "n": 11,
+            "Percentage": "22%",
+            "id": 6,
+            "color": "#A8CC90",
+            "nodeDistribution": [
+              0,
+              0,
+              0,
+              0,
+              0.454545454545455,
+              0.545454545454545,
+              0,
+              0,
+              0,
+              0
+            ],
+            "overallDistribution": [
+              0,
+              0,
+              0,
+              0.0204081632653061,
+              0.285714285714286,
+              0.142857142857143,
+              0.0408163265306122,
+              0.0204081632653061,
+              0.0204081632653061,
+              0.469387755102041
+            ],
+            "nodeVariables": [
+              "Brazil",
+              "England",
+              "France",
+              "Germany",
+              "Japan",
+              "Japan/USA",
+              "Korea",
+              "Mexico",
+              "Sweden",
+              "USA"
+            ],
+            "terminalDescription": "Highest = Japan/USA"
+          },
+          {
+            "name": "Type: Medium, Sporty, Van",
+            "n": 6,
+            "Percentage": "12%",
+            "id": 7,
+            "color": "#4777CC",
+            "nodeDistribution": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "overallDistribution": [
+              0,
+              0,
+              0,
+              0.0204081632653061,
+              0.285714285714286,
+              0.142857142857143,
+              0.0408163265306122,
+              0.0204081632653061,
+              0.0204081632653061,
+              0.469387755102041
+            ],
+            "nodeVariables": [
+              "Brazil",
+              "England",
+              "France",
+              "Germany",
+              "Japan",
+              "Japan/USA",
+              "Korea",
+              "Mexico",
+              "Sweden",
+              "USA"
+            ],
+            "terminalDescription": "Highest = Japan"
+          }
+        ]
+      }
+    ]
+  },
+  "opts": {
+    "name": "name",
+    "id": "id",
+    "value": "n",
+    "childrenName": "children",
+    "maxLabelLength": 25,
+    "nodeHeight": 100,
+    "terminalDescription": true,
+    "numericDistribution": true,
+    "tooltip": "tooltip"
+  }
+}

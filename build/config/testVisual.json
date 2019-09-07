@@ -1,7 +1,0 @@
-{
-  "browserWidth": 1280,
-  "browserHeight": 670,
-  "defaultMatchTimeout": 5,
-  "pageLoadWaitSeconds": 1,
-  "forceFullPageScreenshot": true
-}

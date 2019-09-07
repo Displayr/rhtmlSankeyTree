@@ -13,37 +13,18 @@ This package uses a customised htmlwidget package that allows local state saving
 ## Installation
 1. `library(devtools)`
 1. `install_github('Displayr/htmlwidgets')`
-1. `install_github('Displayr/rhtmlSankeyTree', auth_token='????????????????????')`
+1. `install_github('Displayr/rhtmlSankeyTree')`
 
 An example to verify installation:
 ```
-    library(rpart)
-    library(partykit)
-    library(pipeR)
-    library(rhtmlSankeyTree)
 
-    #set up a little rpart as an example
-    rp <- rpart(
-      hp ~ cyl + disp + mpg + drat + wt + qsec + vs + am + gear + carb,
-      method = "anova",
-      data = mtcars,
-      control = rpart.control(minsplit = 4)
-    )
+library(rhtmlSankeyTree)
 
-    # convert rpart to a hierarchy using convert_rpart in converters.R
-    rhtmlSankeyTree:::convert_rpart(rp)
+tree.list <- list(treeType = "Classification", name = "Overall", n = 726L, Percentage = "100%", id = 1, color = "#CC4242", nodeDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956 ), overallDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956), nodeVariables = c("1", "2", "3", "4", "5", "6", "7"), terminalDescription = "", children = list(list(name = "Fees: 1, 2, 3, 6", n = 429L, Percentage = "59%", id = 2, color = "#CC4E4E", nodeDistribution = c(0.00699300699300699, 0.123543123543124, 0.328671328671329, 0.375291375291375, 0.146853146853147, 0.0163170163170163, 0.00233100233100233 ), overallDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956), nodeVariables = c("1", "2", "3", "4", "5", "6", "7"), terminalDescription = "", children = list(list(name = "Fees: 1, 2", n = 139L, Percentage = "19%", id = 4, color = "#59CC44", nodeDistribution = c(0.0215827338129496, 0.215827338129496, 0.359712230215827, 0.273381294964029, 0.122302158273381, 0.00719424460431655, 0), overallDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956 ), nodeVariables = c("1", "2", "3", "4", "5", "6", "7"), terminalDescription = "Highest = 3"), list( name = "Fees: 3, 6", n = 290L, Percentage = "40%", id = 5, color = "#CC3434", nodeDistribution = c(0, 0.0793103448275862, 0.313793103448276, 0.424137931034483, 0.158620689655172, 0.0206896551724138, 0.00344827586206897 ), overallDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956), nodeVariables = c("1", "2", "3", "4", "5", "6", "7"), terminalDescription = "Highest = 4"))), list(name = "Fees: 4, 5, 7", n = 297L, Percentage = "41%", id = 3, color = "#CC3030", nodeDistribution = c(0.00336700336700337, 0.0235690235690236, 0.164983164983165, 0.430976430976431, 0.313131313131313, 0.063973063973064, 0), overallDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956 ), nodeVariables = c("1", "2", "3", "4", "5", "6", "7"), terminalDescription = "", children = list(list( name = "Fees: 4", n = 237L, Percentage = "33%", id = 6, color = "#CC1C1C", nodeDistribution = c(0, 0.0168776371308017, 0.172995780590717, 0.468354430379747, 0.29957805907173, 0.0421940928270042, 0), overallDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956 ), nodeVariables = c("1", "2", "3", "4", "5", "6", "7"), terminalDescription = "Highest = 4"), list(name = "Fees: 5, 7", n = 60L, Percentage = "8%", id = 7, color = "#7091CC", nodeDistribution = c(0.0166666666666667, 0.05, 0.133333333333333, 0.283333333333333, 0.366666666666667, 0.15, 0), overallDistribution = c(0.00550964187327824, 0.0826446280991736, 0.261707988980716, 0.398071625344353, 0.214876033057851, 0.0358126721763085, 0.00137741046831956 ), nodeVariables = c("1", "2", "3", "4", "5", "6", "7"), terminalDescription = "Highest = 5")))))
 
-    #see what it looks like
-    SankeyTree(rp)
+rhtmlSankeyTree::SankeyTree(tree.list, value = "n", nodeHeight = 100, numeric.distribution = TRUE, tooltip = "tooltip", terminalDescription = TRUE)
 
-    SankeyTree(rp, maxLabelLength = 25, nodeHeight = 100)
-
-    # do with kyphosis example
-    SankeyTree(
-      rpart(Kyphosis ~ Age + Number + Start, data = kyphosis),
-      maxLabelLength = 25,
-      nodeHeight = 100
-    )
+print(plt)
 ```
 
 # Local Installation to Develop/Contribute

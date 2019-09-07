@@ -1,6 +1,0 @@
-{
-  "widgetClassFile": "theSrc/scripts/lib/SankeyTree/SankeyTree.js",
-  "widgetEntryPoint": "theSrc/scripts/rhtmlSankeyTree.js",
-  "widgetName": "rhtmlSankeyTree",
-  "rFunction": "rhtmlSankeyTree::SankeyTree"
-}

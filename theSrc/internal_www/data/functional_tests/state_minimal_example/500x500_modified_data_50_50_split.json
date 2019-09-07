@@ -1,0 +1,79 @@
+{
+  "collapsed": {},
+  "normalisedData": {
+    "color": "#ff0000",
+    "id": "1",
+    "n": 100,
+    "name": "root",
+    "regressionData": {
+      "n": 100
+    },
+    "sankeyChildren": [
+      {
+        "color": "#0000ff",
+        "id": "2",
+        "n": 50,
+        "name": "top 1/2",
+        "regressionData": {
+          "n": 50
+        },
+        "sankeyChildren": [
+          {
+            "color": "#000022",
+            "id": "3",
+            "n": 25,
+            "name": "top 1/4",
+            "regressionData": {
+              "n": 25
+            },
+            "sankeyChildren": [],
+            "terminalDescription": "A",
+            "value": 25
+          },
+          {
+            "color": "#000088",
+            "id": "4",
+            "n": 25,
+            "name": "second 1/4",
+            "regressionData": {
+              "n": 25
+            },
+            "sankeyChildren": [],
+            "terminalDescription": "B",
+            "value": 25
+          }
+        ],
+        "terminalDescription": "",
+        "value": 50
+      },
+      {
+        "color": "#00ff00",
+        "id": "5",
+        "n": 50,
+        "name": "bottom 1/2",
+        "regressionData": {
+          "n": 50
+        },
+        "sankeyChildren": [],
+        "terminalDescription": "C",
+        "value": 50
+      }
+    ],
+    "terminalDescription": "",
+    "treeType": "Regression",
+    "value": 100
+  },
+  "plotSize": {
+    "height": 500,
+    "width": 500
+  },
+  "version": 1,
+  "widget": "sankey",
+  "zoom": {
+    "scale": 2.2591557581997352,
+    "translate": [
+      48.93513870239258,
+      74.51202392578125
+    ]
+  }
+}

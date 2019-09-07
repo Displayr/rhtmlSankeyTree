@@ -1,0 +1,81 @@
+{
+  "collapsed": {
+    "2": true
+  },
+  "normalisedData": {
+    "color": "#ff0000",
+    "id": "1",
+    "n": 100,
+    "name": "root",
+    "regressionData": {
+      "n": 100
+    },
+    "sankeyChildren": [
+      {
+        "color": "#0000ff",
+        "id": "2",
+        "n": 66.666666,
+        "name": "top 2/3",
+        "regressionData": {
+          "n": 66.666666
+        },
+        "sankeyChildren": [
+          {
+            "color": "#000022",
+            "id": "3",
+            "n": 33.333333,
+            "name": "top 1/3",
+            "regressionData": {
+              "n": 33.333333
+            },
+            "sankeyChildren": [],
+            "terminalDescription": "A",
+            "value": 33.333333
+          },
+          {
+            "color": "#000088",
+            "id": "4",
+            "n": 33.333333,
+            "name": "mid 1/3",
+            "regressionData": {
+              "n": 33.333333
+            },
+            "sankeyChildren": [],
+            "terminalDescription": "B",
+            "value": 33.333333
+          }
+        ],
+        "terminalDescription": "",
+        "value": 66.666666
+      },
+      {
+        "color": "#00ff00",
+        "id": "5",
+        "n": 33.333333,
+        "name": "bottom 1/3",
+        "regressionData": {
+          "n": 33.333333
+        },
+        "sankeyChildren": [],
+        "terminalDescription": "C",
+        "value": 33.333333
+      }
+    ],
+    "terminalDescription": "",
+    "treeType": "Regression",
+    "value": 100
+  },
+  "plotSize": {
+    "height": 500,
+    "width": 500
+  },
+  "version": 1,
+  "widget": "sankey",
+  "zoom": {
+    "scale": 3.5073683083827514,
+    "translate": [
+      85.15367603302002,
+      -77.52629852294922
+    ]
+  }
+}
