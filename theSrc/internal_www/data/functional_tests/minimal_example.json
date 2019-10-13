@@ -1,0 +1,48 @@
+{
+  "data": {
+    "treeType": "Regression",
+    "name": "root",
+    "n": 100,
+    "color": "#ff0000",
+    "terminalDescription": "",
+    "children": [
+      {
+        "name": "top 2/3",
+        "n": 66.666666,
+        "color": "#0000ff",
+        "terminalDescription": "",
+        "children": [
+          {
+            "name": "top 1/3",
+            "n": 33.333333,
+            "color": "#000022",
+            "terminalDescription": "A"
+          },
+          {
+            "name": "mid 1/3",
+            "n": 33.333333,
+            "color": "#000088",
+            "terminalDescription": "B"
+          }
+        ]
+      },
+      {
+        "name": "bottom 1/3",
+        "n": 33.333333,
+        "color": "#00ff00",
+        "terminalDescription": "C"
+      }
+    ]
+  },
+  "opts": {
+    "name": "name",
+    "id": "id",
+    "value": "n",
+    "childrenName": "children",
+    "maxLabelLength": 25,
+    "nodeHeight": 100,
+    "terminalDescription": true,
+    "numericDistribution": true,
+    "tooltip": "tooltip"
+  }
+}

@@ -10,3 +10,4 @@ URL: https://github.com/timelyportfolio/sankeytree
 BugReports: https://github.com/timelyportfolio/sankeytree/issues
 Suggests: 
     testthat
+RoxygenNote: 6.1.1
