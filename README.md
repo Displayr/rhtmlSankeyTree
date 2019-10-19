@@ -24,7 +24,6 @@ tree.list <- list(treeType = "Classification", name = "Overall", n = 726L, Perce
 
 rhtmlSankeyTree::SankeyTree(tree.list, value = "n", nodeHeight = 100, numeric.distribution = TRUE, tooltip = "tooltip", terminalDescription = TRUE)
 
-print(plt)
 ```
 
 # Local Installation to Develop/Contribute

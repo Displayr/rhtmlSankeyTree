@@ -67,7 +67,7 @@ class Sankey {
 
   updateContainerDimensions () {
     try {
-      const { width, height } = this.rootElement.getBoundingClientRect()
+      const { width, height } = adjustedClientRect(this.rootElement)
       _.assign(this, { width, height })
     } catch (err) {
       err.message = `fail in this.containerDimensions: ${err.message}`
@@ -133,6 +133,8 @@ class Sankey {
       .attr('height', height)
       // .style('border', '1px solid black') // DEBUG only
 
+    this.baseSvgRectInfo = adjustedClientRect(parts.baseSvg.node())
+
     parts.tree = d3.layout.tree()
       .size([height, width])
       .children(d => (plotState.isNodeCollapsed(d[ID])) ? null : d[CHILDREN])
@@ -144,7 +146,10 @@ class Sankey {
 
     parts.zoomListener = d3.behavior.zoom()
       .scaleExtent([minZoom, maxZoom])
-      .on('zoom', () => this.setZoom(d3.event))
+      .on('zoom', () => {
+        this.hideTooltip()
+        this.setZoom(d3.event)
+      })
 
     parts.svgGroup = parts.baseSvg
       .call(parts.zoomListener)
@@ -251,7 +256,7 @@ class Sankey {
       if (d3.event.defaultPrevented) return // click suppressed
 
       this.plotState.toggleNodeDisplay(d[ID])
-      this.hideTooltip(d)
+      this.hideTooltip()
       this.update({ transitionOrigin: d, showTransition: true })
 
       setTimeout(() => {
@@ -508,8 +513,9 @@ class Sankey {
 
     let currentTransformSettings = d3.transform(svgGroup.attr('transform'))
     svgGroup.attr('transform', `translate(${zoom.translate})scale(${zoom.scale})`)
-    const boundingRect = svgGroup.node().getBoundingClientRect()
+    const boundingRect = adjustedClientRect(svgGroup.node())
     svgGroup.attr('transform', `translate(${currentTransformSettings.translate})scale(${currentTransformSettings.scale})`)
+
     return boundingRect
   }
 
@@ -535,7 +541,7 @@ class Sankey {
     // apply the new scale and maintain the translation, then calculate the new translation
     const scaledTreeDimensions = this._getContentSizeAtSpecificZoom({ scale: newScale, translate: svgTrans.translate })
 
-    const rootOffset = rootElement.getBoundingClientRect()
+    const rootOffset = adjustedClientRect(rootElement)
 
     return {
       scale: newScale,
@@ -674,80 +680,67 @@ class Sankey {
   }
 
   _showTooltip ({ html, d, addTipToThisElement }) {
-    const { parts, width, height } = this
-    const { tipTriangle } = parts
+    const { parts, width } = this
+    const { tip, tipTriangle } = parts
 
-    parts.tip.html(html)
-    parts.tip.show({}, addTipToThisElement)
+    tip.html(html)
+    tip.show({}, addTipToThisElement)
 
-    const tipHeight = parseFloat(parts.tip.style('height'))
-    const tipWidth = parseFloat(parts.tip.style('width'))
+    const tipHeight = parseFloat(tip.style('height'))
+    const tipWidth = parseFloat(tip.style('width'))
 
-    const clientRect = addTipToThisElement.node().getBoundingClientRect()
-    const tipSouth = clientRect.bottom + 5
-    const tipNorth = clientRect.top - 5
-    const tipEast = clientRect.right + 5
-
-    let tipDirection = null
-    if (tipNorth - tipHeight >= 0) { tipDirection = 'n' } else if (height - tipSouth >= tipHeight) { tipDirection = 's' } else if (tipEast >= width * 0.5) { tipDirection = 'w' } else { tipDirection = 'e' }
+    const clientRect = adjustedClientRect(addTipToThisElement.node())
+    const triangleHeight = 7.5
+    const padding = 5
 
     let tipVariables = null
-    switch (tipDirection) {
-      case 'n':
-        tipVariables = {
-          triangleClass: 'northTipTriangle',
-          offset: [-10, 0],
-          triangleTop: (clientRect.top - 12.5),
-          triangleLeft: (clientRect.left + clientRect.width / 2 - 5)
-        }
-        break
-      case 'e':
-        tipVariables = {
-          triangleClass: 'eastTipTriangle',
-          offset: [0, 10],
-          triangleTop: (clientRect.top + clientRect.height / 2 - 5),
-          triangleLeft: (clientRect.right + 2.5)
-        }
-        break
-      case 's':
-        tipVariables = {
-          triangleClass: 'southTipTriangle',
-          offset: [10, 0],
-          triangleTop: (clientRect.bottom + 2.5),
-          triangleLeft: (clientRect.left + clientRect.width / 2 - 5)
-        }
-        break
-      case 'w':
-        tipVariables = {
-          triangleClass: 'westTipTriangle',
-          offset: [0, -10],
-          triangleTop: (clientRect.top + clientRect.height / 2 - 5),
-          triangleLeft: (clientRect.left - 12.5)
-        }
-        break
+    if (clientRect.top - padding - tipHeight > this.baseSvgRectInfo.top) {
+      tipVariables = {
+        tipDirection: 'n',
+        tipTop: clientRect.top - (triangleHeight + padding) - tipHeight,
+        triangleTopOffset: tipHeight,
+        tipLeft: (clientRect.left + clientRect.width / 2) - (tipWidth / 2),
+        triangleLeftOffset: tipWidth / 2 - padding
+      }
+    } else {
+      tipVariables = {
+        tipDirection: 's',
+        tipTop: clientRect.bottom + (triangleHeight + padding),
+        triangleTopOffset: -triangleHeight,
+        tipLeft: (clientRect.left + clientRect.width / 2) - (tipWidth / 2),
+        triangleLeftOffset: tipWidth / 2 - padding
+      }
     }
 
-    parts.tip.direction(tipDirection).offset(tipVariables.offset)
+    tip
+      .style('top', `${tipVariables.tipTop}px`)
+      .style('left', `${tipVariables.tipLeft}px`)
+
     tipTriangle
       .style('visibility', 'visible')
-      .attr('class', `tipTriangle ${tipVariables.triangleClass}`)
-      .style('top', `${tipVariables.triangleTop}px`)
-      .style('left', `${tipVariables.triangleLeft}px`)
+      .attr('class', `tipTriangle tipTriangle${tipVariables.tipDirection.toUpperCase()}`)
+      .style('top', `${tipVariables.tipTop + tipVariables.triangleTopOffset}px`)
+      .style('left', `${tipVariables.tipLeft + tipVariables.triangleLeftOffset}px`)
 
-    const tipLeft = parseFloat(parts.tip.style('left'))
-    const tipTop = parseFloat(parts.tip.style('top'))
-
-    if (tipLeft < 0) {
-      parts.tip.style('left', '5px')
-    } else if (tipLeft + tipWidth > width) {
-      parts.tip.style('left', (width - 5 - tipWidth) + 'px')
+    if (tipVariables.tipLeft < this.baseSvgRectInfo.left) {
+      tip.style('left', `${this.baseSvgRectInfo.left + 5}px`)
+    } else if (tipVariables.tipLeft + tipWidth > this.baseSvgRectInfo.left + width) {
+      tip.style('left', `${this.baseSvgRectInfo.left + width - 5 - tipWidth}px`)
+    }
+    if (tipVariables.tipLeft + tipVariables.triangleLeftOffset < this.baseSvgRectInfo.left + 10) {
+      tipTriangle.style('left', `${this.baseSvgRectInfo.left + 15}px`)
+    } else if (tipVariables.tipLeft + tipVariables.triangleLeftOffset > this.baseSvgRectInfo.left + width - 10) {
+      tipTriangle.style('left', `${this.baseSvgRectInfo.left + width - 15}px`)
     }
 
-    if (tipTop < 0) {
-      parts.tip.style('top', '5px')
-    } else if (tipTop + tipHeight > height) {
-      parts.tip.style('top', (height - tipHeight - 5) + 'px')
-    }
+    // NB I dont think this code is needed
+    // if (tipVariables.tipTop < this.baseSvgRectInfo.top) {
+    //   tip.style('top', `${this.baseSvgRectInfo.top}px`)
+    //   tipTriangle.style('top', `${this.baseSvgRectInfo.top + tipVariables.triangleTopOffset}px`)
+    // } else if (tipVariables.tipTop + tipHeight > this.baseSvgRectInfo.top + height) {
+    //   tip.style('top', `${this.baseSvgRectInfo.top + height - tipHeight - 5}px`)
+    //   tipTriangle.style('top', `${this.baseSvgRectInfo.top + height - tipHeight - 5 + tipVariables.triangleTopOffset}px`)
+    // }
   }
 
   showNodeTooltip (d) {
@@ -785,10 +778,10 @@ class Sankey {
     this._showTooltip({ html, d, addTipToThisElement })
   }
 
-  hideTooltip (d) {
+  hideTooltip () {
     const { parts: { tipTriangle, tip } } = this
     tipTriangle.style('visibility', 'hidden')
-    tip.hide(d)
+    tip.hide()
   }
 
   updateNodePos (source, value) {
@@ -901,4 +894,15 @@ function visit (parent, visitFn, childrenFn) {
   var children = childrenFn(parent)
   _(children)
     .each(child => visit(child, visitFn, childrenFn))
+}
+
+function adjustedClientRect (node) {
+  const unadjustedValues = _.pick(node.getBoundingClientRect(), ['x', 'y', 'width', 'height', 'top', 'right', 'bottom', 'left'])
+  unadjustedValues.top += window.scrollY
+  unadjustedValues.bottom += window.scrollY
+  unadjustedValues.y += window.scrollY
+  unadjustedValues.left += window.scrollX
+  unadjustedValues.right += window.scrollX
+  unadjustedValues.x += window.scrollX
+  return unadjustedValues
 }
