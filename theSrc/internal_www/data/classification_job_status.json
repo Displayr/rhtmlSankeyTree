@@ -1,0 +1,890 @@
+{
+  "data": {
+    "treeType": "Classification",
+    "categoryLegend": [
+      "Q4_A: OnAMo:OnAMo; OnEv2We:OnEv2We; OnAWe:OnAWe; 2To3DaAWe:2To3DaAWe; 4To5DaAWe:4To5DaAWe; EvOrNeEvDa:EvOrNeEvDa",
+      "Q4_B: Nev:Nev; OnOrTwAYe:OnOrTwAYe; OnEv3Mo:OnEv3Mo; OnAMo:OnAMo; OnEv2We:OnEv2We; OnAWe:OnAWe; 2To3DaAWe:2To3DaAWe; 4To5DaAWe:4To5DaAWe; EvOrNeEvDa:EvOrNeEvDa",
+      "Q2: Mal:Mal; Fem:Fem",
+      "Q3: 18To24:18To24; 25To29:25To29; 30To34:30To34; 35To39:35To39; 40To44:40To44; 45To49:45To49; 50To54:50To54; 55To64:55To64; 65OrMo:65OrMo",
+      "Q4_C: Nev:Nev; OnOrTwAYe:OnOrTwAYe; OnEv3Mo:OnEv3Mo; OnAMo:OnAMo; OnEv2We:OnEv2We; OnAWe:OnAWe; 2To3DaAWe:2To3DaAWe; 4To5DaAWe:4To5DaAWe; EvOrNeEvDa:EvOrNeEvDa"
+    ],
+    "name": "Q31. Work status",
+    "n": 327,
+    "Percentage": "100%",
+    "id": 1,
+    "color": "#CC9C7C",
+    "nodeDistribution": [
+      0.529051987767584,
+      0.174311926605505,
+      0.100917431192661,
+      0.131498470948012,
+      0.0642201834862385
+    ],
+    "overallDistribution": [
+      0.529051987767584,
+      0.174311926605505,
+      0.100917431192661,
+      0.131498470948012,
+      0.0642201834862385
+    ],
+    "nodeVariables": [
+      "Working full time (30 or more hours per week)",
+      "Working part time (less than 30 hours a week)",
+      "Not in paid employment",
+      "Retired",
+      "Student"
+    ],
+    "terminalDescription": "",
+    "children": [
+      {
+        "name": "Q3. Age: 18To24, 25To29, 30To34, 35To39, 40To44, 45To49, 50To54",
+        "n": 254,
+        "Percentage": "78%",
+        "id": 2,
+        "color": "#CC9169",
+        "nodeDistribution": [
+          0.606299212598425,
+          0.177165354330709,
+          0.118110236220472,
+          0.0196850393700787,
+          0.078740157480315
+        ],
+        "overallDistribution": [
+          0.529051987767584,
+          0.174311926605505,
+          0.100917431192661,
+          0.131498470948012,
+          0.0642201834862385
+        ],
+        "nodeVariables": [
+          "Working full time (30 or more hours per week)",
+          "Working part time (less than 30 hours a week)",
+          "Not in paid employment",
+          "Retired",
+          "Student"
+        ],
+        "terminalDescription": "",
+        "children": [
+          {
+            "name": "Q3. Age: 25To29, 30To34, 35To39, 40To44, 45To49, 50To54",
+            "n": 210,
+            "Percentage": "64%",
+            "id": 4,
+            "color": "#CC8859",
+            "nodeDistribution": [
+              0.671428571428571,
+              0.176190476190476,
+              0.10952380952381,
+              0.0238095238095238,
+              0.019047619047619
+            ],
+            "overallDistribution": [
+              0.529051987767584,
+              0.174311926605505,
+              0.100917431192661,
+              0.131498470948012,
+              0.0642201834862385
+            ],
+            "nodeVariables": [
+              "Working full time (30 or more hours per week)",
+              "Working part time (less than 30 hours a week)",
+              "Not in paid employment",
+              "Retired",
+              "Student"
+            ],
+            "terminalDescription": "",
+            "children": [
+              {
+                "name": "Q2. Gender: Mal",
+                "n": 99,
+                "Percentage": "30%",
+                "id": 8,
+                "color": "#CC6F30",
+                "nodeDistribution": [
+                  0.838383838383838,
+                  0.0808080808080808,
+                  0.0303030303030303,
+                  0.0202020202020202,
+                  0.0303030303030303
+                ],
+                "overallDistribution": [
+                  0.529051987767584,
+                  0.174311926605505,
+                  0.100917431192661,
+                  0.131498470948012,
+                  0.0642201834862385
+                ],
+                "nodeVariables": [
+                  "Working full time (30 or more hours per week)",
+                  "Working part time (less than 30 hours a week)",
+                  "Not in paid employment",
+                  "Retired",
+                  "Student"
+                ],
+                "terminalDescription": "Highest = Working full time (30 or more hours per week)"
+              },
+              {
+                "name": "Q2. Gender: Fem",
+                "n": 111,
+                "Percentage": "34%",
+                "id": 9,
+                "color": "#CC9D7D",
+                "nodeDistribution": [
+                  0.522522522522523,
+                  0.261261261261261,
+                  0.18018018018018,
+                  0.027027027027027,
+                  0.00900900900900901
+                ],
+                "overallDistribution": [
+                  0.529051987767584,
+                  0.174311926605505,
+                  0.100917431192661,
+                  0.131498470948012,
+                  0.0642201834862385
+                ],
+                "nodeVariables": [
+                  "Working full time (30 or more hours per week)",
+                  "Working part time (less than 30 hours a week)",
+                  "Not in paid employment",
+                  "Retired",
+                  "Student"
+                ],
+                "terminalDescription": "",
+                "children": [
+                  {
+                    "name": "Q4. Frequency of drinking cola: Sparkling mineral water: OnOrTwAYe, OnAMo, OnEv2We, 4To5DaAWe",
+                    "n": 51,
+                    "Percentage": "16%",
+                    "id": 18,
+                    "color": "#CC8B5F",
+                    "nodeDistribution": [
+                      0.647058823529412,
+                      0.176470588235294,
+                      0.137254901960784,
+                      0.0196078431372549,
+                      0.0196078431372549
+                    ],
+                    "overallDistribution": [
+                      0.529051987767584,
+                      0.174311926605505,
+                      0.100917431192661,
+                      0.131498470948012,
+                      0.0642201834862385
+                    ],
+                    "nodeVariables": [
+                      "Working full time (30 or more hours per week)",
+                      "Working part time (less than 30 hours a week)",
+                      "Not in paid employment",
+                      "Retired",
+                      "Student"
+                    ],
+                    "terminalDescription": "",
+                    "children": [
+                      {
+                        "name": "Q3. Age: 30To34, 40To44, 45To49",
+                        "n": 24,
+                        "Percentage": "7%",
+                        "id": 36,
+                        "color": "#CC9A79",
+                        "nodeDistribution": [
+                          0.541666666666667,
+                          0.333333333333333,
+                          0.125,
+                          0,
+                          0
+                        ],
+                        "overallDistribution": [
+                          0.529051987767584,
+                          0.174311926605505,
+                          0.100917431192661,
+                          0.131498470948012,
+                          0.0642201834862385
+                        ],
+                        "nodeVariables": [
+                          "Working full time (30 or more hours per week)",
+                          "Working part time (less than 30 hours a week)",
+                          "Not in paid employment",
+                          "Retired",
+                          "Student"
+                        ],
+                        "terminalDescription": "",
+                        "children": [
+                          {
+                            "name": "Q4. Frequency of drinking cola: Coffee: OnEv3Mo, OnAMo, OnEv2We, 2To3DaAWe, 4To5DaAWe",
+                            "n": 7,
+                            "Percentage": "2%",
+                            "id": 72,
+                            "color": "#CC6D2C",
+                            "nodeDistribution": [
+                              0.857142857142857,
+                              0,
+                              0.142857142857143,
+                              0,
+                              0
+                            ],
+                            "overallDistribution": [
+                              0.529051987767584,
+                              0.174311926605505,
+                              0.100917431192661,
+                              0.131498470948012,
+                              0.0642201834862385
+                            ],
+                            "nodeVariables": [
+                              "Working full time (30 or more hours per week)",
+                              "Working part time (less than 30 hours a week)",
+                              "Not in paid employment",
+                              "Retired",
+                              "Student"
+                            ],
+                            "terminalDescription": "Highest = Working full time (30 or more hours per week)"
+                          },
+                          {
+                            "name": "Q4. Frequency of drinking cola: Coffee: Nev, OnOrTwAYe, EvOrNeEvDa",
+                            "n": 17,
+                            "Percentage": "5%",
+                            "id": 73,
+                            "color": "#9CB5CC",
+                            "nodeDistribution": [
+                              0.411764705882353,
+                              0.470588235294118,
+                              0.117647058823529,
+                              0,
+                              0
+                            ],
+                            "overallDistribution": [
+                              0.529051987767584,
+                              0.174311926605505,
+                              0.100917431192661,
+                              0.131498470948012,
+                              0.0642201834862385
+                            ],
+                            "nodeVariables": [
+                              "Working full time (30 or more hours per week)",
+                              "Working part time (less than 30 hours a week)",
+                              "Not in paid employment",
+                              "Retired",
+                              "Student"
+                            ],
+                            "terminalDescription": "Highest = Working part time (less than 30 hours a week)"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "Q3. Age: 25To29, 35To39, 50To54",
+                        "n": 27,
+                        "Percentage": "8%",
+                        "id": 37,
+                        "color": "#CC7D48",
+                        "nodeDistribution": [
+                          0.740740740740741,
+                          0.037037037037037,
+                          0.148148148148148,
+                          0.037037037037037,
+                          0.037037037037037
+                        ],
+                        "overallDistribution": [
+                          0.529051987767584,
+                          0.174311926605505,
+                          0.100917431192661,
+                          0.131498470948012,
+                          0.0642201834862385
+                        ],
+                        "nodeVariables": [
+                          "Working full time (30 or more hours per week)",
+                          "Working part time (less than 30 hours a week)",
+                          "Not in paid employment",
+                          "Retired",
+                          "Student"
+                        ],
+                        "terminalDescription": "Highest = Working full time (30 or more hours per week)"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Q4. Frequency of drinking cola: Sparkling mineral water: Nev, OnEv3Mo, OnAWe, 2To3DaAWe, EvOrNeEvDa",
+                    "n": 60,
+                    "Percentage": "18%",
+                    "id": 19,
+                    "color": "#CCAD97",
+                    "nodeDistribution": [
+                      0.416666666666667,
+                      0.333333333333333,
+                      0.216666666666667,
+                      0.0333333333333333,
+                      0
+                    ],
+                    "overallDistribution": [
+                      0.529051987767584,
+                      0.174311926605505,
+                      0.100917431192661,
+                      0.131498470948012,
+                      0.0642201834862385
+                    ],
+                    "nodeVariables": [
+                      "Working full time (30 or more hours per week)",
+                      "Working part time (less than 30 hours a week)",
+                      "Not in paid employment",
+                      "Retired",
+                      "Student"
+                    ],
+                    "terminalDescription": "",
+                    "children": [
+                      {
+                        "name": "Q3. Age: 25To29, 35To39, 40To44, 50To54",
+                        "n": 42,
+                        "Percentage": "13%",
+                        "id": 38,
+                        "color": "#CCA78E",
+                        "nodeDistribution": [
+                          0.452380952380952,
+                          0.380952380952381,
+                          0.119047619047619,
+                          0.0476190476190476,
+                          0
+                        ],
+                        "overallDistribution": [
+                          0.529051987767584,
+                          0.174311926605505,
+                          0.100917431192661,
+                          0.131498470948012,
+                          0.0642201834862385
+                        ],
+                        "nodeVariables": [
+                          "Working full time (30 or more hours per week)",
+                          "Working part time (less than 30 hours a week)",
+                          "Not in paid employment",
+                          "Retired",
+                          "Student"
+                        ],
+                        "terminalDescription": "",
+                        "children": [
+                          {
+                            "name": "Q4. Frequency of drinking cola: Coffee: OnOrTwAYe, OnEv2We, 2To3DaAWe",
+                            "n": 9,
+                            "Percentage": "3%",
+                            "id": 76,
+                            "color": "#CC885A",
+                            "nodeDistribution": [
+                              0.666666666666667,
+                              0.222222222222222,
+                              0,
+                              0.111111111111111,
+                              0
+                            ],
+                            "overallDistribution": [
+                              0.529051987767584,
+                              0.174311926605505,
+                              0.100917431192661,
+                              0.131498470948012,
+                              0.0642201834862385
+                            ],
+                            "nodeVariables": [
+                              "Working full time (30 or more hours per week)",
+                              "Working part time (less than 30 hours a week)",
+                              "Not in paid employment",
+                              "Retired",
+                              "Student"
+                            ],
+                            "terminalDescription": "Highest = Working full time (30 or more hours per week)"
+                          },
+                          {
+                            "name": "Q4. Frequency of drinking cola: Coffee: Nev, OnAWe, 4To5DaAWe, EvOrNeEvDa",
+                            "n": 33,
+                            "Percentage": "10%",
+                            "id": 77,
+                            "color": "#A5B9CC",
+                            "nodeDistribution": [
+                              0.393939393939394,
+                              0.424242424242424,
+                              0.151515151515152,
+                              0.0303030303030303,
+                              0
+                            ],
+                            "overallDistribution": [
+                              0.529051987767584,
+                              0.174311926605505,
+                              0.100917431192661,
+                              0.131498470948012,
+                              0.0642201834862385
+                            ],
+                            "nodeVariables": [
+                              "Working full time (30 or more hours per week)",
+                              "Working part time (less than 30 hours a week)",
+                              "Not in paid employment",
+                              "Retired",
+                              "Student"
+                            ],
+                            "terminalDescription": "",
+                            "children": [
+                              {
+                                "name": "Q4. Frequency of drinking cola: Colas (e.g., Coca Cola, Pepsi Max)?: 2To3DaAWe, 4To5DaAWe, EvOrNeEvDa",
+                                "n": 25,
+                                "Percentage": "8%",
+                                "id": 154,
+                                "color": "#CCA388",
+                                "nodeDistribution": [
+                                  0.48,
+                                  0.32,
+                                  0.16,
+                                  0.04,
+                                  0
+                                ],
+                                "overallDistribution": [
+                                  0.529051987767584,
+                                  0.174311926605505,
+                                  0.100917431192661,
+                                  0.131498470948012,
+                                  0.0642201834862385
+                                ],
+                                "nodeVariables": [
+                                  "Working full time (30 or more hours per week)",
+                                  "Working part time (less than 30 hours a week)",
+                                  "Not in paid employment",
+                                  "Retired",
+                                  "Student"
+                                ],
+                                "terminalDescription": "Highest = Working full time (30 or more hours per week)"
+                              },
+                              {
+                                "name": "Q4. Frequency of drinking cola: Colas (e.g., Coca Cola, Pepsi Max)?: OnAMo, OnEv2We, OnAWe",
+                                "n": 8,
+                                "Percentage": "2%",
+                                "id": 155,
+                                "color": "#6B9ECC",
+                                "nodeDistribution": [
+                                  0.125,
+                                  0.75,
+                                  0.125,
+                                  0,
+                                  0
+                                ],
+                                "overallDistribution": [
+                                  0.529051987767584,
+                                  0.174311926605505,
+                                  0.100917431192661,
+                                  0.131498470948012,
+                                  0.0642201834862385
+                                ],
+                                "nodeVariables": [
+                                  "Working full time (30 or more hours per week)",
+                                  "Working part time (less than 30 hours a week)",
+                                  "Not in paid employment",
+                                  "Retired",
+                                  "Student"
+                                ],
+                                "terminalDescription": "Highest = Working part time (less than 30 hours a week)"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "name": "Q3. Age: 30To34, 45To49",
+                        "n": 18,
+                        "Percentage": "6%",
+                        "id": 39,
+                        "color": "#8DCC81",
+                        "nodeDistribution": [
+                          0.333333333333333,
+                          0.222222222222222,
+                          0.444444444444444,
+                          0,
+                          0
+                        ],
+                        "overallDistribution": [
+                          0.529051987767584,
+                          0.174311926605505,
+                          0.100917431192661,
+                          0.131498470948012,
+                          0.0642201834862385
+                        ],
+                        "nodeVariables": [
+                          "Working full time (30 or more hours per week)",
+                          "Working part time (less than 30 hours a week)",
+                          "Not in paid employment",
+                          "Retired",
+                          "Student"
+                        ],
+                        "terminalDescription": "Highest = Not in paid employment"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Q3. Age: 18To24",
+            "n": 44,
+            "Percentage": "13%",
+            "id": 5,
+            "color": "#ABB7CC",
+            "nodeDistribution": [
+              0.295454545454545,
+              0.181818181818182,
+              0.159090909090909,
+              0,
+              0.363636363636364
+            ],
+            "overallDistribution": [
+              0.529051987767584,
+              0.174311926605505,
+              0.100917431192661,
+              0.131498470948012,
+              0.0642201834862385
+            ],
+            "nodeVariables": [
+              "Working full time (30 or more hours per week)",
+              "Working part time (less than 30 hours a week)",
+              "Not in paid employment",
+              "Retired",
+              "Student"
+            ],
+            "terminalDescription": "",
+            "children": [
+              {
+                "name": "Q4. Frequency of drinking cola: Coffee: Nev, OnOrTwAYe, OnEv2We, OnAWe, EvOrNeEvDa",
+                "n": 32,
+                "Percentage": "1e+01%",
+                "id": 10,
+                "color": "#CCBCB1",
+                "nodeDistribution": [
+                  0.3125,
+                  0.25,
+                  0.21875,
+                  0,
+                  0.21875
+                ],
+                "overallDistribution": [
+                  0.529051987767584,
+                  0.174311926605505,
+                  0.100917431192661,
+                  0.131498470948012,
+                  0.0642201834862385
+                ],
+                "nodeVariables": [
+                  "Working full time (30 or more hours per week)",
+                  "Working part time (less than 30 hours a week)",
+                  "Not in paid employment",
+                  "Retired",
+                  "Student"
+                ],
+                "terminalDescription": "",
+                "children": [
+                  {
+                    "name": "Q4. Frequency of drinking cola: Sparkling mineral water: OnOrTwAYe, OnAMo, OnAWe, 2To3DaAWe, 4To5DaAWe",
+                    "n": 16,
+                    "Percentage": "5%",
+                    "id": 20,
+                    "color": "#CC9774",
+                    "nodeDistribution": [
+                      0.5625,
+                      0.125,
+                      0,
+                      0,
+                      0.3125
+                    ],
+                    "overallDistribution": [
+                      0.529051987767584,
+                      0.174311926605505,
+                      0.100917431192661,
+                      0.131498470948012,
+                      0.0642201834862385
+                    ],
+                    "nodeVariables": [
+                      "Working full time (30 or more hours per week)",
+                      "Working part time (less than 30 hours a week)",
+                      "Not in paid employment",
+                      "Retired",
+                      "Student"
+                    ],
+                    "terminalDescription": "Highest = Working full time (30 or more hours per week)"
+                  },
+                  {
+                    "name": "Q4. Frequency of drinking cola: Sparkling mineral water: Nev, OnEv3Mo, OnEv2We, EvOrNeEvDa",
+                    "n": 16,
+                    "Percentage": "5%",
+                    "id": 21,
+                    "color": "#8ECC83",
+                    "nodeDistribution": [
+                      0.0625,
+                      0.375,
+                      0.4375,
+                      0,
+                      0.125
+                    ],
+                    "overallDistribution": [
+                      0.529051987767584,
+                      0.174311926605505,
+                      0.100917431192661,
+                      0.131498470948012,
+                      0.0642201834862385
+                    ],
+                    "nodeVariables": [
+                      "Working full time (30 or more hours per week)",
+                      "Working part time (less than 30 hours a week)",
+                      "Not in paid employment",
+                      "Retired",
+                      "Student"
+                    ],
+                    "terminalDescription": "Highest = Not in paid employment"
+                  }
+                ]
+              },
+              {
+                "name": "Q4. Frequency of drinking cola: Coffee: OnEv3Mo, OnAMo, 2To3DaAWe, 4To5DaAWe",
+                "n": 12,
+                "Percentage": "4%",
+                "id": 11,
+                "color": "#5E85CC",
+                "nodeDistribution": [
+                  0.25,
+                  0,
+                  0,
+                  0,
+                  0.75
+                ],
+                "overallDistribution": [
+                  0.529051987767584,
+                  0.174311926605505,
+                  0.100917431192661,
+                  0.131498470948012,
+                  0.0642201834862385
+                ],
+                "nodeVariables": [
+                  "Working full time (30 or more hours per week)",
+                  "Working part time (less than 30 hours a week)",
+                  "Not in paid employment",
+                  "Retired",
+                  "Student"
+                ],
+                "terminalDescription": "Highest = Student"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Q3. Age: 55To64, 65OrMo",
+        "n": 73,
+        "Percentage": "22%",
+        "id": 3,
+        "color": "#CC7777",
+        "nodeDistribution": [
+          0.26027397260274,
+          0.164383561643836,
+          0.0410958904109589,
+          0.520547945205479,
+          0.0136986301369863
+        ],
+        "overallDistribution": [
+          0.529051987767584,
+          0.174311926605505,
+          0.100917431192661,
+          0.131498470948012,
+          0.0642201834862385
+        ],
+        "nodeVariables": [
+          "Working full time (30 or more hours per week)",
+          "Working part time (less than 30 hours a week)",
+          "Not in paid employment",
+          "Retired",
+          "Student"
+        ],
+        "terminalDescription": "",
+        "children": [
+          {
+            "name": "Q3. Age: 55To64",
+            "n": 51,
+            "Percentage": "16%",
+            "id": 6,
+            "color": "#CCB3A2",
+            "nodeDistribution": [
+              0.372549019607843,
+              0.176470588235294,
+              0.0588235294117647,
+              0.372549019607843,
+              0.0196078431372549
+            ],
+            "overallDistribution": [
+              0.529051987767584,
+              0.174311926605505,
+              0.100917431192661,
+              0.131498470948012,
+              0.0642201834862385
+            ],
+            "nodeVariables": [
+              "Working full time (30 or more hours per week)",
+              "Working part time (less than 30 hours a week)",
+              "Not in paid employment",
+              "Retired",
+              "Student"
+            ],
+            "terminalDescription": "",
+            "children": [
+              {
+                "name": "Q4. Frequency of drinking cola: Colas (e.g., Coca Cola, Pepsi Max)?: OnAMo, OnEv2We, OnAWe, 4To5DaAWe, EvOrNeEvDa",
+                "n": 40,
+                "Percentage": "12%",
+                "id": 12,
+                "color": "#CCA88F",
+                "nodeDistribution": [
+                  0.45,
+                  0.225,
+                  0.075,
+                  0.25,
+                  0
+                ],
+                "overallDistribution": [
+                  0.529051987767584,
+                  0.174311926605505,
+                  0.100917431192661,
+                  0.131498470948012,
+                  0.0642201834862385
+                ],
+                "nodeVariables": [
+                  "Working full time (30 or more hours per week)",
+                  "Working part time (less than 30 hours a week)",
+                  "Not in paid employment",
+                  "Retired",
+                  "Student"
+                ],
+                "terminalDescription": "",
+                "children": [
+                  {
+                    "name": "Q4. Frequency of drinking cola: Coffee: OnAMo, 2To3DaAWe, EvOrNeEvDa",
+                    "n": 23,
+                    "Percentage": "7%",
+                    "id": 24,
+                    "color": "#CC7E49",
+                    "nodeDistribution": [
+                      0.739130434782609,
+                      0.0869565217391304,
+                      0.130434782608696,
+                      0.0434782608695652,
+                      0
+                    ],
+                    "overallDistribution": [
+                      0.529051987767584,
+                      0.174311926605505,
+                      0.100917431192661,
+                      0.131498470948012,
+                      0.0642201834862385
+                    ],
+                    "nodeVariables": [
+                      "Working full time (30 or more hours per week)",
+                      "Working part time (less than 30 hours a week)",
+                      "Not in paid employment",
+                      "Retired",
+                      "Student"
+                    ],
+                    "terminalDescription": "Highest = Working full time (30 or more hours per week)"
+                  },
+                  {
+                    "name": "Q4. Frequency of drinking cola: Coffee: Nev, OnEv2We, OnAWe, 4To5DaAWe",
+                    "n": 17,
+                    "Percentage": "5%",
+                    "id": 25,
+                    "color": "#CC7575",
+                    "nodeDistribution": [
+                      0.0588235294117647,
+                      0.411764705882353,
+                      0,
+                      0.529411764705882,
+                      0
+                    ],
+                    "overallDistribution": [
+                      0.529051987767584,
+                      0.174311926605505,
+                      0.100917431192661,
+                      0.131498470948012,
+                      0.0642201834862385
+                    ],
+                    "nodeVariables": [
+                      "Working full time (30 or more hours per week)",
+                      "Working part time (less than 30 hours a week)",
+                      "Not in paid employment",
+                      "Retired",
+                      "Student"
+                    ],
+                    "terminalDescription": "Highest = Retired"
+                  }
+                ]
+              },
+              {
+                "name": "Q4. Frequency of drinking cola: Colas (e.g., Coca Cola, Pepsi Max)?: 2To3DaAWe",
+                "n": 11,
+                "Percentage": "3%",
+                "id": 13,
+                "color": "#CC2828",
+                "nodeDistribution": [
+                  0.0909090909090909,
+                  0,
+                  0,
+                  0.818181818181818,
+                  0.0909090909090909
+                ],
+                "overallDistribution": [
+                  0.529051987767584,
+                  0.174311926605505,
+                  0.100917431192661,
+                  0.131498470948012,
+                  0.0642201834862385
+                ],
+                "nodeVariables": [
+                  "Working full time (30 or more hours per week)",
+                  "Working part time (less than 30 hours a week)",
+                  "Not in paid employment",
+                  "Retired",
+                  "Student"
+                ],
+                "terminalDescription": "Highest = Retired"
+              }
+            ]
+          },
+          {
+            "name": "Q3. Age: 65OrMo",
+            "n": 22,
+            "Percentage": "7%",
+            "id": 7,
+            "color": "#CC1C1C",
+            "nodeDistribution": [
+              0,
+              0.136363636363636,
+              0,
+              0.863636363636364,
+              0
+            ],
+            "overallDistribution": [
+              0.529051987767584,
+              0.174311926605505,
+              0.100917431192661,
+              0.131498470948012,
+              0.0642201834862385
+            ],
+            "nodeVariables": [
+              "Working full time (30 or more hours per week)",
+              "Working part time (less than 30 hours a week)",
+              "Not in paid employment",
+              "Retired",
+              "Student"
+            ],
+            "terminalDescription": "Highest = Retired"
+          }
+        ]
+      }
+    ]
+  },
+  "opts": {
+    "name": "name",
+    "id": "id",
+    "value": "n",
+    "childrenName": "children",
+    "maxLabelLength": 25,
+    "nodeHeight": 100,
+    "terminalDescription": true,
+    "numericDistribution": true,
+    "tooltip": "tooltip"
+  }
+}

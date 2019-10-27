@@ -155,7 +155,7 @@ td.tipColumn {
     border-top: 1px dashed #efefef;
 }
 
-.tipTriangle {
+.tipTriangleN {
 	width: 0;
 	height: 0;
 	border-left: 5px solid transparent;
@@ -164,4 +164,15 @@ td.tipColumn {
 	font-size: 0;
 	line-height: 0;
 	position: absolute;
+}
+
+.tipTriangleS {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid #333;
+    font-size: 0;
+    line-height: 0;
+    position: absolute;
 }
