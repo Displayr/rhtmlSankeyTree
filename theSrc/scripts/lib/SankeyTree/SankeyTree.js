@@ -147,8 +147,9 @@ class Sankey {
     parts.zoomListener = d3.behavior.zoom()
       .scaleExtent([minZoom, maxZoom])
       .on('zoom', () => {
+        console.log('on zoom')
         this.hideTooltip()
-        this.setZoom(d3.event)
+        this.setZoom({ zoom: d3.event, saveState: false })
       })
 
     parts.svgGroup = parts.baseSvg
@@ -180,11 +181,12 @@ class Sankey {
     }
 
     const zoom = this.plotState.getZoom() || this.calculateNewZoom()
-    this.setZoom(zoom)
+    this.setZoom({ zoom })
   }
 
   // TODO make the transition param not suck
-  setZoom ({ scale, translate }, showTransition = false) {
+  setZoom ({ zoom, showTransition = false, saveState = true }) {
+    const { scale, translate } = zoom
     const {
       parts: { svgGroup },
       constants: { transitionDuration }
@@ -201,7 +203,7 @@ class Sankey {
     this.parts.zoomListener.translate(translate)
 
     conditionallyAddTransition(svgGroup).attr('transform', `translate(${translate})scale(${scale})`)
-    this.plotState.setZoom({ scale, translate })
+    this.plotState.setZoom({ scale, translate, saveState })
   }
 
   update ({ transitionOrigin = null, initialization = false, showTransition = false } = {}) {
@@ -261,7 +263,7 @@ class Sankey {
 
       setTimeout(() => {
         let newZoom = this.calculateNewZoom()
-        this.setZoom(newZoom, true)
+        this.setZoom({ zoom: newZoom, showTransition: true })
       }, transitionDuration + 10)
     }
 
