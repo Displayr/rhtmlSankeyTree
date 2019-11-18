@@ -1,4 +1,4 @@
-import Sankey from './lib/SankeyTree/SankeyTree'
+import OuterPlot from './lib/outerPlot'
 import _ from 'lodash'
 
 // ATTRIBUTION:  much of this JavaScript code
@@ -12,11 +12,11 @@ module.exports = function (element, ignoredWidth, ignoredHeight, stateChangedFn 
   let configCopy = null
   let stateCopy = null
 
-  let sankey = new Sankey(element)
+  let outerPlot = new OuterPlot(element)
 
   function doRenderValue (config, state) {
-    sankey.init()
-    sankey.setDataAndOpts(config.opts, config.data)
+    outerPlot.reset()
+    outerPlot.setDataAndOpts(config.data, config.opts)
 
     // NB when sankey is zoomed it calls the state fn 100 of times per second,
     // debouncing reduces the number of calls while guaranteeing the last state update is always passed back to callee
@@ -25,23 +25,23 @@ module.exports = function (element, ignoredWidth, ignoredHeight, stateChangedFn 
       stateChangedFn(_.assign(newState, { timestamp: Date.now() }))
     }, STATE_CALLBACK_DEBOUNCE_INTERVAL)
 
-    sankey.addStateListener(debouncedStateChanged)
-    sankey.addStateListener(newState => { stateCopy = newState })
-    sankey.setState(state)
-    sankey.draw()
+    outerPlot.addStateListener(debouncedStateChanged)
+    outerPlot.addStateListener(newState => { stateCopy = newState })
+    outerPlot.setState(state)
+    outerPlot.draw()
   }
 
   return {
     resize () {
       console.log('resize was called')
-      return doRenderValue(configCopy, stateCopy)
+      doRenderValue(configCopy, stateCopy)
     },
 
     renderValue (config, state) {
       console.log('renderValue was called')
       configCopy = _.cloneDeep(config)
       stateCopy = _.cloneDeep(state)
-      return doRenderValue(config, state)
+      doRenderValue(config, state)
     }
   }
 }

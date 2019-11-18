@@ -1,6 +1,5 @@
 import d3 from 'd3'
 import _ from 'lodash'
-import PlotState from './plotState'
 import { createClTips, createRgTips } from './tooltipContent'
 import { splitIntoLinesByWord } from './../labelUtils'
 const d3Tip = require('d3-tip')
@@ -15,35 +14,15 @@ const VALUE = 'value'
 const CHILDREN = 'sankeyChildren' // 'children' is a reserved field that d3.tree will manipulate, so dont use it !
 const STATE_VERSION = 1
 
-class Sankey {
-  static initClass () {
-    this.widgetIndex = 0
-    this.widgetName = 'sankey'
-  }
-
-  constructor (unsanitisedRootElement) {
-    this.id = `${Sankey.widgetName}-${Sankey.widgetIndex++}`
-    this.rootElement = _.has(unsanitisedRootElement, 'length') ? unsanitisedRootElement[0] : unsanitisedRootElement
-    this.registeredStateListeners = []
-
-    // bind listeners to self so they can be invoked without losing access to class instance
-    this.showNodeTooltip = this.showNodeTooltip.bind(this)
-    this.showTruncatedTextTooltip = this.showTruncatedTextTooltip.bind(this)
-    this.showTruncatedTerminalTextTooltip = this.showTruncatedTerminalTextTooltip.bind(this)
-    this.hideTooltip = this.hideTooltip.bind(this)
-  }
-
-  init () {
-    this.registeredStateListeners.forEach(dergisterFn => dergisterFn())
-    this.rootElement.innerHTML = ''
-    d3.select(document).selectAll('.d3-tip').remove()
-    d3.select(document).selectAll('#littleTriangle').remove()
+class SankeyTree {
+  constructor ({ parentContainer, config, data, plotState }) {
+    this.rootElement = parentContainer
+    this.plotState = plotState
     this.updateContainerDimensions()
 
     _.assign(this, {
-      plotState: new PlotState(),
-      data: null,
-      opts: null,
+      data: data,
+      opts: config,
       registeredStateListeners: [],
       computed: {},
       constants: {
@@ -61,45 +40,29 @@ class Sankey {
         transitionDuration: 400,
         treeMargins: { top: 5, left: 10, bottom: 5, right: 10 }
       },
-      parts: {}
+      parts: {
+        baseSvg: this.rootElement // TODO figure out which, i dont need both
+      }
     })
+
+    // bind listeners to self so they can be invoked without losing access to class instance
+    this.showNodeTooltip = this.showNodeTooltip.bind(this)
+    this.showTruncatedTextTooltip = this.showTruncatedTextTooltip.bind(this)
+    this.showTruncatedTerminalTextTooltip = this.showTruncatedTerminalTextTooltip.bind(this)
+    this.hideTooltip = this.hideTooltip.bind(this)
   }
+
+  // init () {
+  // }
 
   updateContainerDimensions () {
     try {
-      const { width, height } = adjustedClientRect(this.rootElement)
+      const { width, height } = adjustedClientRect(this.rootElement.node())
       _.assign(this, { width, height })
     } catch (err) {
       err.message = `fail in this.containerDimensions: ${err.message}`
       throw err
     }
-  }
-
-  normaliseData (data, opts) {
-    let idIterator = 1
-
-    const extractAndRecurse = (node) => {
-      return {
-        ...(node.treeType && { treeType: node.treeType }), // for tooltips
-        ...(node.nodeDistribution && { nodeDistribution: node.nodeDistribution }), // for tooltips
-        ...(node.nodeVariables && { nodeVariables: node.nodeVariables }), // for tooltips
-        ...(node.overallDistribution && { overallDistribution: node.overallDistribution }), // for tooltips
-        regressionData: { // for regression tooltips
-          ...(node.y && { y: node.y }),
-          ...(node.y0 && { y0: node.y0 }),
-          ...(node.n && { n: node.n })
-        },
-        [ID]: `${(node[opts.id || ID] || idIterator++)}`.replace(/ /g, ''),
-        [NAME]: node[opts.name || NAME],
-        [VALUE]: node[opts.value || VALUE],
-        [CHILDREN]: _(node[opts.childrenName] || node[CHILDREN] || node._children).map(extractAndRecurse).value(),
-        terminalDescription: node.terminalDescription,
-        color: node.color,
-        n: node.n
-      }
-    }
-
-    return extractAndRecurse(data)
   }
 
   computeThings () {
@@ -121,18 +84,15 @@ class Sankey {
     })
   }
 
-  draw () {
+  draw (bounds) {
+    // XXX TODO this needs to be cleaner up
+    this.width = bounds.width
+    this.height = bounds.height
+
     this.computeThings()
     const { plotState, data, opts, computed, parts, height, width, constants: { minZoom, maxZoom } } = this
 
-    parts.baseSvg = d3.select(this.rootElement)
-      .append('svg')
-      .attr('id', this.id)
-      .attr('class', 'svg-content-responsive')
-      .attr('width', width)
-      .attr('height', height)
-      // .style('border', '1px solid black') // DEBUG only
-
+    // YOU ARE HERE
     this.baseSvgRectInfo = adjustedClientRect(parts.baseSvg.node())
 
     parts.tree = d3.layout.tree()
@@ -610,14 +570,9 @@ class Sankey {
       .max()
   }
 
-  setDataAndOpts (opts, data) {
-    this.opts = opts
-    this.data = this.normaliseData(data, this.opts)
-  }
-
   static defaultState () {
     return _.cloneDeep({
-      widget: Sankey.widgetName,
+      widget: SankeyTree.widgetName,
       version: 1,
       normalisedData: {},
       plotSize: { width: null, height: null },
@@ -647,7 +602,7 @@ class Sankey {
     }
 
     const { constants: { stateResizeTolerance } } = this
-    const isSankeyState = (_.get(previousState, 'widget') === Sankey.widgetName)
+    const isSankeyState = (_.get(previousState, 'widget') === SankeyTree.widgetName)
     const isCorrectVersion = (_.get(previousState, 'version') === STATE_VERSION)
     const dataIsSame = _.isEqual(this.data, _.get(previousState, 'normalisedData'))
 
@@ -672,7 +627,7 @@ class Sankey {
 
   resetState () {
     const { width, height, data: normalisedData } = this
-    this.plotState.setState(_.merge({}, Sankey.defaultState(), { normalisedData, plotSize: { width, height } }))
+    this.plotState.setState(_.merge({}, SankeyTree.defaultState(), { normalisedData, plotSize: { width, height } }))
   }
 
   addStateListener (listener) {
@@ -884,8 +839,7 @@ class Sankey {
   }
 }
 
-Sankey.initClass()
-module.exports = Sankey
+module.exports = SankeyTree
 
 // A recursive helper function for performing some setup by walking through all nodes
 function visit (parent, visitFn, childrenFn) {

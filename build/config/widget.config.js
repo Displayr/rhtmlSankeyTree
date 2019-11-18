@@ -10,7 +10,7 @@ module.exports = {
   internalWebSettings: {
     includeDimensionsOnWidgetDiv: true,
     default_border: false,
-    isReadySelector: 'svg.svg-content-responsive',
+    isReadySelector: 'svg.svgContent',
     css: [
       '/style/rhtmlSankeyTree.css'
     ],
