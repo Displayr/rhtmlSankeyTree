@@ -8,6 +8,12 @@ SankeyTree(data = NULL, name = "name", id = "id", value = "size",
   childrenName = "children", maxLabelLength = 25, nodeHeight = 100,
   tooltip = NULL, treeColors = FALSE, categoryLegend = FALSE,
   terminalDescription = FALSE, numeric.distribution = TRUE,
+  footer = NULL, footer.font.size = 11,
+  footer.font.family = "sans-serif", footer.font.color = "#000000",
+  subtitle = NULL, subtitle.font.size = 18,
+  subtitle.font.family = "sans-serif", subtitle.font.color = "#000000",
+  title = NULL, title.font.size = 24,
+  title.font.family = "sans-serif", title.font.color = "#000000",
   width = NULL, height = NULL)
 }
 \arguments{
@@ -30,6 +36,30 @@ SankeyTree(data = NULL, name = "name", id = "id", value = "size",
 \item{terminalDescription}{Logical. Add description for terminal nodes? Defaults to FALSE.}
 
 \item{numeric.distribution}{Logical. Show numerical distribution for each node? If regression tree, then a histogram is plotted. If classification tree, then a horizontal bar plot is drawn. Defaults to TRUE.}
+
+\item{footer}{character. Sets the footer of the chart, defaults to NULL. The footer is left-aligned.}
+
+\item{footer.font.size}{integer. Font size of the chart footer.font.size, defaults to 11 pixcels.}
+
+\item{footer.font.family}{character. Font family of the chart footer.font.family, defaults to "sans-serif".}
+
+\item{footer.font.color}{An RGB character to set the color of the chart footer.font.color. Defaults to "#000000".}
+
+\item{subtitle}{character. Sets the subtitle of the chart, defaults to NULL. The subtitle is centred.}
+
+\item{subtitle.font.size}{integer. Font size of the chart subtitle, defaults to 18 pixcels.}
+
+\item{subtitle.font.family}{character. Font family of the chart subtitle, defaults to "sans-serif".}
+
+\item{subtitle.font.color}{An RGB character to set the color of the chart subtitle. Defaults to "#000000".}
+
+\item{title}{character. Sets the title of the chart, defaults to NULL. The title is centred.}
+
+\item{title.font.size}{integer. Font size of the chart title, defaults to 24 pixcels.}
+
+\item{title.font.family}{character. Font family of the chart title, defaults to "sans-serif".}
+
+\item{title.font.color}{An RGB character to set the color of the chart title. Defaults to "#000000".}
 }
 \description{
 Create interactive d3.js visualizations of hierarchical data combining

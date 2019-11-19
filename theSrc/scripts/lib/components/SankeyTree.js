@@ -1,5 +1,6 @@
 import d3 from 'd3'
 import _ from 'lodash'
+import BaseComponent from './baseComponent'
 import { createClTips, createRgTips } from './tooltipContent'
 import { splitIntoLinesByWord } from './../labelUtils'
 const d3Tip = require('d3-tip')
@@ -12,10 +13,10 @@ const ID = 'id'
 const NAME = 'name'
 const VALUE = 'value'
 const CHILDREN = 'sankeyChildren' // 'children' is a reserved field that d3.tree will manipulate, so dont use it !
-const STATE_VERSION = 1
 
-class SankeyTree {
+class SankeyTree extends BaseComponent {
   constructor ({ parentContainer, config, data, plotState }) {
+    super()
     this.rootElement = parentContainer
     this.plotState = plotState
     this.updateContainerDimensions()
@@ -40,9 +41,7 @@ class SankeyTree {
         transitionDuration: 400,
         treeMargins: { top: 5, left: 10, bottom: 5, right: 10 }
       },
-      parts: {
-        baseSvg: this.rootElement // TODO figure out which, i dont need both
-      }
+      parts: {}
     })
 
     // bind listeners to self so they can be invoked without losing access to class instance
@@ -92,7 +91,11 @@ class SankeyTree {
     this.computeThings()
     const { plotState, data, opts, computed, parts, height, width, constants: { minZoom, maxZoom } } = this
 
-    // YOU ARE HERE
+    parts.baseSvg = this.rootElement
+      .append('g')
+      .attr('class', 'viewport')
+      .attr('transform', this.buildTransform(bounds))
+
     this.baseSvgRectInfo = adjustedClientRect(parts.baseSvg.node())
 
     parts.tree = d3.layout.tree()
@@ -570,70 +573,6 @@ class SankeyTree {
       .max()
   }
 
-  static defaultState () {
-    return _.cloneDeep({
-      widget: SankeyTree.widgetName,
-      version: 1,
-      normalisedData: {},
-      plotSize: { width: null, height: null },
-      zoom: null, // null indicates unset
-      collapsed: {}
-    })
-  }
-
-  setState (previousState) {
-    if (this.checkState(previousState)) {
-      this.plotState.initialiseState(previousState)
-    } else {
-      this.resetState()
-    }
-  }
-
-  checkState (previousState) {
-    const previousRootname = _.get(previousState, 'normalisedData.name')
-    const currentRootname = this.data.name
-    console.log(`comparing state. Previous state root name '${previousRootname}'. Current data root name '${currentRootname}'`)
-
-    const previousSnapshotTimestamp = _.get(previousState, 'timestamp')
-    if (previousSnapshotTimestamp) {
-      console.log(`previous state is ${(Date.now() - previousSnapshotTimestamp) / 1000} seconds old`)
-    } else {
-      console.log(`previous state has no timestamp`)
-    }
-
-    const { constants: { stateResizeTolerance } } = this
-    const isSankeyState = (_.get(previousState, 'widget') === SankeyTree.widgetName)
-    const isCorrectVersion = (_.get(previousState, 'version') === STATE_VERSION)
-    const dataIsSame = _.isEqual(this.data, _.get(previousState, 'normalisedData'))
-
-    const { width, height } = this
-    const { width: stateWidth, height: stateHeight } = _.get(previousState, 'plotSize', {})
-
-    // TODO only do partial reset of state on resize
-    const isSameSize = (Math.abs(stateWidth - width) <= stateResizeTolerance) && (Math.abs(stateHeight - height) <= stateResizeTolerance)
-
-    console.log(`checkState. isSankeyState: ${isSankeyState}, isCorrectVersion: ${isCorrectVersion}, dataIsSame: ${dataIsSame}, isSameSize: ${isSameSize}, `)
-    if (!dataIsSame) {
-      console.log('state saved data', _.get(previousState, 'normalisedData'))
-      console.log('current normalised data', this.data)
-    }
-
-    if (!isSameSize) {
-      console.log(`stateWidth: ${stateWidth}, width: ${width}, stateHeight: ${stateHeight}, height: ${height}`)
-    }
-
-    return isSankeyState && isCorrectVersion && dataIsSame && isSameSize
-  }
-
-  resetState () {
-    const { width, height, data: normalisedData } = this
-    this.plotState.setState(_.merge({}, SankeyTree.defaultState(), { normalisedData, plotSize: { width, height } }))
-  }
-
-  addStateListener (listener) {
-    this.registeredStateListeners.push(this.plotState.addListener(listener))
-  }
-
   _showTooltip ({ html, d, addTipToThisElement }) {
     const { parts, width } = this
     const { tip, tipTriangle } = parts
@@ -687,15 +626,6 @@ class SankeyTree {
     } else if (tipVariables.tipLeft + tipVariables.triangleLeftOffset > this.baseSvgRectInfo.left + width - 10) {
       tipTriangle.style('left', `${this.baseSvgRectInfo.left + width - 15}px`)
     }
-
-    // NB I dont think this code is needed
-    // if (tipVariables.tipTop < this.baseSvgRectInfo.top) {
-    //   tip.style('top', `${this.baseSvgRectInfo.top}px`)
-    //   tipTriangle.style('top', `${this.baseSvgRectInfo.top + tipVariables.triangleTopOffset}px`)
-    // } else if (tipVariables.tipTop + tipHeight > this.baseSvgRectInfo.top + height) {
-    //   tip.style('top', `${this.baseSvgRectInfo.top + height - tipHeight - 5}px`)
-    //   tipTriangle.style('top', `${this.baseSvgRectInfo.top + height - tipHeight - 5 + tipVariables.triangleTopOffset}px`)
-    // }
   }
 
   showNodeTooltip (d) {

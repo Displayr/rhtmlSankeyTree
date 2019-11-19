@@ -5,7 +5,7 @@ import PlotState from './SankeyTree/plotState'
 import buildConfig from './SankeyTree/buildConfig'
 import { Layout, CellNames } from './layout'
 
-import SankeyTree from './components/sankeyTree'
+import SankeyTree from './components/SankeyTree'
 import Title from './components/title'
 
 const ID = 'id'
