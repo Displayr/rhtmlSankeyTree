@@ -1,0 +1,10 @@
+version: 1
+title: all pieces of text that can wrap are wrapped
+general_comments: []
+width: 700
+height: 700
+rowSize: 1
+type: single_widget_single_page
+comments: []
+data: 'data.functional_tests.minimal'
+config: 'config.title_enabled|config.subtitle_enabled|config.footer_enabled|config.all_text_wrapping'

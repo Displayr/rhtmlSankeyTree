@@ -1,4 +1,6 @@
 {
-  "footer": "Footer Text"
+  "opts": {
+    "footer": "Footer Text"
+  }
 }
 

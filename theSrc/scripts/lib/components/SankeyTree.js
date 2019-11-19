@@ -501,7 +501,7 @@ class SankeyTree {
     // apply the new scale and maintain the translation, then calculate the new translation
     const scaledTreeDimensions = this._getContentSizeAtSpecificZoom({ scale: newScale, translate: svgTrans.translate })
 
-    const rootOffset = adjustedClientRect(rootElement)
+    const rootOffset = adjustedClientRect(rootElement.node())
 
     return {
       scale: newScale,

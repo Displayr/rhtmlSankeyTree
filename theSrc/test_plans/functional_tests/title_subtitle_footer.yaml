@@ -1,0 +1,12 @@
+version: 1
+title: title/subtitle/footer variations
+general_comments: []
+width: 500
+height: 600
+rowSize: 4
+type: single_page_one_example_per_config
+comments: []
+data: data.functional_tests.minimal
+config:
+  - 'config.title_enabled|config.subtitle_enabled|config.footer_enabled'
+  - 'config.title_enabled|config.title_font_32_red_fantasy|config.subtitle_enabled|config.subtitle_font_32_red_fantasy|config.footer_enabled|config.footer_font_32_red_fantasy'

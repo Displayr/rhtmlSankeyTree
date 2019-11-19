@@ -1,5 +1,7 @@
 {
-  "titleFontSize": 32,
-  "titleFontFamily": "fantasy",
-  "titleFontColor": "red"
+  "opts": {
+    "titleFontSize": 32,
+    "titleFontFamily": "fantasy",
+    "titleFontColor": "red"
+  }
 }

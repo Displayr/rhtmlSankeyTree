@@ -1,6 +1,8 @@
 {
-  "footerFontSize": 32,
-  "footerFontFamily": "fantasy",
-  "footerFontColor": "red"
+  "opts": {
+    "footerFontSize": 32,
+    "footerFontFamily": "fantasy",
+    "footerFontColor": "red"
+  }
 }
 

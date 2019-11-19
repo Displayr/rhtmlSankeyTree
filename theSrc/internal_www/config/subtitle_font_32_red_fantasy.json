@@ -1,5 +1,7 @@
 {
-  "subtitleFontSize": 32,
-  "subtitleFontFamily": "fantasy",
-  "subtitleFontColor": "red"
+  "opts": {
+    "subtitleFontSize": 32,
+    "subtitleFontFamily": "fantasy",
+    "subtitleFontColor": "red"
+  }
 }

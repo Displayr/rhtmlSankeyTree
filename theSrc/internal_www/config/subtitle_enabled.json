@@ -1,3 +1,5 @@
 {
-  "subtitle": "Subtitle Text"
+  "opts": {
+    "subtitle": "Subtitle Text"
+  }
 }
