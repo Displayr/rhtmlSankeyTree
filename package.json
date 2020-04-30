@@ -16,7 +16,7 @@
     "babel-polyfill": "6.26.0",
     "d3": "3.5.6",
     "d3-tip": "github:Displayr/d3-tip#v3.0.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "lodash": "^4.17.11",
     "loglevel": "^1.6.1"
   }
