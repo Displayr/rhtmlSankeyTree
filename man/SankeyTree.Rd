@@ -4,11 +4,22 @@
 \alias{SankeyTree}
 \title{Interactive d3.js Sankey Tree Visualization}
 \usage{
-SankeyTree(data = NULL, name = "name", id = "id", value = "size",
-  childrenName = "children", maxLabelLength = 25, nodeHeight = 100,
-  tooltip = NULL, treeColors = FALSE, categoryLegend = FALSE,
-  terminalDescription = FALSE, numeric.distribution = TRUE,
-  width = NULL, height = NULL)
+SankeyTree(
+  data = NULL,
+  name = "name",
+  id = "id",
+  value = "size",
+  childrenName = "children",
+  maxLabelLength = 25,
+  nodeHeight = 100,
+  tooltip = NULL,
+  treeColors = FALSE,
+  categoryLegend = FALSE,
+  terminalDescription = FALSE,
+  numeric.distribution = TRUE,
+  width = NULL,
+  height = NULL
+)
 }
 \arguments{
 \item{data}{Input. Should be a list with fields specified below.}
