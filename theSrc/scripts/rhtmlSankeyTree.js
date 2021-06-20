@@ -6,5 +6,5 @@ import widgetFactory from './rhtmlSankeyTree.factory'
 HTMLWidgets.widget({
   name: 'rhtmlSankeyTree',
   type: 'output',
-  factory: widgetFactory
+  factory: widgetFactory,
 })

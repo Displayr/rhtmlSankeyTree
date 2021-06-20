@@ -59,9 +59,9 @@ class Sankey {
         maxLines: 5, // must be odd <-- (NB have not verified this comment ...)
         maxCollisionResolutionAttempts: 7,
         transitionDuration: 400,
-        treeMargins: { top: 5, left: 10, bottom: 5, right: 10 }
+        treeMargins: { top: 5, left: 10, bottom: 5, right: 10 },
       },
-      parts: {}
+      parts: {},
     })
   }
 
@@ -87,7 +87,7 @@ class Sankey {
         regressionData: { // for regression tooltips
           ...(node.y && { y: node.y }),
           ...(node.y0 && { y0: node.y0 }),
-          ...(node.n && { n: node.n })
+          ...(node.n && { n: node.n }),
         },
         [ID]: `${(node[opts.id || ID] || idIterator++)}`.replace(/ /g, ''),
         [NAME]: node[opts.name || NAME],
@@ -95,7 +95,7 @@ class Sankey {
         [CHILDREN]: _(node[opts.childrenName] || node[CHILDREN] || node._children).map(extractAndRecurse).value(),
         terminalDescription: node.terminalDescription,
         color: node.color,
-        n: node.n
+        n: node.n,
       }
     }
 
@@ -117,7 +117,7 @@ class Sankey {
     _.assign(this.computed, {
       nodeHeightRatio,
       maxLabelLength,
-      meanLabelLength
+      meanLabelLength,
     })
   }
 
@@ -187,7 +187,7 @@ class Sankey {
   setZoom ({ scale, translate }, showTransition = false) {
     const {
       parts: { svgGroup },
-      constants: { transitionDuration }
+      constants: { transitionDuration },
     } = this
 
     const conditionallyAddTransition = (selection) => (showTransition)
@@ -218,8 +218,8 @@ class Sankey {
         nodeTextDx,
         nodeRectWidth,
         maxLines,
-        maxCollisionResolutionAttempts
-      }
+        maxCollisionResolutionAttempts,
+      },
     } = this
 
     // Compute the new height, function counts total children of root node and sets tree height accordingly.
@@ -250,7 +250,7 @@ class Sankey {
 
     function toggleNodeDisplay (d) {
       const {
-        constants: { transitionDuration }
+        constants: { transitionDuration },
       } = this
 
       if (d3.event.defaultPrevented) return // click suppressed
@@ -297,7 +297,7 @@ class Sankey {
           fontSize: nameFontSize,
           fontFamily: nameFontFamily,
           maxWidth: maxLabelLength * pxPerChar - nodeTextDx - nodeRectWidth,
-          maxLines
+          maxLines,
         })
 
         const self = d3.select(this)
@@ -348,7 +348,7 @@ class Sankey {
             fontSize: nameFontSize,
             fontFamily: nameFontFamily,
             maxWidth: maxLabelLength * pxPerChar - nodeTextDx - nodeRectWidth,
-            maxLines
+            maxLines,
           })
 
           const self = d3.select(this)
@@ -388,7 +388,7 @@ class Sankey {
             bottom: d.x + this.getBBox().height / 2,
             rectLeft: d.y - nodeRectWidth / 2,
             rectTop: d.x - this.parentNode.getBBox().height / 2,
-            rectBottom: d.x + this.parentNode.getBBox().height / 2
+            rectBottom: d.x + this.parentNode.getBBox().height / 2,
           }
         })
 
@@ -399,7 +399,7 @@ class Sankey {
             d.termTextPos = {
               right: d.y + nodeRectWidth / 2 + nodeTextDx + width,
               top: d.x - height / 2,
-              bottom: d.x + height / 2
+              bottom: d.x + height / 2,
             }
           }
         })
@@ -431,7 +431,7 @@ class Sankey {
   updateNodesAndLinks (node, link, links, source, wscale, showTransition) {
     const {
       parts: { diagonal },
-      constants: { transitionDuration }
+      constants: { transitionDuration },
     } = this
 
     const conditionallyAddTransition = (selection) => (showTransition)
@@ -508,7 +508,7 @@ class Sankey {
 
   _getContentSizeAtSpecificZoom (zoom) {
     const {
-      parts: { svgGroup }
+      parts: { svgGroup },
     } = this
 
     let currentTransformSettings = d3.transform(svgGroup.attr('transform'))
@@ -525,7 +525,7 @@ class Sankey {
       height,
       parts: { svgGroup },
       constants: { treeMargins },
-      rootElement
+      rootElement,
     } = this
 
     // reset the scale to 1 and maintain the translation, then sample the dimensions
@@ -547,8 +547,8 @@ class Sankey {
       scale: newScale,
       translate: [
         (width / 2 - scaledTreeDimensions.width / 2) - scaledTreeDimensions.left + svgTrans.translate[0] + rootOffset.x,
-        (height / 2 - scaledTreeDimensions.height / 2) - scaledTreeDimensions.top + svgTrans.translate[1] + rootOffset.y
-      ]
+        (height / 2 - scaledTreeDimensions.height / 2) - scaledTreeDimensions.top + svgTrans.translate[1] + rootOffset.y,
+      ],
     }
   }
 
@@ -622,7 +622,7 @@ class Sankey {
       normalisedData: {},
       plotSize: { width: null, height: null },
       zoom: null, // null indicates unset
-      collapsed: {}
+      collapsed: {},
     })
   }
 
@@ -700,7 +700,7 @@ class Sankey {
         tipTop: clientRect.top - (triangleHeight + padding) - tipHeight,
         triangleTopOffset: tipHeight,
         tipLeft: (clientRect.left + clientRect.width / 2) - (tipWidth / 2),
-        triangleLeftOffset: tipWidth / 2 - padding
+        triangleLeftOffset: tipWidth / 2 - padding,
       }
     } else {
       tipVariables = {
@@ -708,7 +708,7 @@ class Sankey {
         tipTop: clientRect.bottom + (triangleHeight + padding),
         triangleTopOffset: -triangleHeight,
         tipLeft: (clientRect.left + clientRect.width / 2) - (tipWidth / 2),
-        triangleLeftOffset: tipWidth / 2 - padding
+        triangleLeftOffset: tipWidth / 2 - padding,
       }
     }
 
