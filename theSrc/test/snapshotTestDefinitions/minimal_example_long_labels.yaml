@@ -1,0 +1,6 @@
+version: 1
+groupname: examples
+type: single_widget_single_page
+width: 750
+height: 750
+data: data.minimal_example_long_labels

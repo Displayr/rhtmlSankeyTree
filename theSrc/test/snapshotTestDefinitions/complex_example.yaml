@@ -1,0 +1,6 @@
+version: 1
+groupname: examples
+type: single_widget_single_page
+width: 600
+height: 600
+data: data.complex_example

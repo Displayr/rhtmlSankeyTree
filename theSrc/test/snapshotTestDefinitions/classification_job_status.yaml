@@ -1,0 +1,6 @@
+version: 1
+groupname: examples
+type: single_widget_single_page
+width: 1000
+height: 500
+data: data.classification_job_status
