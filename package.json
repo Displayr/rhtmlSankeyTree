@@ -1,23 +1,31 @@
 {
   "private": true,
   "engines": {
-    "node": ">=12.9.1"
+    "node": ">=12"
   },
   "scripts": {
     "prepush": "node ./bin/prepush",
-    "test": "gulp testSpecs && gulp testVisual"
+    "test": "npm run localTest",
+    "localTest": "gulp testSpecs && gulp testVisual --env=local --branch=`git rev-parse --abbrev-ref HEAD`",
+    "travisTest": "gulp testSpecs && gulp testVisual --env=travis --branch=$BRANCH",
+    "gatherDiffs": "rm -rf .tmp/diffs; mkdir -p .tmp/diffs/; BRANCH=`git rev-parse --abbrev-ref HEAD` && for I in `find theSrc/test/snapshots/local/$BRANCH -type d -name __diff_output__`; do cp $I/* .tmp/diffs/ 2> /dev/null; done; true",
+    "gatherMasterDiffs": "rm -rf .tmp/diffs; mkdir -p .tmp/diffs/; for I in `find theSrc/test/snapshots/local/master -type d -name __diff_output__`; do cp $I/* .tmp/diffs/ 2> /dev/null; done; true",
+    "macOpenDiffs": "open .tmp/diffs",
+    "seeDiffs": "npm run gatherDiffs; npm run macOpenDiffs",
+    "seeMasterDiffs": "npm run gatherMasterDiffs; npm run macOpenDiffs",
+    "deleteDiffs": "find theSrc/test/snapshots -iname '__diff_output__' | xargs rm -rf"
   },
   "devDependencies": {
     "gulp": "^4.0.2",
     "husky": "0.13.3",
-    "rhtmlBuildUtils": "github:Displayr/rhtmlBuildUtils#4.0.3"
+    "rhtmlBuildUtils": "github:Displayr/rhtmlBuildUtils#7.0.3"
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",
     "d3": "3.5.6",
     "d3-tip": "github:Displayr/d3-tip#v3.0.0",
     "jquery": "^3.5.1",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "loglevel": "^1.6.1"
   }
 }
