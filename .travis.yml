@@ -1,11 +1,20 @@
 language: node_js
 node_js:
-  - "8"
+  - "12"
 sudo: required
-dist: trusty
+dist: xenial
 addons:
   chrome: stable
+  artifacts:
+    debug: false
+    paths:
+      - theSrc/test/snapshots/travis
 before_install:
   - sudo apt-get update
+before_script:
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 script:
-  - true
+  - export ENV="travis"
+  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+  - google-chrome-stable --version
+  - npm run travisTest

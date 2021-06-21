@@ -1,11 +1,13 @@
-.RData
-man/.Rapp.history
 .DS_Store
+.RData
 .Rbuildignore
 .Rhistory
 .Rproj.user
-node_modules
-browser
 .idea
 .keys
 .tmp
+__diff_output__
+browser
+man/.Rapp.history
+node_modules
+theSrc/internal_www/scratch.html

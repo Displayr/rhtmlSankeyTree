@@ -64,7 +64,7 @@ function splitIntoLinesByWord ({ parentContainer, text, fontSize = 12, fontFamil
     maxLines,
     tokens,
     joinCharacter: ' ',
-    rotation
+    rotation,
   })
 }
 
@@ -81,7 +81,7 @@ function splitIntoLinesByCharacter ({ parentContainer, text, fontSize = 12, font
     maxLines,
     tokens,
     joinCharacter: '',
-    rotation
+    rotation,
   })
 }
 
@@ -102,7 +102,7 @@ function _splitIntoLines ({ parentContainer, text, fontSize = 12, fontFamily = '
     fontSize,
     fontFamily,
     fontWeight,
-    rotation
+    rotation,
   })
   const getDimensionsFromArray = (tokenArray) => getDimensionsFromString(tokenArray.join(joinCharacter))
   const getDimensions = (arrayOrString) => (_.isArray(arrayOrString))
@@ -182,5 +182,5 @@ function _splitIntoLines ({ parentContainer, text, fontSize = 12, fontFamily = '
 module.exports = {
   getLabelDimensionsUsingSvgApproximation,
   splitIntoLinesByWord,
-  splitIntoLinesByCharacter
+  splitIntoLinesByCharacter,
 }

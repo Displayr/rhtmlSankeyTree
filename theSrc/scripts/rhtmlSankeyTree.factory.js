@@ -42,6 +42,6 @@ module.exports = function (element, ignoredWidth, ignoredHeight, stateChangedFn 
       configCopy = _.cloneDeep(config)
       stateCopy = _.cloneDeep(state)
       return doRenderValue(config, state)
-    }
+    },
   }
 }
