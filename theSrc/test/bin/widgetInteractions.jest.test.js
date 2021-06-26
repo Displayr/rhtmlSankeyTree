@@ -33,9 +33,6 @@ describe('widget_interactions', () => {
   })
 
   test('a new widget correctly generates and saves state', async function () {
-    console.log('process.env.CI', process.env.CI)
-    console.log('process.env.TRAVIS', process.env.TRAVIS)
-
     const { page } = await loadWidget({
       browser,
       configName: 'data.functional_tests.minimal_example',
