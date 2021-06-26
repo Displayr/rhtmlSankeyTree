@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "gulp": "^4.0.2",
-    "husky": "0.13.3"
+    "husky": "0.13.3",
+    "rhtmlBuildUtils": "github:Displayr/rhtmlBuildUtils#7.1.1"
   },
   "dependencies": {
     "babel-polyfill": "6.26.0",
@@ -27,8 +28,7 @@
     "d3-tip": "github:Displayr/d3-tip#v3.0.0",
     "jquery": "^3.5.1",
     "lodash": "^4.17.21",
-    "loglevel": "^1.6.1",
-    "rhtmlBuildUtils": "github:Displayr/rhtmlBuildUtils#7.1.0"
+    "loglevel": "^1.6.1"
   },
   "resolutions": {
     "glob-parent": "5.1.2",
