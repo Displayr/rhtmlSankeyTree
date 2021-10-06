@@ -125,6 +125,8 @@ class Sankey {
     this.computeThings()
     const { plotState, data, opts, computed, parts, height, width, constants: { minZoom, maxZoom } } = this
 
+    this.rootElement.setAttribute('rhtmlwidget-status', 'loading')
+
     parts.baseSvg = d3.select(this.rootElement)
       .append('svg')
       .attr('id', this.id)
@@ -181,6 +183,8 @@ class Sankey {
 
     const zoom = this.plotState.getZoom() || this.calculateNewZoom()
     this.setZoom(zoom)
+
+    this.rootElement.setAttribute('rhtmlwidget-status', 'ready')
   }
 
   // TODO make the transition param not suck

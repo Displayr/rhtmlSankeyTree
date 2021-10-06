@@ -9,7 +9,7 @@ const config = {
     statePreprocessor: (state) => _.omit(state, ['timestamp']),
     includeDimensionsOnWidgetDiv: true,
     default_border: false,
-    isReadySelector: 'svg.svg-content-responsive',
+    isReadySelector: 'div[rhtmlwidget-status=ready]',
     css: [
       '/style/rhtmlSankeyTree.css',
     ],
