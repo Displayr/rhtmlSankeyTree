@@ -259,11 +259,11 @@ class Sankey {
 
       if (d3.event.defaultPrevented) return // click suppressed
 
+      this.plotState.toggleNodeDisplay(d[ID])
       this.hideTooltip()
       this.update({ transitionOrigin: d, showTransition: true })
 
       setTimeout(() => {
-        // this.plotState.toggleNodeDisplay(d[ID])
         let newZoom = this.calculateNewZoom()
         this.setZoom(newZoom, true)
       }, transitionDuration + 10)

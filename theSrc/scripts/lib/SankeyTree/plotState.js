@@ -59,12 +59,12 @@ class PlotState {
 
   collapseNode (id) {
     this.state.collapsed[id] = true
-    this.callListeners()
+    // this.callListeners()
   }
 
   expandNode (id) {
     delete this.state.collapsed[id]
-    this.callListeners()
+    // this.callListeners()
   }
 
   getZoom () {
