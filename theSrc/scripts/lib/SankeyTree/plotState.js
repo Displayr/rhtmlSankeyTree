@@ -57,14 +57,16 @@ class PlotState {
     return (this.isNodeCollapsed(id)) ? this.expandNode(id) : this.collapseNode(id)
   }
 
+  // We do not call listeners after collapsing and expanding nodes as a setTimeout is called
+  // which calls setZoom (after the transition animation) which calls listeners.
+  // If listeners were called here, the node and zoom state could become inconsistent if
+  // the user navigated away from the page (VIS-522).
   collapseNode (id) {
     this.state.collapsed[id] = true
-    // this.callListeners()
   }
 
   expandNode (id) {
     delete this.state.collapsed[id]
-    // this.callListeners()
   }
 
   getZoom () {
