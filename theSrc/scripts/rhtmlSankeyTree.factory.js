@@ -4,7 +4,7 @@ import _ from 'lodash'
 // ATTRIBUTION:  much of this JavaScript code
 //  came from http://bl.ocks.org/robschmuecker/0f29a2c867dcb1b44d18
 
-const STATE_CALLBACK_DEBOUNCE_INTERVAL = 1
+const STATE_CALLBACK_DEBOUNCE_INTERVAL = 250
 
 // Sankey determines height by inspecting element, so the passed wxh values are ignored
 module.exports = function (element, ignoredWidth, ignoredHeight, stateChangedFn = _.noop) {
