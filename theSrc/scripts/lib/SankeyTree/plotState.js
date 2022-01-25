@@ -74,6 +74,7 @@ class PlotState {
   setZoom ({ scale, translate }) {
     this.state.zoom = { scale, translate }
     this.callListeners()
+    console.log({ scale, translate })
   }
 }
 
