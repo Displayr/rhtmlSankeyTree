@@ -8,6 +8,8 @@ License: GPL-3 + file LICENSE
 LazyData: true
 URL: https://github.com/timelyportfolio/sankeytree
 BugReports: https://github.com/timelyportfolio/sankeytree/issues
+Imports:
+ htmlwidgets 
 Suggests: 
-    testthat
+ testthat
 RoxygenNote: 7.1.1
