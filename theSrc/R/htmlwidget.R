@@ -10,10 +10,14 @@
 #' @param maxLabelLength Integer. Line wrapping will occur when the label of the node has width more than this value * 8 (pixels per char). Defaults to 25.
 #' @param nodeHeight Height of each node in pixels. Defaults to 100 pixels.
 #' @param tooltip Tooltip to attach to each node.
+#' @param treeColors TODO. not used. remove from callees
+#' @param categoryLegend TODO. not used. remove from callees
 #' @param terminalDescription Logical. Add description for terminal nodes? Defaults to FALSE.
 #' @param numeric.distribution Logical. Show numerical distribution for each node? If regression tree, then a histogram is plotted. If classification tree, then a horizontal bar plot is drawn. Defaults to TRUE.
-#' 
-#' 
+#' @param width The width of the generated widget.
+#' @param height The height of the generated widget.
+#'
+#'
 #' @import htmlwidgets
 #'
 #' @export
@@ -30,7 +34,7 @@ SankeyTree <- function(
   categoryLegend = FALSE, # TODO. not used. remove from callees
   terminalDescription = FALSE,
   numeric.distribution = TRUE,
-  width = NULL, 
+  width = NULL,
   height = NULL) {
 
   # forward options using x
