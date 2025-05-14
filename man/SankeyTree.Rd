@@ -38,9 +38,17 @@ SankeyTree(
 
 \item{tooltip}{Tooltip to attach to each node.}
 
+\item{treeColors}{TODO. not used. remove from callees}
+
+\item{categoryLegend}{TODO. not used. remove from callees}
+
 \item{terminalDescription}{Logical. Add description for terminal nodes? Defaults to FALSE.}
 
 \item{numeric.distribution}{Logical. Show numerical distribution for each node? If regression tree, then a histogram is plotted. If classification tree, then a horizontal bar plot is drawn. Defaults to TRUE.}
+
+\item{width}{The width of the generated widget.}
+
+\item{height}{The height of the generated widget.}
 }
 \description{
 Create interactive d3.js visualizations of hierarchical data combining

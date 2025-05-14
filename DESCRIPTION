@@ -12,4 +12,4 @@ Imports:
  htmlwidgets 
 Suggests: 
  testthat
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.2
