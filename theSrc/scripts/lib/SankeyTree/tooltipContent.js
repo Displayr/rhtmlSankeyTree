@@ -4,6 +4,15 @@ import _ from 'lodash'
 const realFormatter = d3.format(',.1f')
 const intFormatter = d3.format(',d')
 
+function escapeHtml (value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function createClTips (data, scale) {
   if (data.nodeDistribution) {
     let rowData = _.zip(data.nodeDistribution, data.nodeVariables, data.nodeDistribution.map(scale))
@@ -23,7 +32,7 @@ function createCLTipRow ([distribution, variable, scaledDistribution]) {
   return `
     <tr>
       <td class='tipDClassification num' style='white-space:nowrap;'>${intFormatter(Math.round(distribution * 100))}%</td>
-      <td class='tipDClassification' style='white-space:nowrap;'>${variable}</td>
+      <td class='tipDClassification' style='white-space:nowrap;'>${escapeHtml(variable)}</td>
       <td class='tipDClassification' style='white-space:nowrap;'>
         <div style='width:${scaledDistribution}px;height:8px;background-color:steelblue'></div>
       </td>
@@ -165,4 +174,4 @@ function createRgTableColumn (index, columnData, maxL) {
   return parts.join('')
 }
 
-module.exports = { createClTips, createRgTips }
+module.exports = { createClTips, createRgTips, escapeHtml }
