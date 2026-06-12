@@ -1,7 +1,7 @@
 import d3 from 'd3'
 import _ from 'lodash'
 import PlotState from './plotState'
-import { createClTips, createRgTips } from './tooltipContent'
+import { createClTips, createRgTips, escapeHtml } from './tooltipContent'
 import { splitIntoLinesByWord } from './../labelUtils'
 const d3Tip = require('d3-tip')
 d3Tip(d3)
@@ -770,7 +770,7 @@ class Sankey {
     const { parts } = this
 
     const addTipToThisElement = parts.baseSvg.select(`#nodeTextBg${d[ID]}`)
-    let html = `<div class="tipTruncatedTextContainer">${d[NAME]}</div>`
+    let html = `<div class="tipTruncatedTextContainer">${escapeHtml(d[NAME])}</div>`
     this._showTooltip({ html, d, addTipToThisElement })
   }
 
@@ -778,7 +778,7 @@ class Sankey {
     const { parts } = this
 
     const addTipToThisElement = parts.baseSvg.select(`#terminal${d[ID]}`)
-    let html = `<div class="tipTruncatedTextContainer">${d.terminalDescription}</div>`
+    let html = `<div class="tipTruncatedTextContainer">${escapeHtml(d.terminalDescription)}</div>`
     this._showTooltip({ html, d, addTipToThisElement })
   }
 
